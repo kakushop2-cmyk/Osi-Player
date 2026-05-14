@@ -8,6 +8,7 @@ import com.nativeplayer.data.model.EpgItem
 import com.nativeplayer.data.model.FavoriteEntity
 import com.nativeplayer.data.repository.FavoriteRepository
 import com.nativeplayer.data.repository.IptvRepository
+import com.nativeplayer.data.repository.PreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LiveViewModel @Inject constructor(
     private val repository: IptvRepository,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
     private val _categories = MutableStateFlow<List<Category>>(emptyList())
     val categories: StateFlow<List<Category>> = _categories.asStateFlow()
@@ -142,4 +144,7 @@ class LiveViewModel @Inject constructor(
         _categories.value = _categories.value.map { if (it.name == cat.name) updated else it }
         repository.reorderChannelsInCategory(cat.name, channels.map { it.id })
     }
+
+    /** Gibt die konfigurierte Puffergröße aus den Player-Einstellungen zurück. */
+    fun getBufferSizeSeconds(): Int = preferencesManager.getPlayerSettings().bufferSizeSeconds
 }

@@ -116,7 +116,7 @@ fun LiveScreen(
         }
         if (sv == null) return@LaunchedEffect
         playerManager?.release()
-        playerManager = PlayerManager(context).also {
+        playerManager = PlayerManager(context, viewModel.getBufferSizeSeconds()).also {
             it.initialize(channel.url, sv)
             it.play()
         }

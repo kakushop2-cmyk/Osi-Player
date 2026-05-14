@@ -29,7 +29,11 @@ class PlayerManager(
             release()
         }
         // DefaultLoadControl mit konfigurierter Puffergröße (in Sekunden → ms umrechnen)
-        val bufferMs = bufferSizeSeconds * 1_000
+        // maxBufferMs muss >= minBufferMs sein (DEFAULT_MIN_BUFFER_MS = 50_000 ms)
+        val bufferMs = maxOf(
+            DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
+            bufferSizeSeconds * 1_000
+        )
         val loadControl = DefaultLoadControl.Builder()
             .setBufferDurationsMs(
                 /* minBufferMs = */ DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
