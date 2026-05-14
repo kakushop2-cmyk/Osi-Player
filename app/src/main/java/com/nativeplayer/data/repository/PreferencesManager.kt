@@ -3,6 +3,7 @@ package com.nativeplayer.data.repository
 import android.content.SharedPreferences
 import com.nativeplayer.data.model.Account
 import com.nativeplayer.data.model.AccountSettings
+import com.nativeplayer.data.model.PlayerSettings
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
@@ -18,6 +19,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_ACCOUNTS = "accounts"
         private const val KEY_ACTIVE_ACCOUNT = "active_account"
         private const val KEY_M3U_URL = "m3u_url"
+        private const val KEY_PLAYER_SETTINGS = "player_settings"
     }
 
     fun saveAccount(account: Account) {
@@ -141,5 +143,21 @@ class PreferencesManager @Inject constructor(
             val t = object : TypeToken<List<String>>() {}.type
             gson.fromJson(json, t)
         } catch (e: Exception) { null }
+    }
+
+    // ── Player Settings ───────────────────────────────────────
+
+    fun getPlayerSettings(): PlayerSettings {
+        val json = prefs.getString(KEY_PLAYER_SETTINGS, null) ?: return PlayerSettings()
+        return try {
+            gson.fromJson(json, PlayerSettings::class.java) ?: PlayerSettings()
+        } catch (e: Exception) {
+            PlayerSettings()
+        }
+    }
+
+    fun savePlayerSettings(settings: PlayerSettings) {
+        val json = gson.toJson(settings)
+        prefs.edit().putString(KEY_PLAYER_SETTINGS, json).apply()
     }
 }
