@@ -12,6 +12,7 @@ import com.nativeplayer.ui.series.SeriesDetailScreen
 import com.nativeplayer.ui.player.PlayerScreen
 import com.nativeplayer.ui.search.SearchScreen
 import com.nativeplayer.ui.settings.SettingsScreen
+import com.nativeplayer.ui.settings.PlayerSettingsScreen
 import com.nativeplayer.ui.splash.SplashScreen
 
 @Composable
@@ -24,6 +25,10 @@ fun NavGraph(navController: NavHostController) {
 
         composable(Screen.Settings.route) {
             SettingsScreen(navController = navController)
+        }
+
+        composable(Screen.PlayerSettings.route) {
+            PlayerSettingsScreen(navController = navController)
         }
 
         composable(Screen.Home.route) {

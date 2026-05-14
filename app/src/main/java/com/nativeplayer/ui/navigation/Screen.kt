@@ -11,6 +11,7 @@ sealed class Screen(val route: String) {
         fun createRoute(seriesId: String) = "series_detail/$seriesId"
     }
     data object Search : Screen("search")
+    data object PlayerSettings : Screen("player_settings")
     data object FullScreenPlayer : Screen("player/{type}/{url}?contentId={contentId}&title={title}&resumePosition={resumePosition}&imageUrl={imageUrl}") {
         fun createRoute(
             url: String,
