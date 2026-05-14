@@ -1,0 +1,100 @@
+<h2>Welche Design-Richtung soll der OSI IPTV Player einschlagen?</h2>
+<p class="subtitle">Die App ist aktuell ein funktionaler, aber visuell schlichter IPTV-Player mit Dark-Only-Theme. Wähle den gewünschten Look & Feel.</p>
+
+<div class="cards">
+  <div class="card" data-choice="content-first" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup" style="background:#0d1117;min-height:180px;display:flex;flex-direction:column;padding:12px;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;color:#e6edf3;font-weight:600;font-size:14px;">Live TV <span style="font-size:12px;color:#8b949e;">🔍</span></div>
+        <div style="display:flex;gap:8px;flex:1;">
+          <div style="width:30%;background:#161b22;border-radius:8px;padding:6px;color:#8b949e;font-size:10px;">Kategorien</div>
+          <div style="width:30%;background:#161b22;border-radius:8px;padding:6px;color:#8b949e;font-size:10px;">Sender</div>
+          <div style="width:40%;background:#161b22;border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:4px;">
+            <div style="background:#21262d;flex:1;border-radius:4px;"></div>
+            <div style="color:#e6edf3;font-size:10px;">ZDF HD • Jetzt läuft</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Content-First & Minimal</h3>
+      <p>Reduzierte UI, Inhalte stehen im Vordergrund. Subtile Farben, viel Weißraum, klare Typografie. Ideal für Nutzer, die fokussiert konsumieren wollen.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Höchste Content-Sichtbarkeit</li><li>Weniger Ablenkung</li><li>Zeitloses Design</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Kann steril wirken</li><li>Wenig Marken-Identität</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="vibrant-entertainment" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup" style="background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);min-height:180px;display:flex;flex-direction:column;padding:12px;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;color:#fff;font-weight:700;font-size:14px;background:linear-gradient(90deg,#e94560,#3d5afe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Live TV <span style="font-size:12px;">🔍</span></div>
+        <div style="display:flex;gap:8px;flex:1;">
+          <div style="width:30%;background:rgba(255,255,255,0.06);border-radius:8px;padding:6px;color:#a0aec0;font-size:10px;border:1px solid rgba(233,69,96,0.3);">Trending</div>
+          <div style="width:30%;background:rgba(255,255,255,0.06);border-radius:8px;padding:6px;color:#a0aec0;font-size:10px;">HD Sender</div>
+          <div style="width:40%;background:linear-gradient(135deg,rgba(233,69,96,0.2),rgba(61,90,254,0.2));border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:4px;border:1px solid rgba(233,69,96,0.3);">
+            <div style="background:linear-gradient(135deg,#e94560,#c23152);flex:1;border-radius:4px;"></div>
+            <div style="color:#fff;font-size:10px;font-weight:600;">ZDF HD ✦ Live</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Vibrant & Entertainment-Fokus</h3>
+      <p>Bunte Akzente, lebendige Farbverläufe, modernes Entertainment-Feeling. Ähnelt Streaming-Apps wie Netflix/Disney+.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Hohe emotionale Ansprache</li><li>Vertrautes Streaming-Feeling</li><li>Starke Markenidentität</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Kann bei dunklen Szenen blenden</li><li>Höherer Entwicklungsaufwand</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="premium-dark" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup" style="background:#0a0a0f;min-height:180px;display:flex;flex-direction:column;padding:12px;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;color:#f0f0f0;font-weight:500;font-size:14px;letter-spacing:0.5px;">LIVE TV <span style="font-size:12px;color:#888;">🔍</span></div>
+        <div style="display:flex;gap:8px;flex:1;">
+          <div style="width:30%;background:rgba(255,255,255,0.03);border-radius:12px;padding:6px;color:#999;font-size:10px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.05);">Kategorien</div>
+          <div style="width:30%;background:rgba(255,255,255,0.03);border-radius:12px;padding:6px;color:#999;font-size:10px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.05);">Sender</div>
+          <div style="width:40%;background:rgba(255,255,255,0.04);border-radius:16px;padding:6px;display:flex;flex-direction:column;gap:4px;backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 24px rgba(0,0,0,0.4);">
+            <div style="background:linear-gradient(135deg,rgba(61,139,253,0.3),rgba(61,139,253,0.1));flex:1;border-radius:8px;"></div>
+            <div style="color:#d0d0d0;font-size:10px;font-weight:500;">ZDF HD • Jetzt läuft</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C: Premium Dark & Glassmorphism</h3>
+      <p>Polierter Dark-Mode mit Glas-Effekten, feinen Schatten, subtilen Blur-Hintergründen. Luxuriöses, modernes App-Feeling.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Sehr hochwertige Optik</li><li>Gut für TV/Video-Konsum</li><li>Modern & zeitgemäß</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Blur-Effekte = Performance-Kosten</li><li>Braucht sorgfältige Kontrast-Arbeit</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="neon-tech" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup" style="background:#0a0a0a;min-height:180px;display:flex;flex-direction:column;padding:12px;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;color:#00ff88;font-weight:700;font-size:14px;text-shadow:0 0 10px rgba(0,255,136,0.4);">◈ LIVE TV <span style="font-size:12px;">🔍</span></div>
+        <div style="display:flex;gap:8px;flex:1;">
+          <div style="width:30%;background:#111;border-radius:4px;padding:6px;color:#666;font-size:10px;border:1px solid #222;">Gruppen</div>
+          <div style="width:30%;background:#111;border-radius:4px;padding:6px;color:#666;font-size:10px;border:1px solid #222;">Sender</div>
+          <div style="width:40%;background:#111;border-radius:4px;padding:6px;display:flex;flex-direction:column;gap:4px;border:1px solid rgba(0,255,136,0.3);box-shadow:0 0 12px rgba(0,255,136,0.1);">
+            <div style="background:linear-gradient(135deg,rgba(0,255,136,0.15),rgba(0,200,255,0.1));flex:1;border-radius:2px;"></div>
+            <div style="color:#00ff88;font-size:10px;font-weight:600;">ZDF HD ▸ LIVE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D: Neon / Cyberpunk Tech</h3>
+      <p>Neon-Akzente auf schwarzem Grund. Gaming-Ästhetik mit glühenden Farben und kantigen Shapes. Mutig und anders.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Hoher Wiedererkennungswert</li><li>Spricht Tech-affine Nutzer an</li><li>Einzigartig im IPTV-Markt</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Nischen-Ästhetik</li><li>Kann ermüdend wirken</li><li>Schlechte Lesbarkeit bei Neon-Text</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

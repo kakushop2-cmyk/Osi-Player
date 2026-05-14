@@ -1,0 +1,50 @@
+[
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.nativeplayer.app-debug-66:/drawable_app_icon.png.flat",
+        "source": "com.nativeplayer.app-main-68:/drawable/app_icon.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-debug-66:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "/home/osi61/.gradle/daemon/8.7/com.nativeplayer.app-main-68:/mipmap-anydpi-v26/ic_launcher.xml"
+    }
+]
