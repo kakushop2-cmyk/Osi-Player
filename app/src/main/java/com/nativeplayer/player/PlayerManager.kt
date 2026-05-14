@@ -2,10 +2,14 @@ package com.nativeplayer.player
 
 import android.content.Context
 import android.view.SurfaceView
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.SubtitleView
 
-class PlayerManager(private val context: Context) {
+class PlayerManager(
+    private val context: Context,
+    private val bufferSizeSeconds: Int = 30
+) {
 
     private var exoPlayer: ExoPlayer? = null
     private var exoPlayerEngine: ExoPlayerEngine? = null
@@ -24,7 +28,20 @@ class PlayerManager(private val context: Context) {
             stop()
             release()
         }
-        val player = ExoPlayer.Builder(context).build().also { exoPlayer = it }
+        // DefaultLoadControl mit konfigurierter Puffergröße (in Sekunden → ms umrechnen)
+        val bufferMs = bufferSizeSeconds * 1_000
+        val loadControl = DefaultLoadControl.Builder()
+            .setBufferDurationsMs(
+                /* minBufferMs = */ DefaultLoadControl.DEFAULT_MIN_BUFFER_MS,
+                /* maxBufferMs = */ bufferMs,
+                /* bufferForPlaybackMs = */ DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_MS,
+                /* bufferForPlaybackAfterRebufferMs = */ DefaultLoadControl.DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS
+            )
+            .build()
+        val player = ExoPlayer.Builder(context)
+            .setLoadControl(loadControl)
+            .build()
+            .also { exoPlayer = it }
         val engine = ExoPlayerEngine(player).also {
             it.setSurface(surface)
             it.initialize(url)

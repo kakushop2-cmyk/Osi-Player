@@ -306,7 +306,7 @@ fun PlayerScreen(
             playerState = PlayerState.IDLE
             playerManager?.release()   // Alten Player freigeben
             playerManager = null       // Referenz löschen
-            playerManager = PlayerManager(context).also { pm ->
+            playerManager = PlayerManager(context, playerSettings.bufferSizeSeconds).also { pm ->
                 pm.initialize(currentUrl, surfaceView!!)
                 // SubtitleView binden, sobald sie verfügbar ist
                 subtitleView?.let { pm.setSubtitleView(it) }
