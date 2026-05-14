@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.nativeplayer.data.model.PlayerSettings
 import com.nativeplayer.player.PlayerManager
 import com.nativeplayer.player.PlayerState
 import com.nativeplayer.player.SubtitleTrack
@@ -132,6 +133,12 @@ fun PlayerScreen(
     var currentAudioTrack by remember { mutableStateOf<AudioTrack?>(null) }
     var tracksLoaded by remember { mutableStateOf(false) }
 
+    // ── Player-Einstellungen (einmalig beim Start geladen) ──────
+    var playerSettings by remember { mutableStateOf(PlayerSettings()) }
+    LaunchedEffect(Unit) {
+        playerSettings = viewModel.getPlayerSettings()
+    }
+
     // ── Abgeleitete Sichtbarkeit der Track-Buttons ──
     // subtitleTracks enthält immer mind. 1 "Keine"-Option → ab 1 Element anzeigen
     // (d.h. immer wenn Tracks geladen wurden, auch wenn nur die Aus-Option vorhanden ist)
@@ -188,8 +195,9 @@ fun PlayerScreen(
     }
 
     // ── Bildschirm anlassen während Wiedergabe ─────────────────
-    LaunchedEffect(isPlaying, playerState) {
-        currentView.keepScreenOn = isPlaying || playerState == PlayerState.BUFFERING
+    LaunchedEffect(isPlaying, playerState, playerSettings) {
+        currentView.keepScreenOn = playerSettings.keepScreenOn &&
+            (isPlaying || playerState == PlayerState.BUFFERING)
     }
 
     // ── Timeline-Position kontinuierlich aktualisieren ─────────
@@ -244,7 +252,7 @@ fun PlayerScreen(
         showControls = true
         hideJob?.cancel()
         hideJob = coroutineScope.launch {
-            delay(5000)
+            delay(playerSettings.autoHideControlsMs)
             if (isPlaying && playerState != PlayerState.ERROR) {
                 showControls = false
             }
@@ -318,11 +326,18 @@ fun PlayerScreen(
                     duration = dur
                 }
                 // Wichtig: seekTo VOR play() aufrufen, damit Resume-Position
-                // sofort korrekt gesetzt wird und nicht erst bei 0 beginnt
+                // sofort korrekt gesetzt wird und nicht erst bei 0 beginnt.
+                // Resume-Offset: ein paar Sekunden vor gespeicherter Position starten.
                 if (currentResumePos > 0) {
-                    pm.seekTo(currentResumePos)
+                    val offsetPos = maxOf(0L, currentResumePos - playerSettings.resumeOffsetMs)
+                    pm.seekTo(offsetPos)
                 }
                 pm.play()
+                // Standard-Geschwindigkeit anwenden, wenn sie nicht 1.0× ist
+                if (playerSettings.defaultPlaybackSpeed != 1.0f) {
+                    pm.setPlaybackSpeed(playerSettings.defaultPlaybackSpeed)
+                    playbackSpeed = playerSettings.defaultPlaybackSpeed
+                }
             }
             resetHideTimer()
         }
@@ -370,6 +385,15 @@ fun PlayerScreen(
             currentSubtitleTrack = pm.getCurrentSubtitleTrack()
             currentAudioTrack = pm.getCurrentAudioTrack()
             tracksLoaded = true
+            // Bevorzugte Audiosprache automatisch auswählen (falls konfiguriert)
+            val lang = playerSettings.preferredAudioLanguage
+            if (lang.isNotEmpty()) {
+                val match = audioTracks.firstOrNull { it.language == lang }
+                if (match != null && match.id != currentAudioTrack?.id) {
+                    pm.selectAudioTrack(match.id)
+                    currentAudioTrack = match
+                }
+            }
         }
     }
 
@@ -500,14 +524,14 @@ fun PlayerScreen(
                         true
                     }
                     Key.MediaFastForward -> {
-                        val pos = (currentPosition + 30_000).coerceAtMost(duration)
+                        val pos = (currentPosition + playerSettings.seekForwardMs).coerceAtMost(duration)
                         playerManager?.seekTo(pos)
                         if (!isDragging) currentPosition = pos
                         resetHideTimer()
                         true
                     }
                     Key.MediaRewind -> {
-                        val pos = (currentPosition - 180_000).coerceAtLeast(0)
+                        val pos = (currentPosition - playerSettings.seekBackwardMs).coerceAtLeast(0)
                         playerManager?.seekTo(pos)
                         if (!isDragging) currentPosition = pos
                         resetHideTimer()
@@ -818,13 +842,13 @@ fun PlayerScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Rewind 3min
+                    // Rewind
                     SeekButton(
                         icon = Icons.Filled.Replay,
-                        label = "3m",
-                        contentDescription = "3 Minuten zurück",
+                        label = formatSeekLabel(playerSettings.seekBackwardMs),
+                        contentDescription = "Zurückspulen",
                         onClick = {
-                            val pos = (currentPosition - 180_000).coerceAtLeast(0)
+                            val pos = (currentPosition - playerSettings.seekBackwardMs).coerceAtLeast(0)
                             playerManager?.seekTo(pos)
                             currentPosition = pos
                             resetHideTimer()
@@ -869,13 +893,13 @@ fun PlayerScreen(
                         )
                     }
 
-                    // Forward 3min
+                    // Forward
                     SeekButton(
                         icon = Icons.Filled.Forward,
-                        label = "3m",
-                        contentDescription = "3 Minuten vor",
+                        label = formatSeekLabel(playerSettings.seekForwardMs),
+                        contentDescription = "Vorspulen",
                         onClick = {
-                            val pos = (currentPosition + 180_000).coerceAtMost(duration)
+                            val pos = (currentPosition + playerSettings.seekForwardMs).coerceAtMost(duration)
                             playerManager?.seekTo(pos)
                             currentPosition = pos
                             resetHideTimer()
@@ -1114,6 +1138,20 @@ fun PlayerScreen(
                 }
             }
         }
+    }
+}
+
+/**
+ * Formatiert Millisekunden als lesbares Seek-Label (z.B. "30s", "2m", "1m30s").
+ */
+private fun formatSeekLabel(ms: Long): String {
+    val totalSeconds = ms / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return when {
+        minutes == 0L -> "${seconds}s"
+        seconds == 0L -> "${minutes}m"
+        else -> "${minutes}m${seconds}s"
     }
 }
 

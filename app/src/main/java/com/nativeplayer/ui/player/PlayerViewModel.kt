@@ -2,7 +2,9 @@ package com.nativeplayer.ui.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nativeplayer.data.model.PlayerSettings
 import com.nativeplayer.data.model.WatchHistoryEntity
+import com.nativeplayer.data.repository.PreferencesManager
 import com.nativeplayer.data.repository.WatchHistoryRepository
 import com.nativeplayer.player.PlayerManager
 import com.nativeplayer.player.PlayerState
@@ -31,8 +33,12 @@ enum class ContentType {
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
-    private val watchHistoryRepository: WatchHistoryRepository
+    private val watchHistoryRepository: WatchHistoryRepository,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
+
+    /** Liest die gespeicherten Player-Einstellungen. */
+    fun getPlayerSettings(): PlayerSettings = preferencesManager.getPlayerSettings()
 
     private var saveJob: Job? = null
 
