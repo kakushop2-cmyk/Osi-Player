@@ -3,6 +3,7 @@ local
 color ic_launcher_background
 color ic_launcher_foreground
 drawable app_icon
+drawable splash_preload
 mipmap ic_launcher
 mipmap ic_launcher_round
 string app_name

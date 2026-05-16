@@ -17,6 +17,9 @@ import androidx.navigation.NavController
 import com.nativeplayer.data.model.AspectRatio
 import com.nativeplayer.ui.settings.components.*
 import com.nativeplayer.ui.theme.*
+import kotlinx.coroutines.flow.collectLatest
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.imePadding
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,6 +28,20 @@ fun PlayerSettingsScreen(
     viewModel: PlayerSettingsViewModel = hiltViewModel()
 ) {
     val settings by viewModel.settings.collectAsState()
+    var isSaving by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
+    // Beobachte das Speicher-Ergebnis aus dem ViewModel (asynchron via SharedFlow)
+    LaunchedEffect(Unit) {
+        viewModel.saveResult.collectLatest { success ->
+            if (success) {
+                navController.popBackStack()
+            } else {
+                isSaving = false
+                errorMessage = "Fehler beim Speichern der Einstellungen. Bitte versuche es erneut."
+            }
+        }
+    }
 
     Scaffold(
         containerColor = WarmBackground,
@@ -38,7 +55,10 @@ fun PlayerSettingsScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        enabled = !isSaving
+                    ) {
                         Icon(Icons.Filled.ArrowBack, "Zurück", tint = WarmTextPrimary)
                     }
                 },
@@ -138,7 +158,7 @@ fun PlayerSettingsScreen(
             item { SectionHeader("Bild") }
 
             item {
-                DropdownRow(
+                SegmentedRow(
                     label = "Standard-Seitenverhältnis",
                     options = AspectRatio.entries.map { it to it.displayName() },
                     selected = settings.defaultAspectRatio,
@@ -174,31 +194,68 @@ fun PlayerSettingsScreen(
                 )
             }
 
-            // ── Speichern ──────────────────────────────────────────
+            // ── Fehler-Meldung ─────────────────────────────────────
+            if (errorMessage.isNotEmpty()) {
+                item {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFFFFCDD2)
+                        )
+                    ) {
+                        Text(
+                            errorMessage,
+                            modifier = Modifier.padding(12.dp),
+                            color = Color(0xFFC62828),
+                            fontSize = 12.sp
+                        )
+                    }
+                }
+            }
+
+            // ── Speichern Button ─────────────────────────────────────
             item {
-                Spacer(Modifier.height(24.dp))
                 Button(
                     onClick = {
+                        isSaving = true
+                        errorMessage = ""
+                        android.util.Log.d("PlayerSettingsScreen", "Save button clicked")
                         viewModel.save()
-                        navController.popBackStack()
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
+                        .padding(top = 16.dp)
+                        .height(52.dp)
+                        .navigationBarsPadding()
+                        .imePadding(),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = WarmGold,
                         contentColor = Color.Black
-                    )
+                    ),
+                    enabled = !isSaving
                 ) {
+                    if (isSaving) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .padding(end = 8.dp),
+                            color = Color.Black,
+                            strokeWidth = 2.dp
+                        )
+                    }
                     Text(
-                        "Einstellungen speichern",
+                        if (isSaving) "Speichern..." else "Einstellungen speichern",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
                 }
-                Spacer(Modifier.height(32.dp))
             }
+
+            // Sicherheits-Spacer damit Button nicht von Navbar verdeckt wird
+            item { Spacer(Modifier.navigationBarsPadding()) }
         }
     }
 }

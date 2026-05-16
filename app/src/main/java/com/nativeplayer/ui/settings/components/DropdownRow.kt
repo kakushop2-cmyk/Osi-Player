@@ -40,7 +40,7 @@ fun <T> DropdownRow(
         )
         ExposedDropdownMenuBox(
             expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+            onExpandedChange = { expanded = it }
         ) {
             OutlinedTextField(
                 value = selectedText,
@@ -57,7 +57,8 @@ fun <T> DropdownRow(
                     unfocusedBorderColor = WarmTextSecondary.copy(alpha = 0.3f),
                     focusedContainerColor = WarmSurfaceElevated,
                     unfocusedContainerColor = WarmSurfaceElevated
-                )
+                ),
+                singleLine = true
             )
             ExposedDropdownMenu(
                 expanded = expanded,

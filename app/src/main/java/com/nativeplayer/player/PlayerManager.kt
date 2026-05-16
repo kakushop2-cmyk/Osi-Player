@@ -5,6 +5,7 @@ import android.view.SurfaceView
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.SubtitleView
+import com.nativeplayer.data.model.AspectRatio
 
 class PlayerManager(
     private val context: Context,
@@ -139,6 +140,11 @@ class PlayerManager(
     /** Gibt den aktuell ausgewählten Audio-Track zurück. */
     fun getCurrentAudioTrack(): AudioTrack? = 
         exoPlayerEngine?.getCurrentAudioTrack()
+
+    /** Setzt das Seitenverhältnis des Videos. */
+    fun setAspectRatio(aspectRatio: AspectRatio) {
+        exoPlayerEngine?.setAspectRatio(aspectRatio)
+    }
 
     /** Gibt alle Ressourcen frei. Der Manager kann nach release() nicht mehr verwendet werden. */
     fun release() {

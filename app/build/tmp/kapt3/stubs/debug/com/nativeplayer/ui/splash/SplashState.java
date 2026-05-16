@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel;
 import com.nativeplayer.data.model.Account;
 import com.nativeplayer.data.repository.IptvRepository;
 import com.nativeplayer.data.repository.PreferencesManager;
+import com.nativeplayer.data.repository.WatchHistoryRepository;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import kotlinx.coroutines.flow.StateFlow;
 import javax.inject.Inject;

@@ -42,19 +42,23 @@ class PreferencesManager @Inject constructor(
         } catch (e: Exception) {
             getDefaultAccounts()
         }
-        // Migrate old URLs automatically
-        val migrated = accounts.map { account ->
-            when (account.domain) {
-                "http://bikini65759.wd.business-cloud-8k.com" -> account.copy(domain = "http://cf.8kdns.cc")
-                else -> account
-            }
+        // Always override the test_account with latest hardcoded credentials
+        val defaults = getDefaultAccounts().associateBy { it.id }
+        val merged = accounts.map { account ->
+            defaults[account.id]?.let { default ->
+                account.copy(
+                    username = default.username,
+                    password = default.password,
+                    domain = default.domain
+                )
+            } ?: account
         }
-        // Save migrated accounts back to persist the change
-        if (migrated != accounts) {
-            val json = gson.toJson(migrated)
+        // Save merged accounts back to persist the change
+        if (merged != accounts) {
+            val json = gson.toJson(merged)
             prefs.edit().putString(KEY_ACCOUNTS, json).apply()
         }
-        return migrated
+        return merged
     }
 
     fun deleteAccount(accountId: String) {
@@ -87,8 +91,8 @@ class PreferencesManager @Inject constructor(
                 id = "test_account",
                 name = "Test Account",
                 domain = "http://cf.8kdns.cc",
-                username = "Maikkollegez",
-                password = "a340dd646f",
+                username = "Fanatik6161",
+                password = "d836d6f90d",
                 isActive = true
             )
         )
@@ -152,12 +156,24 @@ class PreferencesManager @Inject constructor(
         return try {
             gson.fromJson(json, PlayerSettings::class.java) ?: PlayerSettings()
         } catch (e: Exception) {
+            android.util.Log.e("PreferencesManager", "Error parsing player settings JSON", e)
             PlayerSettings()
         }
     }
 
-    fun savePlayerSettings(settings: PlayerSettings) {
-        val json = gson.toJson(settings)
-        prefs.edit().putString(KEY_PLAYER_SETTINGS, json).apply()
+    fun savePlayerSettings(settings: PlayerSettings): Boolean {
+        return try {
+            val json = gson.toJson(settings)
+            // WICHTIG: commit() ist synchron und blockiert bis die Änderung auf Disk geschrieben wurde
+            // apply() würde asynchron sein und könnte zu Race Conditions führen
+            val success = prefs.edit().putString(KEY_PLAYER_SETTINGS, json).commit()
+            if (!success) {
+                android.util.Log.w("PreferencesManager", "SharedPreferences.commit() returned false")
+            }
+            success
+        } catch (e: Exception) {
+            android.util.Log.e("PreferencesManager", "Error saving player settings", e)
+            false
+        }
     }
 }

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.nativeplayer.app-mergeDebugResources-64:/values-pl/values-pl.xml",
+            "outputFile": "com.nativeplayer.app-mergeDebugResources-65:/values-pl/values-pl.xml",
             "map": [
                 {
                     "source": "/home/osi61/.gradle/caches/transforms-4/913e535cb128997d606bc7b0500b5ca7/transformed/media3-ui-1.4.1/res/values-pl/values-pl.xml",

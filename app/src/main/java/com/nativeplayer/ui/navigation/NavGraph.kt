@@ -7,6 +7,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.nativeplayer.ui.home.HomeScreen
+import com.nativeplayer.ui.live.LiveScreen
+import com.nativeplayer.ui.movies.MoviesScreen
+import com.nativeplayer.ui.series.SeriesScreen
+import com.nativeplayer.ui.favorites.FavoritesScreen
+import com.nativeplayer.ui.resume.ResumeScreen
 import com.nativeplayer.ui.movies.MovieDetailScreen
 import com.nativeplayer.ui.series.SeriesDetailScreen
 import com.nativeplayer.ui.player.PlayerScreen
@@ -31,8 +36,30 @@ fun NavGraph(navController: NavHostController) {
             PlayerSettingsScreen(navController = navController)
         }
 
+        // Home Hub - Main entry point
         composable(Screen.Home.route) {
             HomeScreen(navController = navController)
+        }
+
+        // Individual section screens
+        composable(Screen.Live.route) {
+            LiveScreen(navController = navController)
+        }
+
+        composable(Screen.Movies.route) {
+            MoviesScreen(navController = navController)
+        }
+
+        composable(Screen.Series.route) {
+            SeriesScreen(navController = navController)
+        }
+
+        composable(Screen.Favorites.route) {
+            FavoritesScreen(navController = navController)
+        }
+
+        composable(Screen.Resume.route) {
+            ResumeScreen(navController = navController)
         }
 
         composable(Screen.Search.route) {

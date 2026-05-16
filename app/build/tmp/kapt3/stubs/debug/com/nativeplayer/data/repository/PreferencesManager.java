@@ -3,13 +3,14 @@ package com.nativeplayer.data.repository;
 import android.content.SharedPreferences;
 import com.nativeplayer.data.model.Account;
 import com.nativeplayer.data.model.AccountSettings;
+import com.nativeplayer.data.model.PlayerSettings;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @javax.inject.Singleton()
-@kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u00000\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0002\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0002\b\u0013\b\u0007\u0018\u0000 \u001f2\u00020\u0001:\u0001\u001fB\u000f\b\u0007\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u00a2\u0006\u0002\u0010\u0004J\u000e\u0010\u0007\u001a\u00020\b2\u0006\u0010\t\u001a\u00020\nJ\f\u0010\u000b\u001a\b\u0012\u0004\u0012\u00020\r0\fJ\b\u0010\u000e\u001a\u0004\u0018\u00010\rJ\u0006\u0010\u000f\u001a\u00020\nJ\u0016\u0010\u0010\u001a\n\u0012\u0004\u0012\u00020\n\u0018\u00010\f2\u0006\u0010\u0011\u001a\u00020\nJ\u0016\u0010\u0012\u001a\n\u0012\u0004\u0012\u00020\n\u0018\u00010\f2\u0006\u0010\u0013\u001a\u00020\nJ\f\u0010\u0014\u001a\b\u0012\u0004\u0012\u00020\r0\fJ\u0006\u0010\u0015\u001a\u00020\nJ\u000e\u0010\u0016\u001a\u00020\b2\u0006\u0010\u0017\u001a\u00020\rJ\u001c\u0010\u0018\u001a\u00020\b2\u0006\u0010\u0011\u001a\u00020\n2\f\u0010\u0019\u001a\b\u0012\u0004\u0012\u00020\n0\fJ\u001c\u0010\u001a\u001a\u00020\b2\u0006\u0010\u0013\u001a\u00020\n2\f\u0010\u001b\u001a\b\u0012\u0004\u0012\u00020\n0\fJ\u000e\u0010\u001c\u001a\u00020\b2\u0006\u0010\u001d\u001a\u00020\nJ\u000e\u0010\u001e\u001a\u00020\b2\u0006\u0010\t\u001a\u00020\nR\u000e\u0010\u0005\u001a\u00020\u0006X\u0082\u0004\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0002\u001a\u00020\u0003X\u0082\u0004\u00a2\u0006\u0002\n\u0000\u00a8\u0006 "}, d2 = {"Lcom/nativeplayer/data/repository/PreferencesManager;", "", "prefs", "Landroid/content/SharedPreferences;", "(Landroid/content/SharedPreferences;)V", "gson", "Lcom/google/gson/Gson;", "deleteAccount", "", "accountId", "", "getAccounts", "", "Lcom/nativeplayer/data/model/Account;", "getActiveAccount", "getActiveAccountId", "getCategoryOrder", "type", "getChannelOrder", "categoryName", "getDefaultAccounts", "getM3uUrl", "saveAccount", "account", "saveCategoryOrder", "order", "saveChannelOrder", "channelIds", "saveM3uUrl", "url", "setActiveAccount", "Companion", "app_debug"})
+@kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000@\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0000\n\u0002\u0018\u0002\n\u0002\b\u0002\n\u0002\u0018\u0002\n\u0000\n\u0002\u0010\u0002\n\u0000\n\u0002\u0010\u000e\n\u0000\n\u0002\u0010 \n\u0002\u0018\u0002\n\u0002\b\t\n\u0002\u0018\u0002\n\u0002\b\t\n\u0002\u0010\u000b\n\u0002\b\u0004\b\u0007\u0018\u0000 $2\u00020\u0001:\u0001$B\u000f\b\u0007\u0012\u0006\u0010\u0002\u001a\u00020\u0003\u00a2\u0006\u0002\u0010\u0004J\u000e\u0010\u0007\u001a\u00020\b2\u0006\u0010\t\u001a\u00020\nJ\f\u0010\u000b\u001a\b\u0012\u0004\u0012\u00020\r0\fJ\b\u0010\u000e\u001a\u0004\u0018\u00010\rJ\u0006\u0010\u000f\u001a\u00020\nJ\u0016\u0010\u0010\u001a\n\u0012\u0004\u0012\u00020\n\u0018\u00010\f2\u0006\u0010\u0011\u001a\u00020\nJ\u0016\u0010\u0012\u001a\n\u0012\u0004\u0012\u00020\n\u0018\u00010\f2\u0006\u0010\u0013\u001a\u00020\nJ\f\u0010\u0014\u001a\b\u0012\u0004\u0012\u00020\r0\fJ\u0006\u0010\u0015\u001a\u00020\nJ\u0006\u0010\u0016\u001a\u00020\u0017J\u000e\u0010\u0018\u001a\u00020\b2\u0006\u0010\u0019\u001a\u00020\rJ\u001c\u0010\u001a\u001a\u00020\b2\u0006\u0010\u0011\u001a\u00020\n2\f\u0010\u001b\u001a\b\u0012\u0004\u0012\u00020\n0\fJ\u001c\u0010\u001c\u001a\u00020\b2\u0006\u0010\u0013\u001a\u00020\n2\f\u0010\u001d\u001a\b\u0012\u0004\u0012\u00020\n0\fJ\u000e\u0010\u001e\u001a\u00020\b2\u0006\u0010\u001f\u001a\u00020\nJ\u000e\u0010 \u001a\u00020!2\u0006\u0010\"\u001a\u00020\u0017J\u000e\u0010#\u001a\u00020\b2\u0006\u0010\t\u001a\u00020\nR\u000e\u0010\u0005\u001a\u00020\u0006X\u0082\u0004\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0002\u001a\u00020\u0003X\u0082\u0004\u00a2\u0006\u0002\n\u0000\u00a8\u0006%"}, d2 = {"Lcom/nativeplayer/data/repository/PreferencesManager;", "", "prefs", "Landroid/content/SharedPreferences;", "(Landroid/content/SharedPreferences;)V", "gson", "Lcom/google/gson/Gson;", "deleteAccount", "", "accountId", "", "getAccounts", "", "Lcom/nativeplayer/data/model/Account;", "getActiveAccount", "getActiveAccountId", "getCategoryOrder", "type", "getChannelOrder", "categoryName", "getDefaultAccounts", "getM3uUrl", "getPlayerSettings", "Lcom/nativeplayer/data/model/PlayerSettings;", "saveAccount", "account", "saveCategoryOrder", "order", "saveChannelOrder", "channelIds", "saveM3uUrl", "url", "savePlayerSettings", "", "settings", "setActiveAccount", "Companion", "app_debug"})
 public final class PreferencesManager {
     @org.jetbrains.annotations.NotNull()
     private final android.content.SharedPreferences prefs = null;
@@ -21,6 +22,8 @@ public final class PreferencesManager {
     private static final java.lang.String KEY_ACTIVE_ACCOUNT = "active_account";
     @org.jetbrains.annotations.NotNull()
     private static final java.lang.String KEY_M3U_URL = "m3u_url";
+    @org.jetbrains.annotations.NotNull()
+    private static final java.lang.String KEY_PLAYER_SETTINGS = "player_settings";
     @org.jetbrains.annotations.NotNull()
     public static final com.nativeplayer.data.repository.PreferencesManager.Companion Companion = null;
     
@@ -108,7 +111,17 @@ public final class PreferencesManager {
         return null;
     }
     
-    @kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0002\b\u0003\b\u0086\u0003\u0018\u00002\u00020\u0001B\u0007\b\u0002\u00a2\u0006\u0002\u0010\u0002R\u000e\u0010\u0003\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0005\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000\u00a8\u0006\u0007"}, d2 = {"Lcom/nativeplayer/data/repository/PreferencesManager$Companion;", "", "()V", "KEY_ACCOUNTS", "", "KEY_ACTIVE_ACCOUNT", "KEY_M3U_URL", "app_debug"})
+    @org.jetbrains.annotations.NotNull()
+    public final com.nativeplayer.data.model.PlayerSettings getPlayerSettings() {
+        return null;
+    }
+    
+    public final boolean savePlayerSettings(@org.jetbrains.annotations.NotNull()
+    com.nativeplayer.data.model.PlayerSettings settings) {
+        return false;
+    }
+    
+    @kotlin.Metadata(mv = {1, 9, 0}, k = 1, xi = 48, d1 = {"\u0000\u0014\n\u0002\u0018\u0002\n\u0002\u0010\u0000\n\u0002\b\u0002\n\u0002\u0010\u000e\n\u0002\b\u0004\b\u0086\u0003\u0018\u00002\u00020\u0001B\u0007\b\u0002\u00a2\u0006\u0002\u0010\u0002R\u000e\u0010\u0003\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0005\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0006\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000R\u000e\u0010\u0007\u001a\u00020\u0004X\u0082T\u00a2\u0006\u0002\n\u0000\u00a8\u0006\b"}, d2 = {"Lcom/nativeplayer/data/repository/PreferencesManager$Companion;", "", "()V", "KEY_ACCOUNTS", "", "KEY_ACTIVE_ACCOUNT", "KEY_M3U_URL", "KEY_PLAYER_SETTINGS", "app_debug"})
     public static final class Companion {
         
         private Companion() {

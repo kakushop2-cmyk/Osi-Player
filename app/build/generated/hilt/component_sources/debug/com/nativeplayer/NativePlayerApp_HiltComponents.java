@@ -7,9 +7,11 @@ import com.nativeplayer.ui.live.LiveViewModel_HiltModules;
 import com.nativeplayer.ui.movies.MovieDetailViewModel_HiltModules;
 import com.nativeplayer.ui.movies.MoviesViewModel_HiltModules;
 import com.nativeplayer.ui.player.PlayerViewModel_HiltModules;
+import com.nativeplayer.ui.resume.ResumeViewModel_HiltModules;
 import com.nativeplayer.ui.search.SearchViewModel_HiltModules;
 import com.nativeplayer.ui.series.SeriesDetailViewModel_HiltModules;
 import com.nativeplayer.ui.series.SeriesViewModel_HiltModules;
+import com.nativeplayer.ui.settings.PlayerSettingsViewModel_HiltModules;
 import com.nativeplayer.ui.splash.SplashViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
@@ -171,7 +173,9 @@ public final class NativePlayerApp_HiltComponents {
           MoviesViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class,
+          PlayerSettingsViewModel_HiltModules.KeyModule.class,
           PlayerViewModel_HiltModules.KeyModule.class,
+          ResumeViewModel_HiltModules.KeyModule.class,
           SearchViewModel_HiltModules.KeyModule.class,
           SeriesDetailViewModel_HiltModules.KeyModule.class,
           SeriesViewModel_HiltModules.KeyModule.class,
@@ -217,7 +221,9 @@ public final class NativePlayerApp_HiltComponents {
           LiveViewModel_HiltModules.BindsModule.class,
           MovieDetailViewModel_HiltModules.BindsModule.class,
           MoviesViewModel_HiltModules.BindsModule.class,
+          PlayerSettingsViewModel_HiltModules.BindsModule.class,
           PlayerViewModel_HiltModules.BindsModule.class,
+          ResumeViewModel_HiltModules.BindsModule.class,
           SearchViewModel_HiltModules.BindsModule.class,
           SeriesDetailViewModel_HiltModules.BindsModule.class,
           SeriesViewModel_HiltModules.BindsModule.class,

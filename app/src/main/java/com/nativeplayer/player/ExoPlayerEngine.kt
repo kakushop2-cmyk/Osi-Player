@@ -12,6 +12,7 @@ import androidx.media3.common.text.CueGroup
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.common.Tracks
 import androidx.media3.ui.SubtitleView
+import com.nativeplayer.data.model.AspectRatio
 
 class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
 
@@ -326,5 +327,20 @@ class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
 
     override fun setOnTimeUpdateListener(listener: (Long, Long) -> Unit) {
         timeListener = listener
+    }
+
+    fun setAspectRatio(aspectRatio: AspectRatio) {
+        val ratio = when (aspectRatio) {
+            AspectRatio.FIT -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+            AspectRatio.FILL -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+            AspectRatio.STRETCH -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
+            AspectRatio.RATIO_4_3 -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+            AspectRatio.RATIO_16_9 -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+        }
+        try {
+            exoPlayer.setVideoScalingMode(ratio)
+        } catch (e: Exception) {
+            lastError = "Fehler beim Setzen des Seitenverhältnisses: ${e.message}"
+        }
     }
 }

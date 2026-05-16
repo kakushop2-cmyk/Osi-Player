@@ -1,7 +1,9 @@
 package com.nativeplayer.ui.player;
 
 import androidx.lifecycle.ViewModel;
+import com.nativeplayer.data.model.PlayerSettings;
 import com.nativeplayer.data.model.WatchHistoryEntity;
+import com.nativeplayer.data.repository.PreferencesManager;
 import com.nativeplayer.data.repository.WatchHistoryRepository;
 import com.nativeplayer.player.PlayerManager;
 import com.nativeplayer.player.PlayerState;

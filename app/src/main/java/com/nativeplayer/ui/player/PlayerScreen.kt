@@ -42,6 +42,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nativeplayer.data.model.PlayerSettings
+import com.nativeplayer.data.model.AspectRatio
 import com.nativeplayer.player.PlayerManager
 import com.nativeplayer.player.PlayerState
 import com.nativeplayer.player.SubtitleTrack
@@ -133,10 +134,21 @@ fun PlayerScreen(
     var currentAudioTrack by remember { mutableStateOf<AudioTrack?>(null) }
     var tracksLoaded by remember { mutableStateOf(false) }
 
+    // ── Aspect Ratio State ──
+    var currentAspectRatio by remember { mutableStateOf(AspectRatio.FIT) }
+    val ASPECT_RATIO_CYCLE = listOf(
+        AspectRatio.FIT,
+        AspectRatio.FILL,
+        AspectRatio.STRETCH,
+        AspectRatio.RATIO_4_3,
+        AspectRatio.RATIO_16_9
+    )
+
     // ── Player-Einstellungen (einmalig beim Start geladen) ──────
     var playerSettings by remember { mutableStateOf(PlayerSettings()) }
     LaunchedEffect(Unit) {
         playerSettings = viewModel.getPlayerSettings()
+        currentAspectRatio = playerSettings.defaultAspectRatio
     }
 
     // ── Abgeleitete Sichtbarkeit der Track-Buttons ──
@@ -161,6 +173,7 @@ fun PlayerScreen(
     val playPauseFocus = remember { FocusRequester() }
     val forwardFocus = remember { FocusRequester() }
     val speedFocus = remember { FocusRequester() }
+    val aspectRatioFocus = remember { FocusRequester() }
     val stopFocus = remember { FocusRequester() }
     val retryFocus = remember { FocusRequester() }
     val backTextFocus = remember { FocusRequester() }
@@ -925,7 +938,7 @@ fun PlayerScreen(
                             .focusRequester(speedFocus)
                             .focusProperties {
                                 left = forwardFocus
-                                right = stopFocus
+                                right = aspectRatioFocus
                                 up = sliderFocus
                             }
                         ) {
@@ -981,6 +994,31 @@ fun PlayerScreen(
                         }
                     }
 
+                    // Aspect Ratio
+                    IconButton(onClick = {
+                        val currentIndex = ASPECT_RATIO_CYCLE.indexOf(currentAspectRatio)
+                        val nextIndex = (currentIndex + 1) % ASPECT_RATIO_CYCLE.size
+                        currentAspectRatio = ASPECT_RATIO_CYCLE[nextIndex]
+                        playerManager?.setAspectRatio(ASPECT_RATIO_CYCLE[nextIndex])
+                        resetHideTimer()
+                    },
+                    modifier = Modifier
+                        .focusable()
+                        .focusRequester(aspectRatioFocus)
+                        .focusProperties {
+                            left = speedFocus
+                            right = stopFocus
+                            up = sliderFocus
+                        }
+                    ) {
+                        Icon(
+                            Icons.Filled.Crop,
+                            contentDescription = "Seitenverhältnis",
+                            tint = if (currentAspectRatio != AspectRatio.FIT) WarmGold else Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+
                     // Stop
                     IconButton(onClick = {
                         playerManager?.let {
@@ -1002,7 +1040,7 @@ fun PlayerScreen(
                         .focusable()
                         .focusRequester(stopFocus)
                         .focusProperties {
-                            left = speedFocus
+                            left = aspectRatioFocus
                             // Nur auf subtitleFocus zeigen wenn der Button tatsächlich sichtbar ist,
                             // sonst bleibt right unverändert (FocusRequester nicht gebunden → Crash)
                             if (showSubtitleButton) right = subtitleFocus

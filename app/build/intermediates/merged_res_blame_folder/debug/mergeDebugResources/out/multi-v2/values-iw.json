@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.nativeplayer.app-mergeDebugResources-64:/values-iw/values-iw.xml",
+            "outputFile": "com.nativeplayer.app-mergeDebugResources-65:/values-iw/values-iw.xml",
             "map": [
                 {
                     "source": "/home/osi61/.gradle/caches/transforms-4/3593c2feb49dce46a62097ef271aeaeb/transformed/core-1.13.1/res/values-iw/values-iw.xml",

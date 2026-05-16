@@ -2,6 +2,7 @@ package com.nativeplayer.ui.splash;
 
 import com.nativeplayer.data.repository.IptvRepository;
 import com.nativeplayer.data.repository.PreferencesManager;
+import com.nativeplayer.data.repository.WatchHistoryRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -28,24 +29,29 @@ public final class SplashViewModel_Factory implements Factory<SplashViewModel> {
 
   private final Provider<PreferencesManager> preferencesManagerProvider;
 
+  private final Provider<WatchHistoryRepository> watchHistoryRepositoryProvider;
+
   public SplashViewModel_Factory(Provider<IptvRepository> repositoryProvider,
-      Provider<PreferencesManager> preferencesManagerProvider) {
+      Provider<PreferencesManager> preferencesManagerProvider,
+      Provider<WatchHistoryRepository> watchHistoryRepositoryProvider) {
     this.repositoryProvider = repositoryProvider;
     this.preferencesManagerProvider = preferencesManagerProvider;
+    this.watchHistoryRepositoryProvider = watchHistoryRepositoryProvider;
   }
 
   @Override
   public SplashViewModel get() {
-    return newInstance(repositoryProvider.get(), preferencesManagerProvider.get());
+    return newInstance(repositoryProvider.get(), preferencesManagerProvider.get(), watchHistoryRepositoryProvider.get());
   }
 
   public static SplashViewModel_Factory create(Provider<IptvRepository> repositoryProvider,
-      Provider<PreferencesManager> preferencesManagerProvider) {
-    return new SplashViewModel_Factory(repositoryProvider, preferencesManagerProvider);
+      Provider<PreferencesManager> preferencesManagerProvider,
+      Provider<WatchHistoryRepository> watchHistoryRepositoryProvider) {
+    return new SplashViewModel_Factory(repositoryProvider, preferencesManagerProvider, watchHistoryRepositoryProvider);
   }
 
   public static SplashViewModel newInstance(IptvRepository repository,
-      PreferencesManager preferencesManager) {
-    return new SplashViewModel(repository, preferencesManager);
+      PreferencesManager preferencesManager, WatchHistoryRepository watchHistoryRepository) {
+    return new SplashViewModel(repository, preferencesManager, watchHistoryRepository);
   }
 }

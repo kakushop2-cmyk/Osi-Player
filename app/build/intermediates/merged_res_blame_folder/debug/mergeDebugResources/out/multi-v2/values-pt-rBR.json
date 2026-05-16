@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.nativeplayer.app-mergeDebugResources-64:/values-pt-rBR/values-pt-rBR.xml",
+            "outputFile": "com.nativeplayer.app-mergeDebugResources-65:/values-pt-rBR/values-pt-rBR.xml",
             "map": [
                 {
                     "source": "/home/osi61/.gradle/caches/transforms-4/cc83b6397ae29a0b9565406b9257e6b7/transformed/ui-release/res/values-pt-rBR/values-pt-rBR.xml",

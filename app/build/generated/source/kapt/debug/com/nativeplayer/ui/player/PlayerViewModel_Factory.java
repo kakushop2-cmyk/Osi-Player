@@ -1,5 +1,6 @@
 package com.nativeplayer.ui.player;
 
+import com.nativeplayer.data.repository.PreferencesManager;
 import com.nativeplayer.data.repository.WatchHistoryRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -25,21 +26,27 @@ import javax.inject.Provider;
 public final class PlayerViewModel_Factory implements Factory<PlayerViewModel> {
   private final Provider<WatchHistoryRepository> watchHistoryRepositoryProvider;
 
-  public PlayerViewModel_Factory(Provider<WatchHistoryRepository> watchHistoryRepositoryProvider) {
+  private final Provider<PreferencesManager> preferencesManagerProvider;
+
+  public PlayerViewModel_Factory(Provider<WatchHistoryRepository> watchHistoryRepositoryProvider,
+      Provider<PreferencesManager> preferencesManagerProvider) {
     this.watchHistoryRepositoryProvider = watchHistoryRepositoryProvider;
+    this.preferencesManagerProvider = preferencesManagerProvider;
   }
 
   @Override
   public PlayerViewModel get() {
-    return newInstance(watchHistoryRepositoryProvider.get());
+    return newInstance(watchHistoryRepositoryProvider.get(), preferencesManagerProvider.get());
   }
 
   public static PlayerViewModel_Factory create(
-      Provider<WatchHistoryRepository> watchHistoryRepositoryProvider) {
-    return new PlayerViewModel_Factory(watchHistoryRepositoryProvider);
+      Provider<WatchHistoryRepository> watchHistoryRepositoryProvider,
+      Provider<PreferencesManager> preferencesManagerProvider) {
+    return new PlayerViewModel_Factory(watchHistoryRepositoryProvider, preferencesManagerProvider);
   }
 
-  public static PlayerViewModel newInstance(WatchHistoryRepository watchHistoryRepository) {
-    return new PlayerViewModel(watchHistoryRepository);
+  public static PlayerViewModel newInstance(WatchHistoryRepository watchHistoryRepository,
+      PreferencesManager preferencesManager) {
+    return new PlayerViewModel(watchHistoryRepository, preferencesManager);
   }
 }

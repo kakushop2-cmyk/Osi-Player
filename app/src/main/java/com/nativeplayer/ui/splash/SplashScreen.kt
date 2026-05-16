@@ -12,6 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,41 +52,26 @@ fun SplashScreen(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(WarmBackground, WarmSurface, WarmBackground)
-                )
-            ),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
+        // Preload Background Image (Layer 0 - Bottom)
+        Image(
+            painter = painterResource(id = R.drawable.splash_preload),
+            contentDescription = "Splash Background",
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(0f),
+            contentScale = ContentScale.FillWidth
+        )
+
+        // Content (Layer 1 - Top)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(32.dp)
+            modifier = Modifier
+                .padding(32.dp)
+                .zIndex(1f)
         ) {
-            // App Icon
-            Image(
-                painter = painterResource(id = R.drawable.app_icon),
-                contentDescription = null,
-                modifier = Modifier.size(120.dp)
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            Text(
-                "OSI IPTV",
-                color = WarmTextPrimary,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                "IPTV Player",
-                color = WarmTextSecondary,
-                fontSize = 14.sp
-            )
-
             Spacer(Modifier.height(40.dp))
 
             when (val currentState = state) {
@@ -172,13 +160,5 @@ fun SplashScreen(
                 }
             }
         }
-
-        // Version text at bottom
-        Text(
-            "v1.0",
-            color = WarmTextSecondary.copy(alpha = 0.5f),
-            fontSize = 11.sp,
-            modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
-        )
     }
 }

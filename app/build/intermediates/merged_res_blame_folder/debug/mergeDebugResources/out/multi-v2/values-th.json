@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.nativeplayer.app-mergeDebugResources-64:/values-th/values-th.xml",
+            "outputFile": "com.nativeplayer.app-mergeDebugResources-65:/values-th/values-th.xml",
             "map": [
                 {
                     "source": "/home/osi61/.gradle/caches/transforms-4/7079c2c7470989dca33338bff8702197/transformed/foundation-release/res/values-th/values-th.xml",
