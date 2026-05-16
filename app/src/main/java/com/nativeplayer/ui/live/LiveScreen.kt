@@ -54,6 +54,7 @@ fun LiveScreen(
     viewModel: LiveViewModel = hiltViewModel()
 ) {
     val categories by viewModel.categories.collectAsState()
+    val filteredCategories by viewModel.filteredCategories.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val selectedChannel by viewModel.selectedChannel.collectAsState()
     val epgItems by viewModel.epgItems.collectAsState()
@@ -184,7 +185,7 @@ fun LiveScreen(
                 }
 
                 LazyColumn(state = categoryListState) {
-                    itemsIndexed(categories, key = { _, cat -> cat.name }) { index, category ->
+                    itemsIndexed(filteredCategories, key = { _, cat -> cat.name }) { index, category ->
                         val isSelected = selectedCategory?.name == category.name
                         val isActive = categorySortActiveIndex == index
                         CategoryItem(
@@ -193,7 +194,7 @@ fun LiveScreen(
                             isSortMode = isCategorySortMode,
                             isActive = isActive,
                             canMoveUp = index > 0,
-                            canMoveDown = index < categories.size - 1,
+                            canMoveDown = index < filteredCategories.size - 1,
                             onClick = { if (!isCategorySortMode) viewModel.selectCategory(category) },
                             onMoveUp = {
                                 val newIndex = index - 1
