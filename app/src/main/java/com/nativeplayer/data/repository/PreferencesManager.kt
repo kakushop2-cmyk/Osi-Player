@@ -1,10 +1,13 @@
 package com.nativeplayer.data.repository
 
 import android.content.SharedPreferences
+import android.util.Log
 import com.nativeplayer.data.model.Account
 import com.nativeplayer.data.model.AccountSettings
 import com.nativeplayer.data.model.PlayerSettings
+import com.nativeplayer.data.model.CategoryVisibilitySettings
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,6 +23,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_ACTIVE_ACCOUNT = "active_account"
         private const val KEY_M3U_URL = "m3u_url"
         private const val KEY_PLAYER_SETTINGS = "player_settings"
+        private const val KEY_CATEGORY_VISIBILITY = "category_visibility_settings"
     }
 
     fun saveAccount(account: Account) {
@@ -174,6 +178,35 @@ class PreferencesManager @Inject constructor(
         } catch (e: Exception) {
             android.util.Log.e("PreferencesManager", "Error saving player settings", e)
             false
+        }
+    }
+
+    // ── Category Visibility Settings ───────────────────────────
+
+    /**
+     * Saves the category visibility settings (hidden categories for each type).
+     * Persists to SharedPreferences as JSON.
+     */
+    fun saveCategoryVisibility(settings: CategoryVisibilitySettings) {
+        try {
+            val json = gson.toJson(settings)
+            prefs.edit().putString(KEY_CATEGORY_VISIBILITY, json).apply()
+        } catch (e: Exception) {
+            Log.e("PreferencesManager", "Error saving category visibility settings", e)
+        }
+    }
+
+    /**
+     * Retrieves the saved category visibility settings.
+     * Returns empty CategoryVisibilitySettings if none saved yet or on error.
+     */
+    fun getCategoryVisibility(): CategoryVisibilitySettings {
+        val json = prefs.getString(KEY_CATEGORY_VISIBILITY, null) ?: return CategoryVisibilitySettings()
+        return try {
+            gson.fromJson(json, CategoryVisibilitySettings::class.java) ?: CategoryVisibilitySettings()
+        } catch (e: JsonSyntaxException) {
+            Log.e("PreferencesManager", "Error parsing category visibility JSON", e)
+            CategoryVisibilitySettings()
         }
     }
 }
