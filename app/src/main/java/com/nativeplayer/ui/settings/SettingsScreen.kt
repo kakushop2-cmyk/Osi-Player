@@ -28,19 +28,25 @@ import androidx.navigation.NavController
 import com.nativeplayer.data.model.Account
 import com.nativeplayer.ui.navigation.Screen
 import com.nativeplayer.ui.splash.SplashViewModel
+import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel
+import com.nativeplayer.ui.components.CategoriesCheckboxGrid
 import com.nativeplayer.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     navController: NavController,
-    viewModel: SplashViewModel = hiltViewModel()
+    viewModel: SplashViewModel = hiltViewModel(),
+    categoryVisibilityViewModel: CategoryVisibilityViewModel = hiltViewModel()
 ) {
     val accounts = remember { viewModel.getAccounts() }
     var showAddDialog by remember { mutableStateOf(false) }
     var editingAccount by remember { mutableStateOf<Account?>(null) }
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var cacheCleared by remember { mutableStateOf(false) }
+    
+    // Category visibility state
+    val categoryVisibility by categoryVisibilityViewModel.categoryVisibility.collectAsState()
 
     Scaffold(
         containerColor = WarmBackground,
@@ -226,6 +232,35 @@ fun SettingsScreen(
                         )
                     }
                 }
+            }
+
+            // ── Category Visibility Bereiche ──────────────────────────────
+
+            item {
+                Spacer(Modifier.height(16.dp))
+                Text("Kategorien", color = WarmGold, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Spacer(Modifier.height(8.dp))
+            }
+
+            item {
+                LiveTVCategorySection(
+                    categoryVisibilityViewModel = categoryVisibilityViewModel,
+                    hiddenCategories = categoryVisibility.hiddenCategoriesLiveTV
+                )
+            }
+
+            item {
+                MoviesCategorySection(
+                    categoryVisibilityViewModel = categoryVisibilityViewModel,
+                    hiddenCategories = categoryVisibility.hiddenCategoriesMovies
+                )
+            }
+
+            item {
+                SeriesCategorySection(
+                    categoryVisibilityViewModel = categoryVisibilityViewModel,
+                    hiddenCategories = categoryVisibility.hiddenCategoriesSeries
+                )
             }
         }
     }
@@ -413,6 +448,93 @@ fun AccountDialog(
             }
         }
     )
+}
+
+/**
+ * Section for controlling Live TV category visibility.
+ */
+@Composable
+fun LiveTVCategorySection(
+    categoryVisibilityViewModel: CategoryVisibilityViewModel,
+    hiddenCategories: Set<String>,
+    modifier: Modifier = Modifier
+) {
+    val availableCategories = listOf("News", "Sports", "Movies", "Music", "Kids", "Documentaries")
+    
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "Live TV Kategorien",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = WarmTextPrimary,
+            modifier = Modifier.padding(16.dp)
+        )
+        CategoriesCheckboxGrid(
+            categories = availableCategories,
+            hiddenCategories = hiddenCategories,
+            onCategoryToggle = { categoryName ->
+                categoryVisibilityViewModel.toggleCategoryVisibility("live", categoryName)
+            }
+        )
+    }
+}
+
+/**
+ * Section for controlling Movies category visibility.
+ */
+@Composable
+fun MoviesCategorySection(
+    categoryVisibilityViewModel: CategoryVisibilityViewModel,
+    hiddenCategories: Set<String>,
+    modifier: Modifier = Modifier
+) {
+    val availableCategories = listOf("Action", "Comedy", "Drama", "Horror", "Sci-Fi", "Romance", "Thriller")
+    
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "Film Kategorien",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = WarmTextPrimary,
+            modifier = Modifier.padding(16.dp)
+        )
+        CategoriesCheckboxGrid(
+            categories = availableCategories,
+            hiddenCategories = hiddenCategories,
+            onCategoryToggle = { categoryName ->
+                categoryVisibilityViewModel.toggleCategoryVisibility("movies", categoryName)
+            }
+        )
+    }
+}
+
+/**
+ * Section for controlling Series category visibility.
+ */
+@Composable
+fun SeriesCategorySection(
+    categoryVisibilityViewModel: CategoryVisibilityViewModel,
+    hiddenCategories: Set<String>,
+    modifier: Modifier = Modifier
+) {
+    val availableCategories = listOf("Drama", "Comedy", "Crime", "Fantasy", "Sci-Fi", "Romance", "Thriller", "Documentary")
+    
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "Serie Kategorien",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = WarmTextPrimary,
+            modifier = Modifier.padding(16.dp)
+        )
+        CategoriesCheckboxGrid(
+            categories = availableCategories,
+            hiddenCategories = hiddenCategories,
+            onCategoryToggle = { categoryName ->
+                categoryVisibilityViewModel.toggleCategoryVisibility("series", categoryName)
+            }
+        )
+    }
 }
 
 @Composable
