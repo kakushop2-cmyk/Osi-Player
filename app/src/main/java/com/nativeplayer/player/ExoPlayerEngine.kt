@@ -333,9 +333,7 @@ class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
         val ratio = when (aspectRatio) {
             AspectRatio.FIT -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT
             AspectRatio.FILL -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
-            AspectRatio.STRETCH -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING
-            AspectRatio.RATIO_4_3 -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT
-            AspectRatio.RATIO_16_9 -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+            else -> C.VIDEO_SCALING_MODE_SCALE_TO_FIT // Fallback für alte enum values
         }
         try {
             exoPlayer.setVideoScalingMode(ratio)
