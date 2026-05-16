@@ -2,6 +2,7 @@ package com.nativeplayer.ui.series;
 
 import com.nativeplayer.data.repository.FavoriteRepository;
 import com.nativeplayer.data.repository.IptvRepository;
+import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -28,24 +29,30 @@ public final class SeriesViewModel_Factory implements Factory<SeriesViewModel> {
 
   private final Provider<FavoriteRepository> favoriteRepositoryProvider;
 
+  private final Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider;
+
   public SeriesViewModel_Factory(Provider<IptvRepository> repositoryProvider,
-      Provider<FavoriteRepository> favoriteRepositoryProvider) {
+      Provider<FavoriteRepository> favoriteRepositoryProvider,
+      Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider) {
     this.repositoryProvider = repositoryProvider;
     this.favoriteRepositoryProvider = favoriteRepositoryProvider;
+    this.categoryVisibilityViewModelProvider = categoryVisibilityViewModelProvider;
   }
 
   @Override
   public SeriesViewModel get() {
-    return newInstance(repositoryProvider.get(), favoriteRepositoryProvider.get());
+    return newInstance(repositoryProvider.get(), favoriteRepositoryProvider.get(), categoryVisibilityViewModelProvider.get());
   }
 
   public static SeriesViewModel_Factory create(Provider<IptvRepository> repositoryProvider,
-      Provider<FavoriteRepository> favoriteRepositoryProvider) {
-    return new SeriesViewModel_Factory(repositoryProvider, favoriteRepositoryProvider);
+      Provider<FavoriteRepository> favoriteRepositoryProvider,
+      Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider) {
+    return new SeriesViewModel_Factory(repositoryProvider, favoriteRepositoryProvider, categoryVisibilityViewModelProvider);
   }
 
   public static SeriesViewModel newInstance(IptvRepository repository,
-      FavoriteRepository favoriteRepository) {
-    return new SeriesViewModel(repository, favoriteRepository);
+      FavoriteRepository favoriteRepository,
+      CategoryVisibilityViewModel categoryVisibilityViewModel) {
+    return new SeriesViewModel(repository, favoriteRepository, categoryVisibilityViewModel);
   }
 }

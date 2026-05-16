@@ -3,6 +3,7 @@ package com.nativeplayer.ui.live;
 import com.nativeplayer.data.repository.FavoriteRepository;
 import com.nativeplayer.data.repository.IptvRepository;
 import com.nativeplayer.data.repository.PreferencesManager;
+import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -31,27 +32,33 @@ public final class LiveViewModel_Factory implements Factory<LiveViewModel> {
 
   private final Provider<PreferencesManager> preferencesManagerProvider;
 
+  private final Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider;
+
   public LiveViewModel_Factory(Provider<IptvRepository> repositoryProvider,
       Provider<FavoriteRepository> favoriteRepositoryProvider,
-      Provider<PreferencesManager> preferencesManagerProvider) {
+      Provider<PreferencesManager> preferencesManagerProvider,
+      Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider) {
     this.repositoryProvider = repositoryProvider;
     this.favoriteRepositoryProvider = favoriteRepositoryProvider;
     this.preferencesManagerProvider = preferencesManagerProvider;
+    this.categoryVisibilityViewModelProvider = categoryVisibilityViewModelProvider;
   }
 
   @Override
   public LiveViewModel get() {
-    return newInstance(repositoryProvider.get(), favoriteRepositoryProvider.get(), preferencesManagerProvider.get());
+    return newInstance(repositoryProvider.get(), favoriteRepositoryProvider.get(), preferencesManagerProvider.get(), categoryVisibilityViewModelProvider.get());
   }
 
   public static LiveViewModel_Factory create(Provider<IptvRepository> repositoryProvider,
       Provider<FavoriteRepository> favoriteRepositoryProvider,
-      Provider<PreferencesManager> preferencesManagerProvider) {
-    return new LiveViewModel_Factory(repositoryProvider, favoriteRepositoryProvider, preferencesManagerProvider);
+      Provider<PreferencesManager> preferencesManagerProvider,
+      Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider) {
+    return new LiveViewModel_Factory(repositoryProvider, favoriteRepositoryProvider, preferencesManagerProvider, categoryVisibilityViewModelProvider);
   }
 
   public static LiveViewModel newInstance(IptvRepository repository,
-      FavoriteRepository favoriteRepository, PreferencesManager preferencesManager) {
-    return new LiveViewModel(repository, favoriteRepository, preferencesManager);
+      FavoriteRepository favoriteRepository, PreferencesManager preferencesManager,
+      CategoryVisibilityViewModel categoryVisibilityViewModel) {
+    return new LiveViewModel(repository, favoriteRepository, preferencesManager, categoryVisibilityViewModel);
   }
 }
