@@ -160,7 +160,7 @@ fun PlayerSettingsScreen(
             item {
                 SegmentedRow(
                     label = "Standard-Seitenverhältnis",
-                    options = AspectRatio.entries.map { it to it.displayName() },
+                    options = listOf(AspectRatio.FIT, AspectRatio.FILL).map { it to it.displayName() },
                     selected = settings.defaultAspectRatio,
                     onSelect = { viewModel.update(settings.copy(defaultAspectRatio = it)) }
                 )
