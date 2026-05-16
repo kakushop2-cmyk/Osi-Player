@@ -44,6 +44,7 @@ fun SeriesScreen(
 ) {
     val seriesByCategory by viewModel.seriesByCategory.collectAsState()
     val categories by viewModel.categories.collectAsState()
+    val filteredCategories by viewModel.filteredCategories.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val favoriteIds by viewModel.favoriteIds.collectAsState()
     val isSortMode by viewModel.isSortMode.collectAsState()
@@ -112,7 +113,7 @@ fun SeriesScreen(
             }
 
             LazyColumn(state = categoryListState) {
-                itemsIndexed(categories, key = { _, cat -> cat }) { index, category ->
+                itemsIndexed(filteredCategories, key = { _, cat -> cat }) { index, category ->
                     val isSelected = selectedCategory == category
                     val isAlle = index == 0
                     val isActive = sortActiveIndex == index && !isAlle
@@ -202,14 +203,14 @@ fun SeriesScreen(
                                             catch (_: Exception) {}
                                         }
                                     },
-                                    enabled = index < categories.size - 1,
+                                    enabled = index < filteredCategories.size - 1,
                                     modifier = Modifier.size(24.dp)
                                 ) {
                                     Icon(
                                         Icons.Filled.KeyboardArrowDown,
                                         contentDescription = "Nach unten",
                                         modifier = Modifier.size(16.dp),
-                                        tint = if (index < categories.size - 1) WarmGold else WarmTextSecondary.copy(alpha = 0.4f)
+                                        tint = if (index < filteredCategories.size - 1) WarmGold else WarmTextSecondary.copy(alpha = 0.4f)
                                     )
                                 }
                             }
