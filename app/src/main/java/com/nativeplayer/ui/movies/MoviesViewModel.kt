@@ -6,23 +6,40 @@ import com.nativeplayer.data.model.FavoriteEntity
 import com.nativeplayer.data.model.Movie
 import com.nativeplayer.data.repository.FavoriteRepository
 import com.nativeplayer.data.repository.IptvRepository
+import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MoviesViewModel @Inject constructor(
     private val repository: IptvRepository,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val categoryVisibilityViewModel: CategoryVisibilityViewModel
 ) : ViewModel() {
     private val _moviesByCategory = MutableStateFlow<Map<String, List<Movie>>>(emptyMap())
     val moviesByCategory: StateFlow<Map<String, List<Movie>>> = _moviesByCategory.asStateFlow()
 
     private val _categories = MutableStateFlow<List<String>>(emptyList())
     val categories: StateFlow<List<String>> = _categories.asStateFlow()
+    
+    /**
+     * Gefilterte Kategorien (versteckte Kategorien werden ausgeblendet).
+     * Diese StateFlow kombiniert _categories mit der CategoryVisibilityViewModel.
+     */
+    val filteredCategories: StateFlow<List<String>> = 
+        combine(_categories, categoryVisibilityViewModel.categoryVisibility) { cats, visibility ->
+            cats.filter { it == "Alle" || !visibility.hiddenCategoriesMovies.contains(it) }
+        }.stateIn(
+            scope = viewModelScope,
+            started = kotlinx.coroutines.flow.SharingStarted.Lazily,
+            initialValue = emptyList()
+        )
 
     private val _selectedCategory = MutableStateFlow<String?>(null)
     val selectedCategory: StateFlow<String?> = _selectedCategory.asStateFlow()
