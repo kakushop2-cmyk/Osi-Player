@@ -73,6 +73,7 @@ object AppModule {
     fun provideWatchHistoryRepository(dao: WatchHistoryDao): WatchHistoryRepository = WatchHistoryRepository(dao)
 
     @Provides
+    @Singleton
     fun provideCategoryVisibilityViewModel(preferencesManager: PreferencesManager): CategoryVisibilityViewModel =
         CategoryVisibilityViewModel(preferencesManager)
 }
