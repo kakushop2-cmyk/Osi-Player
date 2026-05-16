@@ -15,6 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -70,4 +71,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideWatchHistoryRepository(dao: WatchHistoryDao): WatchHistoryRepository = WatchHistoryRepository(dao)
+
+    @Provides
+    fun provideCategoryVisibilityViewModel(preferencesManager: PreferencesManager): CategoryVisibilityViewModel =
+        CategoryVisibilityViewModel(preferencesManager)
 }

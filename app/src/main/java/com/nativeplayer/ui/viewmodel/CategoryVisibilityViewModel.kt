@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class CategoryVisibilityViewModel @Inject constructor(
+class CategoryVisibilityViewModel(
     private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
