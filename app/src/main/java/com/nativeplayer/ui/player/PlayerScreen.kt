@@ -138,10 +138,7 @@ fun PlayerScreen(
     var currentAspectRatio by remember { mutableStateOf(AspectRatio.FIT) }
     val ASPECT_RATIO_CYCLE = listOf(
         AspectRatio.FIT,
-        AspectRatio.FILL,
-        AspectRatio.STRETCH,
-        AspectRatio.RATIO_4_3,
-        AspectRatio.RATIO_16_9
+        AspectRatio.FILL
     )
 
     // ── Player-Einstellungen (einmalig beim Start geladen) ──────
