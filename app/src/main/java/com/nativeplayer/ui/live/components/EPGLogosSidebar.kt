@@ -152,14 +152,14 @@ private fun EPGProgramCard(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            if (epgItem != null && !logoUrl.isNullOrEmpty()) {
-                // ── Echtes Senderlogo ──
+            if (!logoUrl.isNullOrEmpty()) {
+                // ── Senderlogo (auch wenn EPG null ist) ──
                 AsyncImage(
                     model = ImageRequest.Builder(context)
                         .data(logoUrl)
                         .crossfade(300)
                         .build(),
-                    contentDescription = epgItem.title,
+                    contentDescription = epgItem?.title ?: "Senderlogo",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit
                 )

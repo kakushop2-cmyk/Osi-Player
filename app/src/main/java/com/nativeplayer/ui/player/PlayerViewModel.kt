@@ -2,8 +2,10 @@ package com.nativeplayer.ui.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nativeplayer.data.model.EpgItem
 import com.nativeplayer.data.model.PlayerSettings
 import com.nativeplayer.data.model.WatchHistoryEntity
+import com.nativeplayer.data.repository.IptvRepository
 import com.nativeplayer.data.repository.PreferencesManager
 import com.nativeplayer.data.repository.WatchHistoryRepository
 import com.nativeplayer.player.PlayerManager
@@ -34,7 +36,8 @@ enum class ContentType {
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     private val watchHistoryRepository: WatchHistoryRepository,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val iptvRepository: IptvRepository
 ) : ViewModel() {
 
     /** Liest die gespeicherten Player-Einstellungen. */
@@ -91,6 +94,15 @@ class PlayerViewModel @Inject constructor(
         val effectiveId = contentId.ifEmpty { url }
         viewModelScope.launch {
             watchHistoryRepository.remove(effectiveId)
+        }
+    }
+
+    /** Lädt EPG-Daten für einen Live-Kanal (für Kanalwechsel im Vollbild). */
+    suspend fun loadEpgForChannel(channelId: String): List<EpgItem> {
+        return try {
+            iptvRepository.getEpgForChannel(channelId)
+        } catch (e: Exception) {
+            emptyList()
         }
     }
 

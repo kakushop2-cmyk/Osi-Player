@@ -81,11 +81,23 @@ object PlayerContext {
     val previousEpgItem: EpgItem? get() = _previousEpgItem
     val currentEpgItem: EpgItem? get() = _currentEpgItem
     val nextEpgItem: EpgItem? get() = _nextEpgItem
-    val channelLogoUrl: String? get() = _channelLogoUrl
+    var channelLogoUrl: String?
+        get() = _channelLogoUrl
+        set(value) { _channelLogoUrl = value }
     val epgProgress: Float get() = _epgProgress
     val currentTimeInZone: Long get() = _currentTimeInZone
     val remainingMinutes: Int get() = _remainingMinutes
     val categoryTimezone: String get() = _categoryTimezone
+
+    /** Setzt EPG zurück (für Kanalwechsel – behält Channel-Logo). */
+    fun resetEpgItems() {
+        _previousEpgItem = null
+        _currentEpgItem = null
+        _nextEpgItem = null
+        _epgProgress = 0f
+        _currentTimeInZone = System.currentTimeMillis()
+        _remainingMinutes = 0
+    }
 
     /** Gibt es einen vorherigen Sender? */
     fun hasPrevious(): Boolean = _currentIndex > 0

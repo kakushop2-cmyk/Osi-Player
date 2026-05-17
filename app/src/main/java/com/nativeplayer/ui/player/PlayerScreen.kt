@@ -205,6 +205,36 @@ fun PlayerScreen(
             currentTitle = ch.name
             currentImageUrl = ch.logo ?: ""
             currentResumePos = 0L
+            
+            // EPG-Daten für neuen Kanal aktualisieren
+            PlayerContext.channelLogoUrl = ch.logo
+            // EPG zurücksetzen während geladen wird
+            PlayerContext.resetEpgItems()
+            // EPG im Hintergrund laden
+            coroutineScope.launch {
+                val epgList = viewModel.loadEpgForChannel(ch.id)
+                if (epgList.isNotEmpty()) {
+                    val now = System.currentTimeMillis()
+                    val sorted = epgList.sortedBy { it.startTime }
+                    val current = sorted.firstOrNull { item ->
+                        item.startTime <= now && item.endTime > now
+                    }
+                    if (current != null) {
+                        val idx = sorted.indexOf(current)
+                        PlayerContext.setEpgData(
+                            previousEpgItem = if (idx > 0) sorted[idx - 1] else null,
+                            currentEpgItem = current,
+                            nextEpgItem = if (idx < sorted.size - 1) sorted[idx + 1] else null,
+                            channelLogoUrl = PlayerContext.channelLogoUrl,
+                            epgProgress = 0f,
+                            currentTimeInZone = now,
+                            remainingMinutes = ((current.endTime - now) / 60000).toInt(),
+                            categoryTimezone = PlayerContext.categoryTimezone
+                        )
+                    }
+                }
+            }
+            
             // retryTrigger++ würde auch funktionieren, aber currentUrl-Change
             // reicht bereits, da LaunchedEffect darauf lauscht.
             // Wir zeigen das Overlay sofort:
