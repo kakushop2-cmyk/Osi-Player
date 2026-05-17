@@ -89,6 +89,28 @@ class LiveViewModel @Inject constructor(
     init {
         loadData()
         observeFavorites()
+        observeChannelChanges()
+    }
+
+    private fun observeChannelChanges() {
+        viewModelScope.launch {
+            selectedChannel.collect { channel ->
+                if (channel != null) {
+                    // Get category from selected category
+                    val category = _selectedCategory.value
+                    if (category != null) {
+                        // Fetch timezone for this category
+                        fetchAndSetCategoryTimezone(category.name)
+                    }
+                    
+                    // Update EPG items for current channel
+                    updateEpgItems(channel)
+                    
+                    // Start progress updates
+                    startEpgProgressUpdate()
+                }
+            }
+        }
     }
 
     private fun observeFavorites() {
