@@ -46,6 +46,7 @@ import com.nativeplayer.ui.player.PlayerContext
 import com.nativeplayer.ui.theme.*
 import com.nativeplayer.ui.util.FocusRestoreManager
 import com.nativeplayer.ui.live.components.FullscreenLiveOverlay
+import com.nativeplayer.ui.live.BackNavigationState
 import java.text.SimpleDateFormat
 import java.util.TimeZone
 import java.util.Calendar
@@ -113,14 +114,9 @@ fun LiveScreen(
                       playerManager?.release()
                       playerManager = null
                   }
-                  Lifecycle.Event.ON_RESUME -> {
-                      restartKey++
-                      // Nach Rückkehr aus Fullscreen: Fokus auf letzten Kanal setzen
-                      PlayerContext.lastSelectedChannelId?.let { channelId ->
-                          PlayerContext.lastSelectedChannelId = null // konsumieren
-                          viewModel.selectChannelById(channelId)
-                      }
-                  }
+                   Lifecycle.Event.ON_RESUME -> {
+                       restartKey++
+                   }
                   else -> {}
               }
           }
@@ -129,7 +125,18 @@ fun LiveScreen(
               lifecycleOwner.lifecycle.removeObserver(observer)
           }
       }
-
+      
+      // ── Fokus nach Rückkehr aus Fullscreen wiederherstellen ──
+      // BackNavigationState.selectedChannelId ist ein mutableStateOf.
+      // Wenn cleanupAndGoBack() in PlayerScreen den Wert setzt,
+      // löst das sofort Recomposition in LiveScreen aus → LaunchedEffect restartet.
+      LaunchedEffect(BackNavigationState.selectedChannelId) {
+          BackNavigationState.selectedChannelId?.let { channelId ->
+              BackNavigationState.selectedChannelId = null // konsumieren
+              viewModel.selectChannelById(channelId)
+          }
+      }
+      
      // ── Player initialisieren ──────────────────────────────────
     LaunchedEffect(selectedChannel, restartKey) {
         val channel = selectedChannel ?: return@LaunchedEffect
