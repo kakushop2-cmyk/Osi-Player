@@ -49,6 +49,7 @@ import com.nativeplayer.player.SubtitleTrack
 import com.nativeplayer.player.AudioTrack
 import com.nativeplayer.ui.theme.*
 import com.nativeplayer.ui.live.BackNavigationState
+import com.nativeplayer.ui.util.FocusRestoreManager
 import com.nativeplayer.ui.live.components.EPGLogosSidebar
 import com.nativeplayer.ui.live.components.EPGTimelineBar
 import com.nativeplayer.data.model.EpgItem
@@ -495,7 +496,12 @@ fun PlayerScreen(
     fun cleanupAndGoBack() {
         // Aktuellen Kanal merken (mutableStateOf → löst Recomposition in LiveScreen aus)
         if (contentTyp == ContentType.LIVE) {
-            BackNavigationState.selectedChannelId = PlayerContext.current()?.id
+            PlayerContext.current()?.let { ch ->
+                // FocusRestoreManager aktualisieren, damit remember() in LiveScreen neu evaluiert
+                FocusRestoreManager.clearFocus("live_screen")
+                FocusRestoreManager.saveFocus("live_screen", ch.id)
+                BackNavigationState.selectedChannelId = ch.id
+            }
         }
         playerManager?.let { pm ->
             val pos = pm.getCurrentPosition()

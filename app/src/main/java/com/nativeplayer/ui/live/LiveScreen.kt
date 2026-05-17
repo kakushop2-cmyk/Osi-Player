@@ -94,7 +94,9 @@ fun LiveScreen(
     var lastClickedChannelId by remember { mutableStateOf("") }
 
     // ── Focus Restore ──────────────────────────────────────────
-    val lastFocus = remember { FocusRestoreManager.getLastFocus("live_screen") }
+    // Keyed auf BackNavigationState.selectedChannelId, damit remember() bei
+    // Rückkehr aus Fullscreen den NEUEN Kanal aus FocusRestoreManager liest
+    val lastFocus = remember(BackNavigationState.selectedChannelId) { FocusRestoreManager.getLastFocus("live_screen") }
 
     // ── Sort-Modus OFF → Active-Index zurücksetzen ─────────────
     LaunchedEffect(isCategorySortMode) { if (!isCategorySortMode) categorySortActiveIndex = -1 }
@@ -128,12 +130,20 @@ fun LiveScreen(
       
       // ── Fokus nach Rückkehr aus Fullscreen wiederherstellen ──
       // BackNavigationState.selectedChannelId ist ein mutableStateOf.
-      // Wenn cleanupAndGoBack() in PlayerScreen den Wert setzt,
-      // löst das sofort Recomposition in LiveScreen aus → LaunchedEffect restartet.
+      // cleanupAndGoBack() setzt den Wert + aktualisiert FocusRestoreManager.
+      // Die Änderung löst sofort Recomposition aus → das neu keyed remember(…)
+      // liefert den korrekten Fokus + dieser LaunchedEffect selectiert den Kanal.
       LaunchedEffect(BackNavigationState.selectedChannelId) {
           BackNavigationState.selectedChannelId?.let { channelId ->
               BackNavigationState.selectedChannelId = null // konsumieren
               viewModel.selectChannelById(channelId)
+              // Zur korrekten Position scrollen (damit Kanal sichtbar)
+              kotlinx.coroutines.delay(300)
+              val channels = selectedCategory?.channels ?: return@let
+              val index = channels.indexOfFirst { it.id == channelId }
+              if (index >= 0) {
+                  try { channelListState.scrollToItem(index) } catch (_: Exception) {}
+              }
           }
       }
       
