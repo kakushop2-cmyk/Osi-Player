@@ -45,8 +45,12 @@ import com.nativeplayer.ui.navigation.Screen
 import com.nativeplayer.ui.player.PlayerContext
 import com.nativeplayer.ui.theme.*
 import com.nativeplayer.ui.util.FocusRestoreManager
+import com.nativeplayer.ui.live.components.FullscreenLiveOverlay
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.TimeZone
+import java.util.Calendar
+import java.util.Locale
+import java.util.Date
 
 @Composable
 fun LiveScreen(
@@ -61,6 +65,18 @@ fun LiveScreen(
     val favoriteIds by viewModel.favoriteIds.collectAsState()
     val isCategorySortMode by viewModel.isCategorySortMode.collectAsState()
     val isChannelSortMode by viewModel.isChannelSortMode.collectAsState()
+
+    // ── EPG State Flows ──────────────────────────────────────
+    val previousEpgItem by viewModel.previousEpgItem.collectAsState()
+    val currentEpgItem by viewModel.currentEpgItem.collectAsState()
+    val nextEpgItem by viewModel.nextEpgItem.collectAsState()
+    val epgProgress by viewModel.epgProgress.collectAsState()
+    val categoryTimezone by viewModel.categoryTimezone.collectAsState()
+    val currentTimeInZone by viewModel.currentTimeInZone.collectAsState()
+    val remainingMinutes by viewModel.remainingMinutes.collectAsState()
+
+    // ── Fullscreen State ────────────────────────────────────
+    var isFullscreen by remember { mutableStateOf(false) }
 
     // ── Sort-Zustand: welches Item wurde zuletzt verschoben ────
     var categorySortActiveIndex by remember { mutableIntStateOf(-1) }
@@ -87,25 +103,27 @@ fun LiveScreen(
 
     LaunchedEffect(Unit) { viewModel.loadData() }
 
-    // ── Lifecycle Observer ─────────────────────────────────────
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_PAUSE -> {
-                    playerManager?.stop()
-                    playerManager?.release()
-                    playerManager = null
-                }
-                Lifecycle.Event.ON_RESUME -> { restartKey++ }
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
+     // ── Lifecycle Observer ─────────────────────────────────────
+     val lifecycleOwner = LocalLifecycleOwner.current
+     DisposableEffect(lifecycleOwner) {
+         val observer = LifecycleEventObserver { _, event ->
+             when (event) {
+                 Lifecycle.Event.ON_PAUSE -> {
+                     playerManager?.stop()
+                     playerManager?.release()
+                     playerManager = null
+                 }
+                 Lifecycle.Event.ON_RESUME -> { restartKey++ }
+                 else -> {}
+             }
+         }
+         lifecycleOwner.lifecycle.addObserver(observer)
+         onDispose {
+             lifecycleOwner.lifecycle.removeObserver(observer)
+         }
+     }
 
-    // ── Player initialisieren ──────────────────────────────────
+     // ── Player initialisieren ──────────────────────────────────
     LaunchedEffect(selectedChannel, restartKey) {
         val channel = selectedChannel ?: return@LaunchedEffect
         var sv = surfaceView
@@ -132,8 +150,22 @@ fun LiveScreen(
 
     val channels = selectedCategory?.channels ?: emptyList()
 
-    Box(modifier = Modifier.fillMaxSize().background(WarmBackground)) {
-        Row(modifier = Modifier.fillMaxSize()) {
+     Box(modifier = Modifier.fillMaxSize().background(WarmBackground)) {
+         if (isFullscreen && selectedChannel != null) {
+             // Fullscreen mode: Show video with EPG Overlay (auto-hide)
+             FullscreenLiveOverlay(
+                 previousEpgItem = previousEpgItem,
+                 currentEpgItem = currentEpgItem,
+                 nextEpgItem = nextEpgItem,
+                 epgProgress = epgProgress,
+                 currentTimeInZone = currentTimeInZone,
+                 remainingMinutes = remainingMinutes,
+                 timeDisplayString = formatCurrentTime(currentTimeInZone, categoryTimezone),
+                 modifier = Modifier.fillMaxSize()
+             )
+         } else {
+            // Normal mode: 3-column layout
+            Row(modifier = Modifier.fillMaxSize()) {
 
             // ── Left 25%: Kategorien ───────────────────────────
             Column(
@@ -391,6 +423,21 @@ fun LiveScreen(
                             Text("Sender auswählen", color = WarmTextSecondary, fontSize = 14.sp)
                         }
                     }
+
+                    // Fullscreen Button (top-right)
+                    IconButton(
+                        onClick = { isFullscreen = true },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Fullscreen,
+                            contentDescription = "Enter Fullscreen",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
                 }
 
                 Column(
@@ -414,11 +461,12 @@ fun LiveScreen(
                     } else {
                         LazyColumn {
                             items(epgItems) { epg -> EpgItemView(epg) }
-                        }
-                    }
                 }
             }
         }
+        }  // Close else block for normal mode
+    }
+}
     }
 }
 
@@ -650,4 +698,15 @@ private fun EpgItemView(epg: EpgItem) {
             }
         }
     }
+}
+
+/**
+ * Formats time for display in the current timezone
+ */
+fun formatCurrentTime(utcTimeMs: Long, timezoneId: String): String {
+    val timezone = TimeZone.getTimeZone(timezoneId)
+    val calendar = Calendar.getInstance(timezone).apply { timeInMillis = utcTimeMs }
+    val hour = calendar.get(Calendar.HOUR_OF_DAY).toString().padStart(2, '0')
+    val minute = calendar.get(Calendar.MINUTE).toString().padStart(2, '0')
+    return "$hour:$minute"
 }
