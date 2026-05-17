@@ -17,7 +17,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import javax.inject.Inject
+import java.util.Calendar
+import java.util.TimeZone
 
 @HiltViewModel
 class LiveViewModel @Inject constructor(
@@ -60,6 +63,28 @@ class LiveViewModel @Inject constructor(
 
     private val _isChannelSortMode = MutableStateFlow(false)
     val isChannelSortMode: StateFlow<Boolean> = _isChannelSortMode.asStateFlow()
+
+    // ── EPG State Flows ───────────────────────────────────────
+    private val _previousEpgItem = MutableStateFlow<EpgItem?>(null)
+    val previousEpgItem: StateFlow<EpgItem?> = _previousEpgItem.asStateFlow()
+
+    private val _currentEpgItem = MutableStateFlow<EpgItem?>(null)
+    val currentEpgItem: StateFlow<EpgItem?> = _currentEpgItem.asStateFlow()
+
+    private val _nextEpgItem = MutableStateFlow<EpgItem?>(null)
+    val nextEpgItem: StateFlow<EpgItem?> = _nextEpgItem.asStateFlow()
+
+    private val _epgProgress = MutableStateFlow(0f)
+    val epgProgress: StateFlow<Float> = _epgProgress.asStateFlow()
+
+    private val _categoryTimezone = MutableStateFlow("UTC")
+    val categoryTimezone: StateFlow<String> = _categoryTimezone.asStateFlow()
+
+    private val _currentTimeInZone = MutableStateFlow(System.currentTimeMillis())
+    val currentTimeInZone: StateFlow<Long> = _currentTimeInZone.asStateFlow()
+
+    private val _remainingMinutes = MutableStateFlow(0)
+    val remainingMinutes: StateFlow<Int> = _remainingMinutes.asStateFlow()
 
     init {
         loadData()
@@ -164,4 +189,160 @@ class LiveViewModel @Inject constructor(
 
     /** Gibt die konfigurierte Puffergröße aus den Player-Einstellungen zurück. */
     fun getBufferSizeSeconds(): Int = preferencesManager.getPlayerSettings().bufferSizeSeconds
+
+    // ── EPG Helper Functions ──────────────────────────────────
+
+    /**
+     * Converts UTC timestamp to the given timezone
+     */
+    fun convertTimeToZone(utcTimeMs: Long, timezoneId: String): Calendar {
+        val timezone = TimeZone.getTimeZone(timezoneId)
+        return Calendar.getInstance(timezone).apply {
+            timeInMillis = utcTimeMs
+        }
+    }
+
+    /**
+     * Calculates EPG progress as a percentage (0-100)
+     */
+    fun calculateEpgProgress(
+        programStartMs: Long,
+        programEndMs: Long,
+        currentTimeMs: Long
+    ): Float {
+        if (programEndMs <= programStartMs) return 0f
+        val progress = ((currentTimeMs - programStartMs).toFloat() / 
+                        (programEndMs - programStartMs)) * 100
+        return progress.coerceIn(0f, 100f)
+    }
+
+    /**
+     * Calculates remaining minutes until program ends
+     */
+    fun calculateRemainingMinutes(programEndMs: Long, currentTimeMs: Long): Int {
+        val remainingMs = programEndMs - currentTimeMs
+        return (remainingMs / (1000 * 60)).toInt().coerceAtLeast(0)
+    }
+
+    /**
+     * Formats time for display (HH:MM)
+     */
+    fun formatTimeForDisplay(calendar: Calendar): String {
+        val hour = calendar.get(Calendar.HOUR_OF_DAY).toString().padStart(2, '0')
+        val minute = calendar.get(Calendar.MINUTE).toString().padStart(2, '0')
+        return "$hour:$minute"
+    }
+
+    /**
+     * Fetches timezone for category from backend and updates state
+     * (Backend will provide this with category data)
+     */
+    suspend fun fetchAndSetCategoryTimezone(categoryId: String) {
+        try {
+            // TODO: This will be filled in when backend integration is complete
+            // For now, we use a mapping (can be replaced with API call)
+            val timezone = getCategoryTimezone(categoryId)
+            _categoryTimezone.value = timezone
+        } catch (e: Exception) {
+            // Log error, default to UTC
+            _categoryTimezone.value = "UTC"
+        }
+    }
+
+    /**
+     * Helper to map category names to timezones (temporary until backend provides this)
+     */
+    private fun getCategoryTimezone(categoryId: String): String {
+        return when {
+            categoryId.contains("uk", ignoreCase = true) -> "Europe/London"
+            categoryId.contains("turk", ignoreCase = true) || categoryId.contains("tr", ignoreCase = true) -> "Europe/Istanbul"
+            categoryId.contains("us", ignoreCase = true) -> "America/New_York"
+            categoryId.contains("ger", ignoreCase = true) || categoryId.contains("de", ignoreCase = true) -> "Europe/Berlin"
+            else -> "UTC"
+        }
+    }
+
+    /**
+     * Updates previous, current, and next EPG items for the selected channel
+     */
+    private suspend fun updateEpgItems(channel: Channel) {
+        try {
+            val allEpgItems = epgItems.value.filter { it.channelId == channel.id }
+            
+            if (allEpgItems.isEmpty()) {
+                _previousEpgItem.value = null
+                _currentEpgItem.value = null
+                _nextEpgItem.value = null
+                return
+            }
+
+            val now = System.currentTimeMillis()
+
+            // Sort by start time
+            val sortedItems = allEpgItems.sortedBy { it.startTime }
+
+            // Find current program (program that contains 'now')
+            val current = sortedItems.firstOrNull { item ->
+                item.startTime <= now && item.endTime > now
+            }
+
+            if (current != null) {
+                val currentIndex = sortedItems.indexOf(current)
+                _previousEpgItem.value = if (currentIndex > 0) sortedItems[currentIndex - 1] else null
+                _currentEpgItem.value = current
+                _nextEpgItem.value = if (currentIndex < sortedItems.size - 1) sortedItems[currentIndex + 1] else null
+            } else {
+                // If no current program, use the next upcoming one
+                val next = sortedItems.firstOrNull { it.startTime > now }
+                _currentEpgItem.value = next
+                _previousEpgItem.value = sortedItems.lastOrNull { it.startTime <= now }
+                _nextEpgItem.value = if (next != null) {
+                    val nextIndex = sortedItems.indexOf(next)
+                    if (nextIndex < sortedItems.size - 1) sortedItems[nextIndex + 1] else null
+                } else {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            // Handle error, log it
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * Starts a coroutine to update EPG progress and time every second
+     */
+    fun startEpgProgressUpdate() {
+        viewModelScope.launch {
+            while (true) {
+                delay(1000L) // Update every second
+                
+                val current = currentEpgItem.value ?: continue
+                val now = System.currentTimeMillis()
+                
+                // Calculate progress
+                val progress = calculateEpgProgress(
+                    current.startTime,
+                    current.endTime,
+                    now
+                )
+                _epgProgress.value = progress
+                
+                // Calculate remaining minutes
+                val remaining = calculateRemainingMinutes(current.endTime, now)
+                _remainingMinutes.value = remaining
+                
+                // Update current time in zone
+                val calendar = convertTimeToZone(now, categoryTimezone.value)
+                _currentTimeInZone.value = calendar.timeInMillis
+            }
+        }
+    }
+
+    /**
+     * Stops the EPG progress update coroutine
+     */
+    fun stopEpgProgressUpdate() {
+        // Coroutine will naturally stop when ViewModel is cleared
+    }
 }
