@@ -208,6 +208,11 @@ fun PlayerScreen(
 
     fun switchToNextChannel(next: Boolean) {
         if (contentTyp != ContentType.LIVE) return
+        // Error-Status sofort löschen, bevor currentUrl den LaunchedEffect restartet.
+        // Sonst blitzt kurz "Fehler bei der Wiedergabe" auf, weil der alte Player
+        // während release() noch ERROR-Callbacks feuern kann.
+        errorMessage = null
+        playerState = PlayerState.IDLE
         val channel = if (next) PlayerContext.next() else PlayerContext.previous()
         channel?.let { ch ->
             currentUrl = ch.url
