@@ -424,18 +424,19 @@ fun LiveScreen(
                         }
                     }
 
-                    // Fullscreen Button (top-right)
+                    // Fullscreen Button (top-right) - with semi-transparent background for visibility
                     IconButton(
                         onClick = { isFullscreen = true },
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(8.dp)
+                            .background(Color.Black.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp))
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Fullscreen,
                             contentDescription = "Enter Fullscreen",
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
+                            tint = WarmGold,
+                            modifier = Modifier.size(32.dp)
                         )
                     }
                 }
