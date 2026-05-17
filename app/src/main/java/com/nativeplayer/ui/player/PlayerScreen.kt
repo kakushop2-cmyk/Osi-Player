@@ -48,6 +48,14 @@ import com.nativeplayer.player.PlayerState
 import com.nativeplayer.player.SubtitleTrack
 import com.nativeplayer.player.AudioTrack
 import com.nativeplayer.ui.theme.*
+import com.nativeplayer.ui.live.components.EPGLogosSidebar
+import com.nativeplayer.ui.live.components.EPGTimelineBar
+import com.nativeplayer.data.model.EpgItem
+import java.text.SimpleDateFormat
+import java.util.TimeZone
+import java.util.Calendar
+import java.util.Locale
+import java.util.Date
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -796,7 +804,26 @@ fun PlayerScreen(
                         )
                     )
                     .padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
+             ) {
+                if (contentTyp == ContentType.LIVE) {
+                    // Live TV: Show EPG UI
+                    EPGLogosSidebar(
+                        previousEpgItem = PlayerContext.previousEpgItem,
+                        currentEpgItem = PlayerContext.currentEpgItem,
+                        nextEpgItem = PlayerContext.nextEpgItem
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    EPGTimelineBar(
+                        currentEpgItem = PlayerContext.currentEpgItem,
+                        epgProgress = PlayerContext.epgProgress,
+                        currentTimeInZone = PlayerContext.currentTimeInZone,
+                        remainingMinutes = PlayerContext.remainingMinutes,
+                        timeDisplayString = formatCurrentTimeForDisplay(
+                            PlayerContext.currentTimeInZone,
+                            PlayerContext.categoryTimezone
+                        )
+                    )
+                } else {
                 // Timeline
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1172,6 +1199,7 @@ fun PlayerScreen(
                     }
                 }
             }
+                }  // Close else block
         }
     }
 }
@@ -1204,4 +1232,13 @@ private fun formatTime(ms: Long): String {
     } else {
         "%02d:%02d".format(minutes, seconds)
     }
+}
+
+/**
+ * Formatiert Unix-Timestamp als HH:MM in der angegebenen Timezone.
+ */
+private fun formatCurrentTimeForDisplay(timestamp: Long, timezoneName: String): String {
+    val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+    formatter.timeZone = TimeZone.getTimeZone(timezoneName)
+    return formatter.format(Date(timestamp))
 }

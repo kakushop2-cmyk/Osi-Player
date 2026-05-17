@@ -430,38 +430,44 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_nativeplayer_ui_home_HomeViewModel = "com.nativeplayer.ui.home.HomeViewModel";
+      static String com_nativeplayer_ui_player_PlayerViewModel = "com.nativeplayer.ui.player.PlayerViewModel";
+
+      static String com_nativeplayer_ui_search_SearchViewModel = "com.nativeplayer.ui.search.SearchViewModel";
+
+      static String com_nativeplayer_ui_series_SeriesDetailViewModel = "com.nativeplayer.ui.series.SeriesDetailViewModel";
+
+      static String com_nativeplayer_ui_favorites_FavoritesViewModel = "com.nativeplayer.ui.favorites.FavoritesViewModel";
 
       static String com_nativeplayer_ui_splash_SplashViewModel = "com.nativeplayer.ui.splash.SplashViewModel";
-
-      static String com_nativeplayer_ui_live_LiveViewModel = "com.nativeplayer.ui.live.LiveViewModel";
 
       static String com_nativeplayer_ui_movies_MoviesViewModel = "com.nativeplayer.ui.movies.MoviesViewModel";
 
       static String com_nativeplayer_ui_settings_PlayerSettingsViewModel = "com.nativeplayer.ui.settings.PlayerSettingsViewModel";
 
-      static String com_nativeplayer_ui_series_SeriesDetailViewModel = "com.nativeplayer.ui.series.SeriesDetailViewModel";
+      static String com_nativeplayer_ui_resume_ResumeViewModel = "com.nativeplayer.ui.resume.ResumeViewModel";
 
-      static String com_nativeplayer_ui_movies_MovieDetailViewModel = "com.nativeplayer.ui.movies.MovieDetailViewModel";
+      static String com_nativeplayer_ui_home_HomeViewModel = "com.nativeplayer.ui.home.HomeViewModel";
 
       static String com_nativeplayer_ui_series_SeriesViewModel = "com.nativeplayer.ui.series.SeriesViewModel";
 
-      static String com_nativeplayer_ui_search_SearchViewModel = "com.nativeplayer.ui.search.SearchViewModel";
+      static String com_nativeplayer_ui_movies_MovieDetailViewModel = "com.nativeplayer.ui.movies.MovieDetailViewModel";
 
-      static String com_nativeplayer_ui_favorites_FavoritesViewModel = "com.nativeplayer.ui.favorites.FavoritesViewModel";
-
-      static String com_nativeplayer_ui_resume_ResumeViewModel = "com.nativeplayer.ui.resume.ResumeViewModel";
-
-      static String com_nativeplayer_ui_player_PlayerViewModel = "com.nativeplayer.ui.player.PlayerViewModel";
+      static String com_nativeplayer_ui_live_LiveViewModel = "com.nativeplayer.ui.live.LiveViewModel";
 
       @KeepFieldType
-      HomeViewModel com_nativeplayer_ui_home_HomeViewModel2;
+      PlayerViewModel com_nativeplayer_ui_player_PlayerViewModel2;
+
+      @KeepFieldType
+      SearchViewModel com_nativeplayer_ui_search_SearchViewModel2;
+
+      @KeepFieldType
+      SeriesDetailViewModel com_nativeplayer_ui_series_SeriesDetailViewModel2;
+
+      @KeepFieldType
+      FavoritesViewModel com_nativeplayer_ui_favorites_FavoritesViewModel2;
 
       @KeepFieldType
       SplashViewModel com_nativeplayer_ui_splash_SplashViewModel2;
-
-      @KeepFieldType
-      LiveViewModel com_nativeplayer_ui_live_LiveViewModel2;
 
       @KeepFieldType
       MoviesViewModel com_nativeplayer_ui_movies_MoviesViewModel2;
@@ -470,25 +476,19 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
       PlayerSettingsViewModel com_nativeplayer_ui_settings_PlayerSettingsViewModel2;
 
       @KeepFieldType
-      SeriesDetailViewModel com_nativeplayer_ui_series_SeriesDetailViewModel2;
+      ResumeViewModel com_nativeplayer_ui_resume_ResumeViewModel2;
 
       @KeepFieldType
-      MovieDetailViewModel com_nativeplayer_ui_movies_MovieDetailViewModel2;
+      HomeViewModel com_nativeplayer_ui_home_HomeViewModel2;
 
       @KeepFieldType
       SeriesViewModel com_nativeplayer_ui_series_SeriesViewModel2;
 
       @KeepFieldType
-      SearchViewModel com_nativeplayer_ui_search_SearchViewModel2;
+      MovieDetailViewModel com_nativeplayer_ui_movies_MovieDetailViewModel2;
 
       @KeepFieldType
-      FavoritesViewModel com_nativeplayer_ui_favorites_FavoritesViewModel2;
-
-      @KeepFieldType
-      ResumeViewModel com_nativeplayer_ui_resume_ResumeViewModel2;
-
-      @KeepFieldType
-      PlayerViewModel com_nativeplayer_ui_player_PlayerViewModel2;
+      LiveViewModel com_nativeplayer_ui_live_LiveViewModel2;
     }
   }
 
@@ -562,13 +562,15 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_nativeplayer_ui_splash_SplashViewModel = "com.nativeplayer.ui.splash.SplashViewModel";
-
-      static String com_nativeplayer_ui_series_SeriesViewModel = "com.nativeplayer.ui.series.SeriesViewModel";
-
       static String com_nativeplayer_ui_home_HomeViewModel = "com.nativeplayer.ui.home.HomeViewModel";
 
+      static String com_nativeplayer_ui_live_LiveViewModel = "com.nativeplayer.ui.live.LiveViewModel";
+
       static String com_nativeplayer_ui_resume_ResumeViewModel = "com.nativeplayer.ui.resume.ResumeViewModel";
+
+      static String com_nativeplayer_ui_settings_PlayerSettingsViewModel = "com.nativeplayer.ui.settings.PlayerSettingsViewModel";
+
+      static String com_nativeplayer_ui_movies_MovieDetailViewModel = "com.nativeplayer.ui.movies.MovieDetailViewModel";
 
       static String com_nativeplayer_ui_series_SeriesDetailViewModel = "com.nativeplayer.ui.series.SeriesDetailViewModel";
 
@@ -578,25 +580,26 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
 
       static String com_nativeplayer_ui_favorites_FavoritesViewModel = "com.nativeplayer.ui.favorites.FavoritesViewModel";
 
-      static String com_nativeplayer_ui_live_LiveViewModel = "com.nativeplayer.ui.live.LiveViewModel";
+      static String com_nativeplayer_ui_series_SeriesViewModel = "com.nativeplayer.ui.series.SeriesViewModel";
 
-      static String com_nativeplayer_ui_movies_MovieDetailViewModel = "com.nativeplayer.ui.movies.MovieDetailViewModel";
+      static String com_nativeplayer_ui_splash_SplashViewModel = "com.nativeplayer.ui.splash.SplashViewModel";
 
       static String com_nativeplayer_ui_movies_MoviesViewModel = "com.nativeplayer.ui.movies.MoviesViewModel";
-
-      static String com_nativeplayer_ui_settings_PlayerSettingsViewModel = "com.nativeplayer.ui.settings.PlayerSettingsViewModel";
-
-      @KeepFieldType
-      SplashViewModel com_nativeplayer_ui_splash_SplashViewModel2;
-
-      @KeepFieldType
-      SeriesViewModel com_nativeplayer_ui_series_SeriesViewModel2;
 
       @KeepFieldType
       HomeViewModel com_nativeplayer_ui_home_HomeViewModel2;
 
       @KeepFieldType
+      LiveViewModel com_nativeplayer_ui_live_LiveViewModel2;
+
+      @KeepFieldType
       ResumeViewModel com_nativeplayer_ui_resume_ResumeViewModel2;
+
+      @KeepFieldType
+      PlayerSettingsViewModel com_nativeplayer_ui_settings_PlayerSettingsViewModel2;
+
+      @KeepFieldType
+      MovieDetailViewModel com_nativeplayer_ui_movies_MovieDetailViewModel2;
 
       @KeepFieldType
       SeriesDetailViewModel com_nativeplayer_ui_series_SeriesDetailViewModel2;
@@ -611,16 +614,13 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
       FavoritesViewModel com_nativeplayer_ui_favorites_FavoritesViewModel2;
 
       @KeepFieldType
-      LiveViewModel com_nativeplayer_ui_live_LiveViewModel2;
+      SeriesViewModel com_nativeplayer_ui_series_SeriesViewModel2;
 
       @KeepFieldType
-      MovieDetailViewModel com_nativeplayer_ui_movies_MovieDetailViewModel2;
+      SplashViewModel com_nativeplayer_ui_splash_SplashViewModel2;
 
       @KeepFieldType
       MoviesViewModel com_nativeplayer_ui_movies_MoviesViewModel2;
-
-      @KeepFieldType
-      PlayerSettingsViewModel com_nativeplayer_ui_settings_PlayerSettingsViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {

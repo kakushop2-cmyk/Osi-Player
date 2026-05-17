@@ -375,31 +375,43 @@ fun LiveScreen(
                             canMoveUp = index > 0,
                             canMoveDown = index < channels.size - 1,
                             modifier = Modifier.focusRequester(focusRequester),
-                            onClick = {
-                                if (!isChannelSortMode) {
-                                    if (selectedChannel?.id == channel.id) {
-                                        FocusRestoreManager.saveFocus("live_screen", channel.id)
-                                        val currentChannels = selectedCategory?.channels ?: emptyList()
-                                        val idx = currentChannels.indexOfFirst { it.id == channel.id }
-                                        PlayerContext.setLiveContext(currentChannels, idx)
-                                        playerManager?.stop()
-                                        playerManager?.release()
-                                        playerManager = null
-                                        navController.navigate(
-                                            Screen.FullScreenPlayer.createRoute(
-                                                url = channel.url,
-                                                type = "live",
-                                                contentId = channel.id,
-                                                title = channel.name,
-                                                imageUrl = channel.logo ?: ""
-                                            )
-                                        )
-                                    } else {
-                                        viewModel.selectChannel(channel)
-                                        lastClickedChannelId = channel.id
-                                    }
-                                }
-                            },
+                             onClick = {
+                                 if (!isChannelSortMode) {
+                                     if (selectedChannel?.id == channel.id) {
+                                         FocusRestoreManager.saveFocus("live_screen", channel.id)
+                                         val currentChannels = selectedCategory?.channels ?: emptyList()
+                                         val idx = currentChannels.indexOfFirst { it.id == channel.id }
+                                         PlayerContext.setLiveContext(currentChannels, idx)
+                                         
+                                         // Set EPG data for Fullscreen UI
+                                         PlayerContext.setEpgData(
+                                             previousEpgItem = previousEpgItem,
+                                             currentEpgItem = currentEpgItem,
+                                             nextEpgItem = nextEpgItem,
+                                             epgProgress = epgProgress,
+                                             currentTimeInZone = currentTimeInZone,
+                                             remainingMinutes = remainingMinutes,
+                                             categoryTimezone = categoryTimezone
+                                         )
+                                         
+                                         playerManager?.stop()
+                                         playerManager?.release()
+                                         playerManager = null
+                                         navController.navigate(
+                                             Screen.FullScreenPlayer.createRoute(
+                                                 url = channel.url,
+                                                 type = "live",
+                                                 contentId = channel.id,
+                                                 title = channel.name,
+                                                 imageUrl = channel.logo ?: ""
+                                             )
+                                         )
+                                     } else {
+                                         viewModel.selectChannel(channel)
+                                         lastClickedChannelId = channel.id
+                                     }
+                                 }
+                             },
                             onMoveUp = {
                                 val newIndex = index - 1
                                 viewModel.moveChannelUp(index)
