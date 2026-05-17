@@ -134,6 +134,7 @@ fun PlayerScreen(
     var showSpeedMenu by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var retryTrigger by remember { mutableIntStateOf(0) }
+    var isChannelSwitching by remember { mutableStateOf(false) }
     
     // ── Track Selection State ──
     var showSubtitleMenu by remember { mutableStateOf(false) }
@@ -213,6 +214,7 @@ fun PlayerScreen(
         // während release() noch ERROR-Callbacks feuern kann.
         errorMessage = null
         playerState = PlayerState.IDLE
+        isChannelSwitching = true
         val channel = if (next) PlayerContext.next() else PlayerContext.previous()
         channel?.let { ch ->
             currentUrl = ch.url
@@ -320,6 +322,13 @@ fun PlayerScreen(
     }
 
     // ── Echter Vollbildmodus: System-Bars ausblenden ────────────
+    // ── isChannelSwitching nach 2s zurücksetzen ─────────────────
+    LaunchedEffect(isChannelSwitching) {
+        if (isChannelSwitching) {
+            delay(2000)
+            isChannelSwitching = false
+        }
+    }
     val window = (context as? android.app.Activity)?.window
     DisposableEffect(Unit) {
         window?.let { w ->
@@ -749,8 +758,8 @@ fun PlayerScreen(
             }
         }
 
-        // ── Error State ───────────────────────────────────────────
-        if (playerState == PlayerState.ERROR) {
+        // ── Error State (unterdrückt während Channel-Wechsel) ───
+        if (playerState == PlayerState.ERROR && !isChannelSwitching) {
             Box(
                 modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.85f)),
                 contentAlignment = Alignment.Center
