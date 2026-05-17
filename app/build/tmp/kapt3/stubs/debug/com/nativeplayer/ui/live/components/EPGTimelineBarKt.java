@@ -28,11 +28,12 @@ public final class EPGTimelineBarKt {
     }
     
     /**
-     * Formatiert einen Unix-Timestamp (Millisekunden seit Epoch) in HH:MM.
-     * KEINE Zeitumrechnung – die Xtream-API liefert bereits Lokalzeit.
+     * Formatiert einen Unix-Timestamp (Millisekunden seit Epoch) in HH:MM
+     * in der angegebenen Zeitzone.
+     * Die Timestamps wurden bereits in [LiveViewModel.updateEpgItems]
+     * zu echtem UTC korrigiert (Offsets abgezogen).
      */
-    private static final java.lang.String formatEpochToHHmm(long epochMs, @kotlin.Suppress(names = {"UNUSED_PARAMETER"})
-    java.lang.String timezoneName) {
+    private static final java.lang.String formatEpochToHHmm(long epochMs, java.lang.String timezoneName) {
         return null;
     }
 }

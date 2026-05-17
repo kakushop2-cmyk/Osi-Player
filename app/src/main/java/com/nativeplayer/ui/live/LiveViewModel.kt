@@ -309,8 +309,24 @@ class LiveViewModel @Inject constructor(
 
             val now = System.currentTimeMillis()
 
-            // Sort by start time
-            val sortedItems = allEpgItems.sortedBy { it.startTime }
+            // ── Zeitzonen-Offsets korrigieren ────────────────────
+            // Xtream-API liefert Timestamps in Lokalzeit, nicht UTC.
+            // Für korrekten Vergleich mit System.currentTimeMillis()
+            // müssen wir den Zeitzonen-Offset abziehen.
+            val timezoneName = _categoryTimezone.value
+            val offsetMs = try {
+                TimeZone.getTimeZone(timezoneName).getOffset(now).toLong()
+            } catch (_: Exception) { 0L }
+            
+            val correctedItems = allEpgItems.map { item ->
+                item.copy(
+                    startTime = item.startTime - offsetMs,
+                    endTime = item.endTime - offsetMs
+                )
+            }
+
+            // Sort by corrected start time
+            val sortedItems = correctedItems.sortedBy { it.startTime }
 
             // Find current program (program that contains 'now')
             val current = sortedItems.firstOrNull { item ->
