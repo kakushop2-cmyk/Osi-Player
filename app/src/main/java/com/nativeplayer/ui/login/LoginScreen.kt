@@ -1,6 +1,8 @@
 package com.nativeplayer.ui.login
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -54,8 +56,8 @@ fun PlayCircleLogo(modifier: Modifier = Modifier, size: Dp = 46.dp) {
         contentAlignment = Alignment.Center
     ) {
         Canvas(modifier = Modifier.size(size * 0.4f).padding(start = 1.dp)) {
-            val w = size.toPx() * 0.4f
-            val h = size.toPx() * 0.4f
+            val w = this.size.width
+            val h = this.size.height
             val path = Path().apply {
                 moveTo(w * 0.15f, h * 0.1f)
                 lineTo(w * 0.85f, h * 0.5f)
