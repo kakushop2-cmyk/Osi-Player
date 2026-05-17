@@ -383,34 +383,32 @@ fun LiveScreen(
                                           val idx = currentChannels.indexOfFirst { it.id == channel.id }
                                           PlayerContext.setLiveContext(currentChannels, idx)
                                           
-                                          // CRITICAL: Load EPG data first!
-                                          viewModel.selectChannel(channel)
-                                          
-                                          // Wait a moment for EPG data to be loaded
+                                          // CRITICAL: Load EPG data synchronously before navigation!
                                           coroutineScope.launch {
-                                              delay(500)  // Give ViewModel time to fetch EPG
+                                              viewModel.loadEpgSync(channel)
+                                              
+                                              // Brief delay for StateFlow propagation to collectAsState()
+                                              delay(100)
                                               
                                               playerManager?.stop()
                                               playerManager?.release()
                                               playerManager = null
                                               
                                               // Debug: Log EPG data before setting
-                                              android.util.Log.d("LiveScreen", "After delay - Before setEpgData:")
-                                              android.util.Log.d("LiveScreen", "  previousEpgItem = $previousEpgItem")
-                                              android.util.Log.d("LiveScreen", "  currentEpgItem = $currentEpgItem")
-                                              android.util.Log.d("LiveScreen", "  nextEpgItem = $nextEpgItem")
-                                              android.util.Log.d("LiveScreen", "  epgProgress = $epgProgress")
-                                              android.util.Log.d("LiveScreen", "  categoryTimezone = $categoryTimezone")
+                                              android.util.Log.d("LiveScreen", "After loadEpgSync - EPG data:")
+                                              android.util.Log.d("LiveScreen", "  currentEpgItem = ${viewModel.currentEpgItem.value}")
+                                              android.util.Log.d("LiveScreen", "  previousEpgItem = ${viewModel.previousEpgItem.value}")
+                                              android.util.Log.d("LiveScreen", "  nextEpgItem = ${viewModel.nextEpgItem.value}")
                                               
                                               // Set EPG data in PlayerContext before navigation
                                               PlayerContext.setEpgData(
-                                                  previousEpgItem = previousEpgItem,
-                                                  currentEpgItem = currentEpgItem,
-                                                  nextEpgItem = nextEpgItem,
-                                                  epgProgress = epgProgress,
-                                                  currentTimeInZone = currentTimeInZone,
-                                                  remainingMinutes = remainingMinutes,
-                                                  categoryTimezone = categoryTimezone
+                                                  previousEpgItem = viewModel.previousEpgItem.value,
+                                                  currentEpgItem = viewModel.currentEpgItem.value,
+                                                  nextEpgItem = viewModel.nextEpgItem.value,
+                                                  epgProgress = viewModel.epgProgress.value,
+                                                  currentTimeInZone = viewModel.currentTimeInZone.value,
+                                                  remainingMinutes = viewModel.remainingMinutes.value,
+                                                  categoryTimezone = viewModel.categoryTimezone.value
                                               )
                                               
                                               navController.navigate(

@@ -138,7 +138,18 @@ class LiveViewModel @Inject constructor(
         _selectedChannel.value = channel
         viewModelScope.launch {
             _epgItems.value = repository.getEpgForChannel(channel.id)
+            updateEpgItems(channel)
         }
+    }
+
+    /**
+     * Synchronous version of selectChannel that suspends until EPG data is loaded.
+     * Used before navigation to FullScreenPlayer so EPG data is available immediately.
+     */
+    suspend fun loadEpgSync(channel: Channel) {
+        _selectedChannel.value = channel
+        _epgItems.value = repository.getEpgForChannel(channel.id)
+        updateEpgItems(channel)
     }
 
     fun toggleFavorite(channel: Channel) {
