@@ -18,6 +18,7 @@ import com.nativeplayer.ui.player.PlayerScreen
 import com.nativeplayer.ui.search.SearchScreen
 import com.nativeplayer.ui.settings.SettingsScreen
 import com.nativeplayer.ui.settings.PlayerSettingsScreen
+import com.nativeplayer.ui.login.LoginScreen
 import com.nativeplayer.ui.splash.SplashScreen
 
 @Composable
@@ -30,6 +31,10 @@ fun NavGraph(navController: NavHostController) {
 
         composable(Screen.Settings.route) {
             SettingsScreen(navController = navController)
+        }
+
+        composable(Screen.Login.route) {
+            LoginScreen(navController = navController)
         }
 
         composable(Screen.PlayerSettings.route) {
@@ -102,6 +107,14 @@ fun NavGraph(navController: NavHostController) {
                 navArgument("imageUrl") {
                     type = NavType.StringType
                     defaultValue = ""
+                },
+                navArgument("season") {
+                    type = NavType.StringType
+                    defaultValue = "-1"
+                },
+                navArgument("episode") {
+                    type = NavType.StringType
+                    defaultValue = "-1"
                 }
             )
         ) { backStackEntry ->
@@ -119,6 +132,8 @@ fun NavGraph(navController: NavHostController) {
             val imageUrl = java.net.URLDecoder.decode(
                 backStackEntry.arguments?.getString("imageUrl") ?: "", "UTF-8"
             )
+            val seasonNumber = backStackEntry.arguments?.getString("season")?.toIntOrNull() ?: -1
+            val episodeNumber = backStackEntry.arguments?.getString("episode")?.toIntOrNull() ?: -1
             PlayerScreen(
                 navController = navController,
                 url = url,
@@ -126,7 +141,9 @@ fun NavGraph(navController: NavHostController) {
                 contentId = contentId,
                 contentTitle = contentTitle,
                 resumePosition = resumePosition,
-                imageUrl = imageUrl
+                imageUrl = imageUrl,
+                seasonNumber = seasonNumber,
+                episodeNumber = episodeNumber
             )
         }
     }
