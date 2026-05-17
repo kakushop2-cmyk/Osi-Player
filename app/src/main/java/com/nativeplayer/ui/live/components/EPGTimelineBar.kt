@@ -126,14 +126,13 @@ fun EPGTimelineBar(
 }
 
 /**
- * Formatiert einen Unix-Timestamp (Millisekunden seit Epoch) in HH:MM
- * in der angegebenen Zeitzone.
- * ACHTUNG: [epochMs] muss in MILLISEKUNDEN vorliegen!
+ * Formatiert einen Unix-Timestamp (Millisekunden seit Epoch) in HH:MM.
+ * KEINE Zeitumrechnung – die Xtream-API liefert bereits Lokalzeit.
  */
-private fun formatEpochToHHmm(epochMs: Long, timezoneName: String): String {
+private fun formatEpochToHHmm(epochMs: Long, @Suppress("UNUSED_PARAMETER") timezoneName: String): String {
     return try {
         val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
-        sdf.timeZone = TimeZone.getTimeZone(timezoneName)
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
         sdf.format(Date(epochMs))
     } catch (_: Exception) {
         "--:--"
