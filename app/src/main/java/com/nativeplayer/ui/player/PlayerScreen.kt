@@ -804,23 +804,14 @@ fun PlayerScreen(
             }
         }
 
-        // ── Controls Overlay (unten) ─────────────────────────────
+        // ── Controls Overlay (fullscreen: sidebar + bottom) ──────
         AnimatedVisibility(
             visible = showControls,
             enter = fadeIn(),
-            exit = fadeOut(),
-            modifier = Modifier.align(Alignment.BottomCenter)
+            exit = fadeOut()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
-                        )
-                    )
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-              ) {
+            Box(Modifier.fillMaxSize()) {
+                
                  // Debug logging
                  LaunchedEffect(contentTyp) {
                      android.util.Log.d("PlayerScreen", "contentTyp = $contentTyp")
@@ -828,25 +819,46 @@ fun PlayerScreen(
                      android.util.Log.d("PlayerScreen", "categoryTimezone = ${PlayerContext.categoryTimezone}")
                  }
                  
+                 // EPG Right Sidebar (only for Live TV)
                  if (contentTyp == ContentType.LIVE) {
-                     // Live TV: Show EPG UI
                      EPGLogosSidebar(
                          previousEpgItem = PlayerContext.previousEpgItem,
                          currentEpgItem = PlayerContext.currentEpgItem,
-                         nextEpgItem = PlayerContext.nextEpgItem
+                         nextEpgItem = PlayerContext.nextEpgItem,
+                         modifier = Modifier.align(Alignment.CenterEnd)
                      )
-                     Spacer(Modifier.height(8.dp))
-                     EPGTimelineBar(
-                         currentEpgItem = PlayerContext.currentEpgItem,
-                         epgProgress = PlayerContext.epgProgress,
-                         currentTimeInZone = PlayerContext.currentTimeInZone,
-                         remainingMinutes = PlayerContext.remainingMinutes,
-                         timeDisplayString = formatCurrentTimeForDisplay(
-                             PlayerContext.currentTimeInZone,
-                             PlayerContext.categoryTimezone
+                 }
+                 
+                 // Bottom Controls Bar
+                 Box(
+                     modifier = Modifier
+                         .align(Alignment.BottomCenter)
+                         .fillMaxWidth()
+                         .background(
+                             Brush.verticalGradient(
+                                 colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
+                             )
                          )
-                     )
-                 } else {
+                 ) {
+                     if (contentTyp == ContentType.LIVE) {
+                         // Live TV: Show EPG Timeline
+                         Column(
+                             modifier = Modifier
+                                 .fillMaxWidth()
+                                 .padding(horizontal = 16.dp, vertical = 12.dp)
+                         ) {
+                             EPGTimelineBar(
+                                 currentEpgItem = PlayerContext.currentEpgItem,
+                                 epgProgress = PlayerContext.epgProgress,
+                                 currentTimeInZone = PlayerContext.currentTimeInZone,
+                                 remainingMinutes = PlayerContext.remainingMinutes,
+                                 timeDisplayString = formatCurrentTimeForDisplay(
+                                     PlayerContext.currentTimeInZone,
+                                     PlayerContext.categoryTimezone
+                                 )
+                             )
+                         }
+                     } else {
                 // Timeline
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1214,18 +1226,19 @@ fun PlayerScreen(
                                                     modifier = Modifier.size(18.dp)
                                                 )
                                             }
-                                        } else null
-                                    )
-                                }
-                            }
+                        } else null
+                            )
                         }
                     }
                 }
             }
-                }  // Close else block
-        }
-    }
-}
+                }  // Close else block (VOD controls)
+            }  // Close bottom Box
+        }  // Close fillMaxSize Box
+    }  // Close AnimatedVisibility
+}  // Close main Box
+}  // Close main Box
+}  // Close PlayerScreen function
 
 /**
  * Formatiert Millisekunden als lesbares Seek-Label (z.B. "30s", "2m", "1m30s").
