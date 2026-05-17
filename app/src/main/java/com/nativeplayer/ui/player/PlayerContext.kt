@@ -14,6 +14,9 @@ import com.nativeplayer.data.model.EpgItem
 object PlayerContext {
     private var _channels: List<Channel> = emptyList()
     private var _currentIndex: Int = -1
+
+    /** Wird beim Zurücknavigieren aus Fullscreen gesetzt, damit LiveScreen den Fokus setzen kann. */
+    var lastSelectedChannelId: String? = null
     
     // EPG Data für Fullscreen UI
     private var _previousEpgItem: EpgItem? = null
@@ -61,6 +64,7 @@ object PlayerContext {
     fun clear() {
         _channels = emptyList()
         _currentIndex = -1
+        lastSelectedChannelId = null
         _previousEpgItem = null
         _currentEpgItem = null
         _nextEpgItem = null

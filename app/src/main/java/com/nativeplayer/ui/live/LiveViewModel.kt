@@ -141,6 +141,20 @@ class LiveViewModel @Inject constructor(
     }
 
     /**
+     * Selects a channel by its ID. Searches across all categories.
+     * Used when returning from fullscreen to restore focus.
+     */
+    fun selectChannelById(channelId: String) {
+        for (category in _categories.value) {
+            val found = category.channels.firstOrNull { it.id == channelId }
+            if (found != null) {
+                selectChannel(found)
+                return
+            }
+        }
+    }
+
+    /**
      * Synchronous version of selectChannel that suspends until EPG data is loaded.
      * Used before navigation to FullScreenPlayer so EPG data is available immediately.
      */

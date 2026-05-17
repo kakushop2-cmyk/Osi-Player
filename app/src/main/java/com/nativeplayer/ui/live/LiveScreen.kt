@@ -103,25 +103,32 @@ fun LiveScreen(
 
     LaunchedEffect(Unit) { viewModel.loadData() }
 
-     // ── Lifecycle Observer ─────────────────────────────────────
-     val lifecycleOwner = LocalLifecycleOwner.current
-     DisposableEffect(lifecycleOwner) {
-         val observer = LifecycleEventObserver { _, event ->
-             when (event) {
-                 Lifecycle.Event.ON_PAUSE -> {
-                     playerManager?.stop()
-                     playerManager?.release()
-                     playerManager = null
-                 }
-                 Lifecycle.Event.ON_RESUME -> { restartKey++ }
-                 else -> {}
-             }
-         }
-         lifecycleOwner.lifecycle.addObserver(observer)
-         onDispose {
-             lifecycleOwner.lifecycle.removeObserver(observer)
-         }
-     }
+      // ── Lifecycle Observer ─────────────────────────────────────
+      val lifecycleOwner = LocalLifecycleOwner.current
+      DisposableEffect(lifecycleOwner) {
+          val observer = LifecycleEventObserver { _, event ->
+              when (event) {
+                  Lifecycle.Event.ON_PAUSE -> {
+                      playerManager?.stop()
+                      playerManager?.release()
+                      playerManager = null
+                  }
+                  Lifecycle.Event.ON_RESUME -> {
+                      restartKey++
+                      // Nach Rückkehr aus Fullscreen: Fokus auf letzten Kanal setzen
+                      PlayerContext.lastSelectedChannelId?.let { channelId ->
+                          PlayerContext.lastSelectedChannelId = null // konsumieren
+                          viewModel.selectChannelById(channelId)
+                      }
+                  }
+                  else -> {}
+              }
+          }
+          lifecycleOwner.lifecycle.addObserver(observer)
+          onDispose {
+              lifecycleOwner.lifecycle.removeObserver(observer)
+          }
+      }
 
      // ── Player initialisieren ──────────────────────────────────
     LaunchedEffect(selectedChannel, restartKey) {

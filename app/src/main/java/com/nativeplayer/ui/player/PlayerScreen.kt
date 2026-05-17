@@ -492,6 +492,10 @@ fun PlayerScreen(
 
     // ── Hilfsfunktion: Player aufräumen und zurück navigieren ────
     fun cleanupAndGoBack() {
+        // Aktuellen Kanal merken, damit LiveScreen den Fokus setzen kann
+        if (contentTyp == ContentType.LIVE) {
+            PlayerContext.lastSelectedChannelId = PlayerContext.current()?.id
+        }
         playerManager?.let { pm ->
             val pos = pm.getCurrentPosition()
             val dur = pm.getDuration()

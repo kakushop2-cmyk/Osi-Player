@@ -28,10 +28,10 @@ public final class EPGTimelineBarKt {
     }
     
     /**
-     * Formatiert einen Unix-Timestamp (Millisekunden seit Epoch) in HH:MM
+     * Formatiert einen Unix-Timestamp (Millisekunden seit Epoch UTC) in HH:MM
      * in der angegebenen Zeitzone.
-     * Die Timestamps wurden bereits in [LiveViewModel.updateEpgItems]
-     * zu echtem UTC korrigiert (Offsets abgezogen).
+     * [epochMs] muss in ECHTEN UTC-Millisekunden vorliegen (nicht Local-Time-As-Epoch).
+     * Die Umrechnung Local-Time-As-Epoch → UTC erfolgt bereits in [LiveViewModel.updateEpgItems].
      */
     private static final java.lang.String formatEpochToHHmm(long epochMs, java.lang.String timezoneName) {
         return null;
