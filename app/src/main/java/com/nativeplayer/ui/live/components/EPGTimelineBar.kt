@@ -128,8 +128,8 @@ fun EPGTimelineBar(
 /**
  * Formatiert einen Unix-Timestamp (Millisekunden seit Epoch) in HH:MM
  * in der angegebenen Zeitzone.
- * Die Timestamps wurden bereits in [LiveViewModel.updateEpgItems]
- * zu echtem UTC korrigiert (Offsets abgezogen).
+ * Die API liefert start_timestamp als UTC, wird hier in die Ziel-Zeitzone
+ * konvertiert (z. B. Europe/Istanbul → +3h).
  */
 private fun formatEpochToHHmm(epochMs: Long, timezoneName: String): String {
     return try {
