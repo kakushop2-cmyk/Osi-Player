@@ -223,7 +223,20 @@ fun PlayerScreen(
                 val epgList = viewModel.loadEpgForChannel(ch.id)
                 if (epgList.isNotEmpty()) {
                     val now = System.currentTimeMillis()
-                    val sorted = epgList.sortedBy { it.startTime }
+                    // ── Local-Time-As-Epoch → echte UTC ──────
+                    // EPG-Timestamps sind in Lokalzeit der Category
+                    // (z.B. 16:40 Berlin = epoch(16:40) = 1779036000).
+                    // Für Vergleich mit now (echte UTC) Offset abziehen:
+                    val tz = TimeZone.getTimeZone(PlayerContext.categoryTimezone)
+                    val offsetMs = tz.getOffset(now)
+                    val sorted = epgList
+                        .map { item ->
+                            item.copy(
+                                startTime = item.startTime - offsetMs,
+                                endTime = item.endTime - offsetMs
+                            )
+                        }
+                        .sortedBy { it.startTime }
                     val current = sorted.firstOrNull { item ->
                         item.startTime <= now && item.endTime > now
                     }
