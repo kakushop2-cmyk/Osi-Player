@@ -153,16 +153,64 @@ fun LiveScreen(
      Box(modifier = Modifier.fillMaxSize().background(WarmBackground)) {
          if (isFullscreen && selectedChannel != null) {
              // Fullscreen mode: Show video with EPG Overlay (auto-hide)
-             FullscreenLiveOverlay(
-                 previousEpgItem = previousEpgItem,
-                 currentEpgItem = currentEpgItem,
-                 nextEpgItem = nextEpgItem,
-                 epgProgress = epgProgress,
-                 currentTimeInZone = currentTimeInZone,
-                 remainingMinutes = remainingMinutes,
-                 timeDisplayString = formatCurrentTime(currentTimeInZone, categoryTimezone),
-                 modifier = Modifier.fillMaxSize()
-             )
+             Box(modifier = Modifier.fillMaxSize()) {
+                 // Video player (full screen)
+                 Box(
+                     modifier = Modifier
+                         .fillMaxSize()
+                         .background(Color.Black),
+                     contentAlignment = Alignment.Center
+                 ) {
+                     AndroidView(
+                         factory = { ctx ->
+                             SurfaceView(ctx).apply {
+                                 holder.addCallback(object : SurfaceHolder.Callback {
+                                     override fun surfaceCreated(holder: SurfaceHolder) {
+                                         isSurfaceReady = true
+                                     }
+                                     override fun surfaceChanged(
+                                         holder: SurfaceHolder, format: Int, width: Int, height: Int
+                                     ) {}
+                                     override fun surfaceDestroyed(holder: SurfaceHolder) {
+                                         isSurfaceReady = false
+                                     }
+                                 })
+                                 isClickable = false
+                                 isFocusable = false
+                             }.also { surfaceView = it }
+                         },
+                         modifier = Modifier.fillMaxSize()
+                     )
+                 }
+                 
+                 // EPG Overlay on top of video
+                 FullscreenLiveOverlay(
+                     previousEpgItem = previousEpgItem,
+                     currentEpgItem = currentEpgItem,
+                     nextEpgItem = nextEpgItem,
+                     epgProgress = epgProgress,
+                     currentTimeInZone = currentTimeInZone,
+                     remainingMinutes = remainingMinutes,
+                     timeDisplayString = formatCurrentTime(currentTimeInZone, categoryTimezone),
+                     modifier = Modifier.fillMaxSize()
+                 )
+                 
+                 // Exit fullscreen button (top-left)
+                 IconButton(
+                     onClick = { isFullscreen = false },
+                     modifier = Modifier
+                         .align(Alignment.TopStart)
+                         .padding(8.dp)
+                         .background(Color.Black.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp))
+                 ) {
+                     Icon(
+                         imageVector = Icons.Filled.FullscreenExit,
+                         contentDescription = "Exit Fullscreen",
+                         tint = WarmGold,
+                         modifier = Modifier.size(32.dp)
+                     )
+                 }
+             }
          } else {
             // Normal mode: 3-column layout
             Row(modifier = Modifier.fillMaxSize()) {
