@@ -43,7 +43,7 @@ fun SplashScreen(
                 }
             }
             is SplashState.NoAccount -> {
-                navController.navigate(Screen.Settings.route) {
+                navController.navigate(Screen.Login.route) {
                     popUpTo(Screen.Splash.route) { inclusive = true }
                 }
             }
