@@ -137,12 +137,13 @@ fun LiveScreen(
           BackNavigationState.selectedChannelId?.let { channelId ->
               BackNavigationState.selectedChannelId = null // konsumieren
               viewModel.selectChannelById(channelId)
-              // Zur korrekten Position scrollen (damit Kanal sichtbar)
+              
+              // PlayerContext.currentIndex wird live in switchToNextChannel aktualisiert
+              // und ist der Index im selectedCategory.channels → direkt scrollbar
               kotlinx.coroutines.delay(300)
-              val channels = selectedCategory?.channels ?: return@let
-              val index = channels.indexOfFirst { it.id == channelId }
+              val index = PlayerContext.currentIndex
               if (index >= 0) {
-                  try { channelListState.scrollToItem(index) } catch (_: Exception) {}
+                  try { channelListState.animateScrollToItem(index) } catch (_: Exception) {}
               }
           }
       }
