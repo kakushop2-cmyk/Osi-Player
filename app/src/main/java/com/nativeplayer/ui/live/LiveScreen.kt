@@ -392,20 +392,32 @@ fun LiveScreen(
                                              currentTimeInZone = currentTimeInZone,
                                              remainingMinutes = remainingMinutes,
                                              categoryTimezone = categoryTimezone
-                                         )
-                                         
-                                         playerManager?.stop()
-                                         playerManager?.release()
-                                         playerManager = null
-                                         navController.navigate(
-                                             Screen.FullScreenPlayer.createRoute(
-                                                 url = channel.url,
-                                                 type = "live",
-                                                 contentId = channel.id,
-                                                 title = channel.name,
-                                                 imageUrl = channel.logo ?: ""
-                                             )
-                                         )
+                                          )
+                                          
+                                          playerManager?.stop()
+                                          playerManager?.release()
+                                          playerManager = null
+                                          
+                                          // Set EPG data in PlayerContext before navigation
+                                          PlayerContext.setEpgData(
+                                              previousEpgItem = previousEpgItem,
+                                              currentEpgItem = currentEpgItem,
+                                              nextEpgItem = nextEpgItem,
+                                              epgProgress = epgProgress,
+                                              currentTimeInZone = currentTimeInZone,
+                                              remainingMinutes = remainingMinutes,
+                                              categoryTimezone = categoryTimezone
+                                          )
+                                          
+                                          navController.navigate(
+                                              Screen.FullScreenPlayer.createRoute(
+                                                  url = channel.url,
+                                                  type = "live",
+                                                  contentId = channel.id,
+                                                  title = channel.name,
+                                                  imageUrl = channel.logo ?: ""
+                                              )
+                                          )
                                      } else {
                                          viewModel.selectChannel(channel)
                                          lastClickedChannelId = channel.id
