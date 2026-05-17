@@ -752,24 +752,40 @@ fun PlayerScreen(
                     )
                 }
 
-                // Titel (oben Mitte)
-                Text(
-                    currentTitle.ifEmpty {
-                        when (contentTyp) {
-                            ContentType.MOVIE -> "Film"
-                            ContentType.SERIES -> "Serie"
-                            ContentType.LIVE -> "Live"
-                        }
-                    },
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(20.dp)
-                        .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 16.dp, vertical = 6.dp)
-                )
+                // Titel / EPG Info (oben Mitte)
+                if (contentTyp == ContentType.LIVE && PlayerContext.currentEpgItem != null) {
+                    // Live TV: Show current program title
+                    Text(
+                        PlayerContext.currentEpgItem?.title ?: "Live",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(20.dp)
+                            .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                    )
+                } else {
+                    // VOD: Show title
+                    Text(
+                        currentTitle.ifEmpty {
+                            when (contentTyp) {
+                                ContentType.MOVIE -> "Film"
+                                ContentType.SERIES -> "Serie"
+                                ContentType.LIVE -> "Live"
+                            }
+                        },
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(20.dp)
+                            .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                    )
+                }
 
                 // Speed Indicator (oben rechts)
                 if (playbackSpeed != 1.0f) {
