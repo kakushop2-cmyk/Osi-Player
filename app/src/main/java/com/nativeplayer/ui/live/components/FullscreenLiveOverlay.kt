@@ -79,7 +79,9 @@ fun FullscreenLiveOverlay(
                 .fillMaxWidth(0.225f) // 20-25% of screen width
         ) {
             EPGLogosSidebar(
-                channelLogoUrl = channelLogoUrl,
+                prevLogoUrl = channelLogoUrl,
+                currentLogoUrl = channelLogoUrl,
+                nextLogoUrl = channelLogoUrl,
                 previousEpgItem = previousEpgItem,
                 currentEpgItem = currentEpgItem,
                 nextEpgItem = nextEpgItem

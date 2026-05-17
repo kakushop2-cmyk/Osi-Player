@@ -42,7 +42,7 @@ fun EPGTimelineBar(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-            .background(WarmSurface.copy(alpha = 0.88f))
+            .background(WarmSurface.copy(alpha = 0.55f))
             .padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
         // ── Obere Reihe: Uhrzeit (links) | Programmname (zentriert) | Restzeit (rechts) ──

@@ -28,17 +28,21 @@ private const val SIDEBAR_WIDTH_FRACTION = 0.22f
 
 /**
  * Rechte EPG-Seitenleiste für den Live-TV-Vollbildmodus.
- * Zeigt maximal 3 Programme (vorheriges, aktuelles, nächstes) mit
- * Senderlogos und vollständigen Programmtiteln.
+ * Zeigt 3 Kanäle: vorheriger, aktueller, nächster Sender.
+ * Jeder Slot zeigt das Senderlogo und den Programmnamen.
  *
- * @param channelLogoUrl URL des Senderlogos (für alle Programme gleich).
- * @param previousEpgItem Vorheriges Programm (kann null sein → Platzhalter).
- * @param currentEpgItem Aktuell laufendes Programm.
- * @param nextEpgItem Nächstes Programm (kann null sein → Platzhalter).
+ * @param prevLogoUrl    Logo des vorherigen Senders (aus Channel-Liste).
+ * @param currentLogoUrl Logo des aktuellen Senders.
+ * @param nextLogoUrl    Logo des nächsten Senders (aus Channel-Liste).
+ * @param previousEpgItem EPG-Daten des vorherigen Programms (optional).
+ * @param currentEpgItem EPG-Daten des aktuellen Programms.
+ * @param nextEpgItem    EPG-Daten des nächsten Programms (optional).
  */
 @Composable
 fun EPGLogosSidebar(
-    channelLogoUrl: String?,
+    prevLogoUrl: String?,
+    currentLogoUrl: String?,
+    nextLogoUrl: String?,
     previousEpgItem: EpgItem?,
     currentEpgItem: EpgItem?,
     nextEpgItem: EpgItem?,
@@ -48,19 +52,19 @@ fun EPGLogosSidebar(
         modifier = modifier
             .fillMaxHeight()
             .fillMaxWidth(SIDEBAR_WIDTH_FRACTION)
-            .background(WarmSurface.copy(alpha = 0.88f))
+            .background(WarmSurface.copy(alpha = 0.55f))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 20.dp, horizontal = 12.dp),
+                .padding(vertical = 16.dp, horizontal = 10.dp),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ── Vorheriges Programm ──
-            EPGProgramCard(
+            // ── Vorheriger Sender ──
+            ChannelProgramCard(
+                logoUrl = prevLogoUrl,
                 epgItem = previousEpgItem,
-                logoUrl = channelLogoUrl,
                 isActive = false,
                 label = "VORHER"
             )
@@ -70,13 +74,13 @@ fun EPGLogosSidebar(
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
                     .height(1.dp)
-                    .background(Color.Gray.copy(alpha = 0.3f))
+                    .background(Color.Gray.copy(alpha = 0.2f))
             )
 
-            // ── Aktuelles Programm ──
-            EPGProgramCard(
+            // ── Aktueller Sender ──
+            ChannelProgramCard(
+                logoUrl = currentLogoUrl,
                 epgItem = currentEpgItem,
-                logoUrl = channelLogoUrl,
                 isActive = true,
                 label = "JETZT"
             )
@@ -86,13 +90,13 @@ fun EPGLogosSidebar(
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
                     .height(1.dp)
-                    .background(Color.Gray.copy(alpha = 0.3f))
+                    .background(Color.Gray.copy(alpha = 0.2f))
             )
 
-            // ── Nächstes Programm ──
-            EPGProgramCard(
+            // ── Nächster Sender ──
+            ChannelProgramCard(
+                logoUrl = nextLogoUrl,
                 epgItem = nextEpgItem,
-                logoUrl = channelLogoUrl,
                 isActive = false,
                 label = "NÄCHSTES"
             )
@@ -101,17 +105,17 @@ fun EPGLogosSidebar(
 }
 
 /**
- * Einzelne Programm-Karte mit Logo und Titel.
+ * Einzelne Kanal-/Programm-Karte mit Logo und Titel.
  *
- * @param epgItem EPG-Daten (kann null sein → Platzhalter).
- * @param logoUrl  URL des Senderlogos (optional).
+ * @param logoUrl  URL des Senderlogos (kanalspezifisch).
+ * @param epgItem  EPG-Daten für den Programmnamen (kann null sein).
  * @param isActive [currentEpgItem] → goldener Rand + volle Deckkraft.
- * @param label    Kleine Bezeichnung über dem Programm (VORHER / JETZT / NÄCHSTES).
+ * @param label    Kleine Bezeichnung (VORHER / JETZT / NÄCHSTES).
  */
 @Composable
-private fun EPGProgramCard(
-    epgItem: EpgItem?,
+private fun ChannelProgramCard(
     logoUrl: String?,
+    epgItem: EpgItem?,
     isActive: Boolean,
     label: String,
     modifier: Modifier = Modifier
@@ -129,7 +133,7 @@ private fun EPGProgramCard(
             text = label,
             fontSize = 9.sp,
             fontWeight = FontWeight.Bold,
-            color = if (isActive) Color(0xFFFFD700) else Color.Gray.copy(alpha = alpha),
+            color = if (isActive) Color(0xFFFFD700).copy(alpha = 0.85f) else Color.Gray.copy(alpha = alpha * 0.7f),
             letterSpacing = 2.sp
         )
 
@@ -141,35 +145,35 @@ private fun EPGProgramCard(
                 .then(
                     if (isActive) {
                         Modifier.border(
-                            width = 4.dp,
-                            color = Color(0xFFFF8C00),
+                            width = 2.dp,
+                            color = Color(0xFFFF8C00).copy(alpha = 0.7f),
                             shape = RoundedCornerShape(6.dp)
                         )
                     } else Modifier
                 )
                 .background(
-                    color = Color.Gray.copy(alpha = if (isActive) 0.15f else 0.08f)
+                    color = Color.Gray.copy(alpha = if (isActive) 0.12f else 0.06f)
                 ),
             contentAlignment = Alignment.Center
         ) {
             if (!logoUrl.isNullOrEmpty()) {
-                // ── Senderlogo (auch wenn EPG null ist) ──
+                // ── Senderlogo ──
                 AsyncImage(
                     model = ImageRequest.Builder(context)
                         .data(logoUrl)
                         .crossfade(300)
                         .build(),
-                    contentDescription = epgItem?.title ?: "Senderlogo",
-                    modifier = Modifier.fillMaxSize(),
+                    contentDescription = "Senderlogo",
+                    modifier = Modifier.fillMaxSize().padding(2.dp),
                     contentScale = ContentScale.Fit
                 )
             } else {
                 // ── Platzhalter (erster Buchstabe) ──
                 Text(
-                    text = epgItem?.title?.firstOrNull()?.uppercase() ?: "?",
-                    fontSize = 22.sp,
+                    text = epgItem?.title?.firstOrNull()?.uppercase() ?: "TV",
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White.copy(alpha = alpha)
+                    color = Color.White.copy(alpha = alpha * 0.6f)
                 )
             }
         }
@@ -177,9 +181,9 @@ private fun EPGProgramCard(
         // Programmname (max. 2 Zeilen)
         Text(
             text = epgItem?.title ?: "Keine Info",
-            fontSize = if (isActive) 13.sp else 11.sp,
+            fontSize = if (isActive) 12.sp else 11.sp,
             fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
-            color = WarmTextPrimary.copy(alpha = alpha),
+            color = WarmTextPrimary.copy(alpha = alpha * 0.7f),
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis

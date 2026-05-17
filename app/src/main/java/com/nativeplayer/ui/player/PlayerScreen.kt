@@ -171,6 +171,14 @@ fun PlayerScreen(
     val coroutineScope = rememberCoroutineScope()
     var hideJob by remember { mutableStateOf<Job?>(null) }
 
+    // ── EPG Reactive State (for Live TV) ──────────────────────────
+    // Diese States werden aktualisiert, wenn EPG-Daten geladen werden
+    // oder sich der Fortschritt ändert → lösen Recomposition aus.
+    var epgRefreshTrigger by remember { mutableIntStateOf(0) }
+    var epgProgress by remember { mutableFloatStateOf(PlayerContext.epgProgress) }
+    var epgRemainingMinutes by remember { mutableIntStateOf(PlayerContext.remainingMinutes) }
+    var epgCurrentTimeInZone by remember { mutableLongStateOf(PlayerContext.currentTimeInZone) }
+
     // ── D‑Pad / TV Focus Management ─────────────────────────────
     val backFocus = remember { FocusRequester() }
     val sliderFocus = remember { FocusRequester() }
@@ -221,18 +229,25 @@ fun PlayerScreen(
                     }
                     if (current != null) {
                         val idx = sorted.indexOf(current)
+                        val remaining = ((current.endTime - now) / 60000).toInt()
+                        val progress = ((now - current.startTime).toFloat() / (current.endTime - current.startTime) * 100f).coerceIn(0f, 100f)
                         PlayerContext.setEpgData(
                             previousEpgItem = if (idx > 0) sorted[idx - 1] else null,
                             currentEpgItem = current,
                             nextEpgItem = if (idx < sorted.size - 1) sorted[idx + 1] else null,
                             channelLogoUrl = PlayerContext.channelLogoUrl,
-                            epgProgress = 0f,
+                            epgProgress = progress,
                             currentTimeInZone = now,
-                            remainingMinutes = ((current.endTime - now) / 60000).toInt(),
+                            remainingMinutes = remaining,
                             categoryTimezone = PlayerContext.categoryTimezone
                         )
+                        // Reaktive States aktualisieren → sofortige Recomposition
+                        epgProgress = progress
+                        epgRemainingMinutes = remaining
+                        epgCurrentTimeInZone = now
                     }
                 }
+                epgRefreshTrigger++ // Erzwingt Recomposition der EPG-UI
             }
             
             // retryTrigger++ würde auch funktionieren, aber currentUrl-Change
@@ -263,6 +278,23 @@ fun PlayerScreen(
                 if (dur > 0 && dur != durationState.longValue) {
                     durationState.longValue = dur
                 }
+            }
+        }
+    }
+
+    // ── EPG-Fortschritt kontinuierlich aktualisieren (Live-TV) ───
+    LaunchedEffect(contentTyp, isPlaying, epgRefreshTrigger) {
+        if (contentTyp != ContentType.LIVE || !isPlaying) return@LaunchedEffect
+        while (true) {
+            delay(1000)
+            val current = PlayerContext.currentEpgItem ?: break
+            val now = System.currentTimeMillis()
+            val total = current.endTime - current.startTime
+            if (total > 0) {
+                val elapsed = now - current.startTime
+                epgProgress = ((elapsed.toFloat() / total) * 100f).coerceIn(0f, 100f)
+                epgRemainingMinutes = maxOf(0, ((current.endTime - now) / 60000).toInt())
+                epgCurrentTimeInZone = now
             }
         }
     }
@@ -850,9 +882,17 @@ fun PlayerScreen(
                  }
                  
                   // EPG Right Sidebar (only for Live TV)
+                  // epgRefreshTrigger als Lese-Dependency, damit Recomposition
+                  // nach EPG-Laden oder Fortschritts-Update erzwungen wird.
                   if (contentTyp == ContentType.LIVE) {
+                      val channels = PlayerContext.channels
+                      val currentIdx = PlayerContext.currentIndex
+                      @Suppress("UNUSED_EXPRESSION")
+                      epgRefreshTrigger
                       EPGLogosSidebar(
-                          channelLogoUrl = PlayerContext.channelLogoUrl,
+                          prevLogoUrl = channels.getOrNull(currentIdx - 1)?.logo,
+                          currentLogoUrl = PlayerContext.channelLogoUrl,
+                          nextLogoUrl = channels.getOrNull(currentIdx + 1)?.logo,
                           previousEpgItem = PlayerContext.previousEpgItem,
                           currentEpgItem = PlayerContext.currentEpgItem,
                           nextEpgItem = PlayerContext.nextEpgItem,
@@ -878,17 +918,17 @@ fun PlayerScreen(
                                  .fillMaxWidth()
                                  .padding(horizontal = 16.dp, vertical = 12.dp)
                           ) {
-                              EPGTimelineBar(
-                                  currentEpgItem = PlayerContext.currentEpgItem,
-                                  epgProgress = PlayerContext.epgProgress,
-                                  currentTimeInZone = PlayerContext.currentTimeInZone,
-                                  remainingMinutes = PlayerContext.remainingMinutes,
-                                  timeDisplayString = formatCurrentTimeForDisplay(
-                                      PlayerContext.currentTimeInZone,
-                                      PlayerContext.categoryTimezone
-                                  ),
-                                  timezoneName = PlayerContext.categoryTimezone
-                              )
+                               EPGTimelineBar(
+                                   currentEpgItem = PlayerContext.currentEpgItem,
+                                   epgProgress = epgProgress,
+                                   currentTimeInZone = epgCurrentTimeInZone,
+                                   remainingMinutes = epgRemainingMinutes,
+                                   timeDisplayString = formatCurrentTimeForDisplay(
+                                       epgCurrentTimeInZone,
+                                       PlayerContext.categoryTimezone
+                                   ),
+                                   timezoneName = PlayerContext.categoryTimezone
+                               )
                          }
                      } else {
                 // Timeline
