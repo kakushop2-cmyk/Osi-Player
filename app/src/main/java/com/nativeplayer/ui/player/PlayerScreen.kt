@@ -804,26 +804,33 @@ fun PlayerScreen(
                         )
                     )
                     .padding(horizontal = 16.dp, vertical = 12.dp)
-             ) {
-                if (contentTyp == ContentType.LIVE) {
-                    // Live TV: Show EPG UI
-                    EPGLogosSidebar(
-                        previousEpgItem = PlayerContext.previousEpgItem,
-                        currentEpgItem = PlayerContext.currentEpgItem,
-                        nextEpgItem = PlayerContext.nextEpgItem
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    EPGTimelineBar(
-                        currentEpgItem = PlayerContext.currentEpgItem,
-                        epgProgress = PlayerContext.epgProgress,
-                        currentTimeInZone = PlayerContext.currentTimeInZone,
-                        remainingMinutes = PlayerContext.remainingMinutes,
-                        timeDisplayString = formatCurrentTimeForDisplay(
-                            PlayerContext.currentTimeInZone,
-                            PlayerContext.categoryTimezone
-                        )
-                    )
-                } else {
+              ) {
+                 // Debug logging
+                 LaunchedEffect(contentTyp) {
+                     android.util.Log.d("PlayerScreen", "contentTyp = $contentTyp")
+                     android.util.Log.d("PlayerScreen", "currentEpgItem = ${PlayerContext.currentEpgItem}")
+                     android.util.Log.d("PlayerScreen", "categoryTimezone = ${PlayerContext.categoryTimezone}")
+                 }
+                 
+                 if (contentTyp == ContentType.LIVE) {
+                     // Live TV: Show EPG UI
+                     EPGLogosSidebar(
+                         previousEpgItem = PlayerContext.previousEpgItem,
+                         currentEpgItem = PlayerContext.currentEpgItem,
+                         nextEpgItem = PlayerContext.nextEpgItem
+                     )
+                     Spacer(Modifier.height(8.dp))
+                     EPGTimelineBar(
+                         currentEpgItem = PlayerContext.currentEpgItem,
+                         epgProgress = PlayerContext.epgProgress,
+                         currentTimeInZone = PlayerContext.currentTimeInZone,
+                         remainingMinutes = PlayerContext.remainingMinutes,
+                         timeDisplayString = formatCurrentTimeForDisplay(
+                             PlayerContext.currentTimeInZone,
+                             PlayerContext.categoryTimezone
+                         )
+                     )
+                 } else {
                 // Timeline
                 Row(
                     modifier = Modifier.fillMaxWidth(),
