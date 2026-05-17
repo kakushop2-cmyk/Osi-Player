@@ -309,12 +309,24 @@ class LiveViewModel @Inject constructor(
 
             val now = System.currentTimeMillis()
 
-            // ── Timestamps sind bereits UTC (von der API) ─────────
-            // start_timestamp = Unix epoch seconds in UTC
-            // Kein Offset nötig für Vergleich mit System.currentTimeMillis()
+            // ── Timestamps sind Local-Time-As-Epoch ────────────────
+            // Die API liefert start_timestamp so, dass epoch(local_time) gespeichert wird.
+            // Bsp: 16:40 Berlin → epoch(16:40) = 1779036000 (als ob es UTC wäre).
+            // Zum Vergleich mit System.currentTimeMillis() (echte UTC)
+            // muss der Zeitzonen-Offset abgezogen werden:
+            //   1779036000 - 7200s = 1779028800 = 14:40 UTC (echte Zeit) ✓
+            val tz = TimeZone.getTimeZone(_categoryTimezone.value)
+            val offsetMs = tz.getOffset(now)
             
-            // Sort by start time (UTC)
-            val sortedItems = allEpgItems.sortedBy { it.startTime }
+            // Sort by start time (convert local-time-as-epoch → real UTC)
+            val sortedItems = allEpgItems
+                .map { item ->
+                    item.copy(
+                        startTime = item.startTime - offsetMs,
+                        endTime = item.endTime - offsetMs
+                    )
+                }
+                .sortedBy { it.startTime }
 
             // Find current program (program that contains 'now')
             val current = sortedItems.firstOrNull { item ->
