@@ -52,7 +52,7 @@ fun EPGLogosSidebar(
         modifier = modifier
             .fillMaxHeight()
             .fillMaxWidth(SIDEBAR_WIDTH_FRACTION)
-            .background(WarmSurface.copy(alpha = 0.55f))
+            .background(WarmSurface.copy(alpha = 0.25f))
     ) {
         Column(
             modifier = Modifier
@@ -120,7 +120,7 @@ private fun ChannelProgramCard(
     label: String,
     modifier: Modifier = Modifier
 ) {
-    val alpha = if (isActive) 1f else 0.5f
+    val alpha = if (isActive) 1f else 0.35f
     val context = LocalContext.current
 
     Column(
@@ -133,7 +133,7 @@ private fun ChannelProgramCard(
             text = label,
             fontSize = 9.sp,
             fontWeight = FontWeight.Bold,
-            color = if (isActive) Color(0xFFFFD700).copy(alpha = 0.85f) else Color.Gray.copy(alpha = alpha * 0.7f),
+            color = if (isActive) Color(0xFFFFD700).copy(alpha = 0.7f) else Color.Gray.copy(alpha = alpha * 0.6f),
             letterSpacing = 2.sp
         )
 
@@ -145,8 +145,8 @@ private fun ChannelProgramCard(
                 .then(
                     if (isActive) {
                         Modifier.border(
-                            width = 2.dp,
-                            color = Color(0xFFFF8C00).copy(alpha = 0.7f),
+                    width = 2.dp,
+                    color = Color(0xFFFF8C00).copy(alpha = 0.5f),
                             shape = RoundedCornerShape(6.dp)
                         )
                     } else Modifier
@@ -183,7 +183,7 @@ private fun ChannelProgramCard(
             text = epgItem?.title ?: "Keine Info",
             fontSize = if (isActive) 12.sp else 11.sp,
             fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
-            color = WarmTextPrimary.copy(alpha = alpha * 0.7f),
+            color = WarmTextPrimary.copy(alpha = alpha * 0.6f),
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis

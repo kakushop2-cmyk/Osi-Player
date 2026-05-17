@@ -42,7 +42,7 @@ fun EPGTimelineBar(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-            .background(WarmSurface.copy(alpha = 0.55f))
+            .background(WarmSurface.copy(alpha = 0.25f))
             .padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
         // ── Obere Reihe: Uhrzeit (links) | Programmname (zentriert) | Restzeit (rechts) ──
@@ -126,14 +126,15 @@ fun EPGTimelineBar(
 }
 
 /**
- * Formatiert einen Unix-Timestamp (Sekunden seit Epoch) in HH:MM
+ * Formatiert einen Unix-Timestamp (Millisekunden seit Epoch) in HH:MM
  * in der angegebenen Zeitzone.
+ * ACHTUNG: [epochMs] muss in MILLISEKUNDEN vorliegen!
  */
-private fun formatEpochToHHmm(epochSeconds: Long, timezoneName: String): String {
+private fun formatEpochToHHmm(epochMs: Long, timezoneName: String): String {
     return try {
         val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
         sdf.timeZone = TimeZone.getTimeZone(timezoneName)
-        sdf.format(Date(epochSeconds * 1000L))
+        sdf.format(Date(epochMs))
     } catch (_: Exception) {
         "--:--"
     }

@@ -287,7 +287,7 @@ fun PlayerScreen(
         if (contentTyp != ContentType.LIVE || !isPlaying) return@LaunchedEffect
         while (true) {
             delay(1000)
-            val current = PlayerContext.currentEpgItem ?: break
+            val current = PlayerContext.currentEpgItem ?: continue
             val now = System.currentTimeMillis()
             val total = current.endTime - current.startTime
             if (total > 0) {
@@ -870,7 +870,8 @@ fun PlayerScreen(
         AnimatedVisibility(
             visible = showControls,
             enter = fadeIn(),
-            exit = fadeOut()
+            exit = fadeOut(),
+            modifier = Modifier.fillMaxSize()
         ) {
             Box(Modifier.fillMaxSize()) {
                 
