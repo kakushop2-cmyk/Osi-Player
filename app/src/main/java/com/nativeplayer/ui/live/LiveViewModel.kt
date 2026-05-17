@@ -9,7 +9,6 @@ import com.nativeplayer.data.model.FavoriteEntity
 import com.nativeplayer.data.repository.FavoriteRepository
 import com.nativeplayer.data.repository.IptvRepository
 import com.nativeplayer.data.repository.PreferencesManager
-import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,18 +25,17 @@ import java.util.TimeZone
 class LiveViewModel @Inject constructor(
     private val repository: IptvRepository,
     private val favoriteRepository: FavoriteRepository,
-    private val preferencesManager: PreferencesManager,
-    private val categoryVisibilityViewModel: CategoryVisibilityViewModel
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
     private val _categories = MutableStateFlow<List<Category>>(emptyList())
     val categories: StateFlow<List<Category>> = _categories.asStateFlow()
     
     /**
      * Gefilterte Kategorien (versteckte Kategorien werden ausgeblendet).
-     * Diese StateFlow kombiniert _categories mit der CategoryVisibilityViewModel.
+     * Diese StateFlow kombiniert _categories mit den Visibility-Einstellungen.
      */
     val filteredCategories: StateFlow<List<Category>> = 
-        combine(_categories, categoryVisibilityViewModel.categoryVisibility) { cats, visibility ->
+        combine(_categories, preferencesManager.getCategoryVisibilityFlow()) { cats, visibility ->
             cats.filter { !visibility.hiddenCategoriesLiveTV.contains(it.name) }
         }.stateIn(
             scope = viewModelScope,

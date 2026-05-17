@@ -2,7 +2,7 @@ package com.nativeplayer.ui.series;
 
 import com.nativeplayer.data.repository.FavoriteRepository;
 import com.nativeplayer.data.repository.IptvRepository;
-import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel;
+import com.nativeplayer.data.repository.PreferencesManager;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -29,30 +29,29 @@ public final class SeriesViewModel_Factory implements Factory<SeriesViewModel> {
 
   private final Provider<FavoriteRepository> favoriteRepositoryProvider;
 
-  private final Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider;
+  private final Provider<PreferencesManager> preferencesManagerProvider;
 
   public SeriesViewModel_Factory(Provider<IptvRepository> repositoryProvider,
       Provider<FavoriteRepository> favoriteRepositoryProvider,
-      Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider) {
+      Provider<PreferencesManager> preferencesManagerProvider) {
     this.repositoryProvider = repositoryProvider;
     this.favoriteRepositoryProvider = favoriteRepositoryProvider;
-    this.categoryVisibilityViewModelProvider = categoryVisibilityViewModelProvider;
+    this.preferencesManagerProvider = preferencesManagerProvider;
   }
 
   @Override
   public SeriesViewModel get() {
-    return newInstance(repositoryProvider.get(), favoriteRepositoryProvider.get(), categoryVisibilityViewModelProvider.get());
+    return newInstance(repositoryProvider.get(), favoriteRepositoryProvider.get(), preferencesManagerProvider.get());
   }
 
   public static SeriesViewModel_Factory create(Provider<IptvRepository> repositoryProvider,
       Provider<FavoriteRepository> favoriteRepositoryProvider,
-      Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider) {
-    return new SeriesViewModel_Factory(repositoryProvider, favoriteRepositoryProvider, categoryVisibilityViewModelProvider);
+      Provider<PreferencesManager> preferencesManagerProvider) {
+    return new SeriesViewModel_Factory(repositoryProvider, favoriteRepositoryProvider, preferencesManagerProvider);
   }
 
   public static SeriesViewModel newInstance(IptvRepository repository,
-      FavoriteRepository favoriteRepository,
-      CategoryVisibilityViewModel categoryVisibilityViewModel) {
-    return new SeriesViewModel(repository, favoriteRepository, categoryVisibilityViewModel);
+      FavoriteRepository favoriteRepository, PreferencesManager preferencesManager) {
+    return new SeriesViewModel(repository, favoriteRepository, preferencesManager);
   }
 }

@@ -9,6 +9,9 @@ import com.nativeplayer.data.model.CategoryVisibilitySettings
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -183,6 +186,13 @@ class PreferencesManager @Inject constructor(
 
     // ── Category Visibility Settings ───────────────────────────
 
+    private val _categoryVisibilityFlow = MutableStateFlow(getCategoryVisibility())
+
+    /**
+     * Reactive flow that emits category visibility settings whenever they change.
+     */
+    fun getCategoryVisibilityFlow(): StateFlow<CategoryVisibilitySettings> = _categoryVisibilityFlow.asStateFlow()
+
     /**
      * Saves the category visibility settings (hidden categories for each type).
      * Persists to SharedPreferences as JSON.
@@ -191,6 +201,7 @@ class PreferencesManager @Inject constructor(
         try {
             val json = gson.toJson(settings)
             prefs.edit().putString(KEY_CATEGORY_VISIBILITY, json).apply()
+            _categoryVisibilityFlow.value = settings
         } catch (e: Exception) {
             Log.e("PreferencesManager", "Error saving category visibility settings", e)
         }

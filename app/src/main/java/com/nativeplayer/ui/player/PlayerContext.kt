@@ -19,6 +19,7 @@ object PlayerContext {
     private var _previousEpgItem: EpgItem? = null
     private var _currentEpgItem: EpgItem? = null
     private var _nextEpgItem: EpgItem? = null
+    private var _channelLogoUrl: String? = null
     private var _epgProgress: Float = 0f
     private var _currentTimeInZone: Long = 0L
     private var _remainingMinutes: Int = 0
@@ -40,6 +41,7 @@ object PlayerContext {
         previousEpgItem: EpgItem?,
         currentEpgItem: EpgItem?,
         nextEpgItem: EpgItem?,
+        channelLogoUrl: String?,
         epgProgress: Float,
         currentTimeInZone: Long,
         remainingMinutes: Int,
@@ -48,6 +50,7 @@ object PlayerContext {
         _previousEpgItem = previousEpgItem
         _currentEpgItem = currentEpgItem
         _nextEpgItem = nextEpgItem
+        _channelLogoUrl = channelLogoUrl
         _epgProgress = epgProgress
         _currentTimeInZone = currentTimeInZone
         _remainingMinutes = remainingMinutes
@@ -61,6 +64,7 @@ object PlayerContext {
         _previousEpgItem = null
         _currentEpgItem = null
         _nextEpgItem = null
+        _channelLogoUrl = null
         _epgProgress = 0f
         _currentTimeInZone = 0L
         _remainingMinutes = 0
@@ -77,6 +81,7 @@ object PlayerContext {
     val previousEpgItem: EpgItem? get() = _previousEpgItem
     val currentEpgItem: EpgItem? get() = _currentEpgItem
     val nextEpgItem: EpgItem? get() = _nextEpgItem
+    val channelLogoUrl: String? get() = _channelLogoUrl
     val epgProgress: Float get() = _epgProgress
     val currentTimeInZone: Long get() = _currentTimeInZone
     val remainingMinutes: Int get() = _remainingMinutes

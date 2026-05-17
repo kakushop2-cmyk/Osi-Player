@@ -6,7 +6,7 @@ import com.nativeplayer.data.model.FavoriteEntity
 import com.nativeplayer.data.model.Movie
 import com.nativeplayer.data.repository.FavoriteRepository
 import com.nativeplayer.data.repository.IptvRepository
-import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel
+import com.nativeplayer.data.repository.PreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +20,7 @@ import javax.inject.Inject
 class MoviesViewModel @Inject constructor(
     private val repository: IptvRepository,
     private val favoriteRepository: FavoriteRepository,
-    private val categoryVisibilityViewModel: CategoryVisibilityViewModel
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
     private val _moviesByCategory = MutableStateFlow<Map<String, List<Movie>>>(emptyMap())
     val moviesByCategory: StateFlow<Map<String, List<Movie>>> = _moviesByCategory.asStateFlow()
@@ -30,10 +30,10 @@ class MoviesViewModel @Inject constructor(
     
     /**
      * Gefilterte Kategorien (versteckte Kategorien werden ausgeblendet).
-     * Diese StateFlow kombiniert _categories mit der CategoryVisibilityViewModel.
+     * Diese StateFlow kombiniert _categories mit den Visibility-Einstellungen.
      */
     val filteredCategories: StateFlow<List<String>> = 
-        combine(_categories, categoryVisibilityViewModel.categoryVisibility) { cats, visibility ->
+        combine(_categories, preferencesManager.getCategoryVisibilityFlow()) { cats, visibility ->
             cats.filter { it == "Alle" || !visibility.hiddenCategoriesMovies.contains(it) }
         }.stateIn(
             scope = viewModelScope,

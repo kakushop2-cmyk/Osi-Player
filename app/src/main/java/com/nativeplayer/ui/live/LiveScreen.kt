@@ -183,17 +183,18 @@ fun LiveScreen(
                      )
                  }
                  
-                 // EPG Overlay on top of video
-                 FullscreenLiveOverlay(
-                     previousEpgItem = previousEpgItem,
-                     currentEpgItem = currentEpgItem,
-                     nextEpgItem = nextEpgItem,
-                     epgProgress = epgProgress,
-                     currentTimeInZone = currentTimeInZone,
-                     remainingMinutes = remainingMinutes,
-                     timeDisplayString = formatCurrentTime(currentTimeInZone, categoryTimezone),
-                     modifier = Modifier.fillMaxSize()
-                 )
+                   // EPG Overlay on top of video
+                   FullscreenLiveOverlay(
+                       channelLogoUrl = selectedChannel?.logo,
+                       previousEpgItem = previousEpgItem,
+                       currentEpgItem = currentEpgItem,
+                       nextEpgItem = nextEpgItem,
+                       epgProgress = epgProgress,
+                       currentTimeInZone = currentTimeInZone,
+                       remainingMinutes = remainingMinutes,
+                       timeDisplayString = formatCurrentTime(currentTimeInZone, categoryTimezone),
+                       modifier = Modifier.fillMaxSize()
+                   )
                  
                  // Exit fullscreen button (top-left)
                  IconButton(
@@ -401,15 +402,16 @@ fun LiveScreen(
                                               android.util.Log.d("LiveScreen", "  nextEpgItem = ${viewModel.nextEpgItem.value}")
                                               
                                               // Set EPG data in PlayerContext before navigation
-                                              PlayerContext.setEpgData(
-                                                  previousEpgItem = viewModel.previousEpgItem.value,
-                                                  currentEpgItem = viewModel.currentEpgItem.value,
-                                                  nextEpgItem = viewModel.nextEpgItem.value,
-                                                  epgProgress = viewModel.epgProgress.value,
-                                                  currentTimeInZone = viewModel.currentTimeInZone.value,
-                                                  remainingMinutes = viewModel.remainingMinutes.value,
-                                                  categoryTimezone = viewModel.categoryTimezone.value
-                                              )
+                                               PlayerContext.setEpgData(
+                                                   previousEpgItem = viewModel.previousEpgItem.value,
+                                                   currentEpgItem = viewModel.currentEpgItem.value,
+                                                   nextEpgItem = viewModel.nextEpgItem.value,
+                                                   channelLogoUrl = channel.logo,
+                                                   epgProgress = viewModel.epgProgress.value,
+                                                   currentTimeInZone = viewModel.currentTimeInZone.value,
+                                                   remainingMinutes = viewModel.remainingMinutes.value,
+                                                   categoryTimezone = viewModel.categoryTimezone.value
+                                               )
                                               
                                               navController.navigate(
                                                   Screen.FullScreenPlayer.createRoute(

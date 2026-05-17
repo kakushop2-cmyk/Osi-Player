@@ -13,6 +13,7 @@ import com.nativeplayer.ui.series.SeriesDetailViewModel_HiltModules;
 import com.nativeplayer.ui.series.SeriesViewModel_HiltModules;
 import com.nativeplayer.ui.settings.PlayerSettingsViewModel_HiltModules;
 import com.nativeplayer.ui.splash.SplashViewModel_HiltModules;
+import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -164,6 +165,7 @@ public final class NativePlayerApp_HiltComponents {
 
   @Subcomponent(
       modules = {
+          CategoryVisibilityViewModel_HiltModules.KeyModule.class,
           FavoritesViewModel_HiltModules.KeyModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HiltWrapper_SavedStateHandleModule.class,
@@ -215,6 +217,7 @@ public final class NativePlayerApp_HiltComponents {
 
   @Subcomponent(
       modules = {
+          CategoryVisibilityViewModel_HiltModules.BindsModule.class,
           FavoritesViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           HomeViewModel_HiltModules.BindsModule.class,

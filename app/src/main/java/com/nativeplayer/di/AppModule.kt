@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.room.Room
 import com.nativeplayer.data.api.XtreamApi
 import com.nativeplayer.data.repository.*
-import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -72,8 +71,4 @@ object AppModule {
     @Singleton
     fun provideWatchHistoryRepository(dao: WatchHistoryDao): WatchHistoryRepository = WatchHistoryRepository(dao)
 
-    @Provides
-    @Singleton
-    fun provideCategoryVisibilityViewModel(preferencesManager: PreferencesManager): CategoryVisibilityViewModel =
-        CategoryVisibilityViewModel(preferencesManager)
 }

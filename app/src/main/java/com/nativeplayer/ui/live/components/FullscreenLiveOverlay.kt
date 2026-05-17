@@ -26,6 +26,7 @@ import kotlinx.coroutines.delay
  */
 @Composable
 fun FullscreenLiveOverlay(
+    channelLogoUrl: String?,
     previousEpgItem: EpgItem?,
     currentEpgItem: EpgItem?,
     nextEpgItem: EpgItem?,
@@ -78,6 +79,7 @@ fun FullscreenLiveOverlay(
                 .fillMaxWidth(0.225f) // 20-25% of screen width
         ) {
             EPGLogosSidebar(
+                channelLogoUrl = channelLogoUrl,
                 previousEpgItem = previousEpgItem,
                 currentEpgItem = currentEpgItem,
                 nextEpgItem = nextEpgItem
@@ -98,7 +100,8 @@ fun FullscreenLiveOverlay(
                 epgProgress = epgProgress,
                 currentTimeInZone = currentTimeInZone,
                 remainingMinutes = remainingMinutes,
-                timeDisplayString = timeDisplayString
+                timeDisplayString = timeDisplayString,
+                timezoneName = "UTC" // LiveScreen uses UTC-based time
             )
         }
     }

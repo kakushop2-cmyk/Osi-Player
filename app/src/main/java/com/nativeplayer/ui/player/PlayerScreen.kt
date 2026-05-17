@@ -819,15 +819,16 @@ fun PlayerScreen(
                      android.util.Log.d("PlayerScreen", "categoryTimezone = ${PlayerContext.categoryTimezone}")
                  }
                  
-                 // EPG Right Sidebar (only for Live TV)
-                 if (contentTyp == ContentType.LIVE) {
-                     EPGLogosSidebar(
-                         previousEpgItem = PlayerContext.previousEpgItem,
-                         currentEpgItem = PlayerContext.currentEpgItem,
-                         nextEpgItem = PlayerContext.nextEpgItem,
-                         modifier = Modifier.align(Alignment.CenterEnd)
-                     )
-                 }
+                  // EPG Right Sidebar (only for Live TV)
+                  if (contentTyp == ContentType.LIVE) {
+                      EPGLogosSidebar(
+                          channelLogoUrl = PlayerContext.channelLogoUrl,
+                          previousEpgItem = PlayerContext.previousEpgItem,
+                          currentEpgItem = PlayerContext.currentEpgItem,
+                          nextEpgItem = PlayerContext.nextEpgItem,
+                          modifier = Modifier.align(Alignment.CenterEnd)
+                      )
+                  }
                  
                  // Bottom Controls Bar
                  Box(
@@ -846,17 +847,18 @@ fun PlayerScreen(
                              modifier = Modifier
                                  .fillMaxWidth()
                                  .padding(horizontal = 16.dp, vertical = 12.dp)
-                         ) {
-                             EPGTimelineBar(
-                                 currentEpgItem = PlayerContext.currentEpgItem,
-                                 epgProgress = PlayerContext.epgProgress,
-                                 currentTimeInZone = PlayerContext.currentTimeInZone,
-                                 remainingMinutes = PlayerContext.remainingMinutes,
-                                 timeDisplayString = formatCurrentTimeForDisplay(
-                                     PlayerContext.currentTimeInZone,
-                                     PlayerContext.categoryTimezone
-                                 )
-                             )
+                          ) {
+                              EPGTimelineBar(
+                                  currentEpgItem = PlayerContext.currentEpgItem,
+                                  epgProgress = PlayerContext.epgProgress,
+                                  currentTimeInZone = PlayerContext.currentTimeInZone,
+                                  remainingMinutes = PlayerContext.remainingMinutes,
+                                  timeDisplayString = formatCurrentTimeForDisplay(
+                                      PlayerContext.currentTimeInZone,
+                                      PlayerContext.categoryTimezone
+                                  ),
+                                  timezoneName = PlayerContext.categoryTimezone
+                              )
                          }
                      } else {
                 // Timeline

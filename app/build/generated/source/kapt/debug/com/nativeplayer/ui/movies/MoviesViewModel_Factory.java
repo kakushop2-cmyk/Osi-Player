@@ -2,7 +2,7 @@ package com.nativeplayer.ui.movies;
 
 import com.nativeplayer.data.repository.FavoriteRepository;
 import com.nativeplayer.data.repository.IptvRepository;
-import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel;
+import com.nativeplayer.data.repository.PreferencesManager;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
@@ -29,30 +29,29 @@ public final class MoviesViewModel_Factory implements Factory<MoviesViewModel> {
 
   private final Provider<FavoriteRepository> favoriteRepositoryProvider;
 
-  private final Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider;
+  private final Provider<PreferencesManager> preferencesManagerProvider;
 
   public MoviesViewModel_Factory(Provider<IptvRepository> repositoryProvider,
       Provider<FavoriteRepository> favoriteRepositoryProvider,
-      Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider) {
+      Provider<PreferencesManager> preferencesManagerProvider) {
     this.repositoryProvider = repositoryProvider;
     this.favoriteRepositoryProvider = favoriteRepositoryProvider;
-    this.categoryVisibilityViewModelProvider = categoryVisibilityViewModelProvider;
+    this.preferencesManagerProvider = preferencesManagerProvider;
   }
 
   @Override
   public MoviesViewModel get() {
-    return newInstance(repositoryProvider.get(), favoriteRepositoryProvider.get(), categoryVisibilityViewModelProvider.get());
+    return newInstance(repositoryProvider.get(), favoriteRepositoryProvider.get(), preferencesManagerProvider.get());
   }
 
   public static MoviesViewModel_Factory create(Provider<IptvRepository> repositoryProvider,
       Provider<FavoriteRepository> favoriteRepositoryProvider,
-      Provider<CategoryVisibilityViewModel> categoryVisibilityViewModelProvider) {
-    return new MoviesViewModel_Factory(repositoryProvider, favoriteRepositoryProvider, categoryVisibilityViewModelProvider);
+      Provider<PreferencesManager> preferencesManagerProvider) {
+    return new MoviesViewModel_Factory(repositoryProvider, favoriteRepositoryProvider, preferencesManagerProvider);
   }
 
   public static MoviesViewModel newInstance(IptvRepository repository,
-      FavoriteRepository favoriteRepository,
-      CategoryVisibilityViewModel categoryVisibilityViewModel) {
-    return new MoviesViewModel(repository, favoriteRepository, categoryVisibilityViewModel);
+      FavoriteRepository favoriteRepository, PreferencesManager preferencesManager) {
+    return new MoviesViewModel(repository, favoriteRepository, preferencesManager);
   }
 }

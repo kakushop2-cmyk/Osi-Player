@@ -10,118 +10,179 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.nativeplayer.data.model.EpgItem
 import com.nativeplayer.ui.theme.WarmSurface
 import com.nativeplayer.ui.theme.WarmTextPrimary
 
+/** Breite der EPG-Seitenleiste (ca. 22 % des Bildschirms). */
+private const val SIDEBAR_WIDTH_FRACTION = 0.22f
+
 /**
- * Sidebar component displaying current, previous, and next program logos
- * Located on right side of fullscreen Live TV view
+ * Rechte EPG-Seitenleiste für den Live-TV-Vollbildmodus.
+ * Zeigt maximal 3 Programme (vorheriges, aktuelles, nächstes) mit
+ * Senderlogos und vollständigen Programmtiteln.
+ *
+ * @param channelLogoUrl URL des Senderlogos (für alle Programme gleich).
+ * @param previousEpgItem Vorheriges Programm (kann null sein → Platzhalter).
+ * @param currentEpgItem Aktuell laufendes Programm.
+ * @param nextEpgItem Nächstes Programm (kann null sein → Platzhalter).
  */
 @Composable
 fun EPGLogosSidebar(
+    channelLogoUrl: String?,
     previousEpgItem: EpgItem?,
     currentEpgItem: EpgItem?,
     nextEpgItem: EpgItem?,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier
             .fillMaxHeight()
-            .background(WarmSurface.copy(alpha = 0.85f))
-            .padding(vertical = 16.dp, horizontal = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxWidth(SIDEBAR_WIDTH_FRACTION)
+            .background(WarmSurface.copy(alpha = 0.88f))
     ) {
-        // Previous Program (if available)
-        if (previousEpgItem != null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 20.dp, horizontal = 12.dp),
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // ── Vorheriges Programm ──
             EPGProgramCard(
                 epgItem = previousEpgItem,
-                isActive = false
+                logoUrl = channelLogoUrl,
+                isActive = false,
+                label = "VORHER"
             )
-        } else {
-            Spacer(modifier = Modifier.height(0.dp))
-        }
 
-        // Current Program (Active)
-        if (currentEpgItem != null) {
+            // Trennlinie
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .height(1.dp)
+                    .background(Color.Gray.copy(alpha = 0.3f))
+            )
+
+            // ── Aktuelles Programm ──
             EPGProgramCard(
                 epgItem = currentEpgItem,
-                isActive = true
+                logoUrl = channelLogoUrl,
+                isActive = true,
+                label = "JETZT"
             )
-        }
 
-        // Next Program (if available)
-        if (nextEpgItem != null) {
+            // Trennlinie
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .height(1.dp)
+                    .background(Color.Gray.copy(alpha = 0.3f))
+            )
+
+            // ── Nächstes Programm ──
             EPGProgramCard(
                 epgItem = nextEpgItem,
-                isActive = false
+                logoUrl = channelLogoUrl,
+                isActive = false,
+                label = "NÄCHSTES"
             )
-        } else {
-            Spacer(modifier = Modifier.height(0.dp))
         }
     }
 }
 
 /**
- * Individual program card with logo placeholder and name
+ * Einzelne Programm-Karte mit Logo und Titel.
+ *
+ * @param epgItem EPG-Daten (kann null sein → Platzhalter).
+ * @param logoUrl  URL des Senderlogos (optional).
+ * @param isActive [currentEpgItem] → goldener Rand + volle Deckkraft.
+ * @param label    Kleine Bezeichnung über dem Programm (VORHER / JETZT / NÄCHSTES).
  */
 @Composable
 private fun EPGProgramCard(
-    epgItem: EpgItem,
+    epgItem: EpgItem?,
+    logoUrl: String?,
     isActive: Boolean,
+    label: String,
     modifier: Modifier = Modifier
 ) {
+    val alpha = if (isActive) 1f else 0.5f
+    val context = LocalContext.current
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        // Logo Container (Placeholder with gradient)
+        // Label (VORHER / JETZT / NÄCHSTES)
+        Text(
+            text = label,
+            fontSize = 9.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (isActive) Color(0xFFFFD700) else Color.Gray.copy(alpha = alpha),
+            letterSpacing = 2.sp
+        )
+
+        // Logo-Container (60 × 60 dp)
         Box(
             modifier = Modifier
                 .size(60.dp)
-                .clip(RoundedCornerShape(4.dp))
+                .clip(RoundedCornerShape(6.dp))
                 .then(
                     if (isActive) {
                         Modifier.border(
                             width = 4.dp,
-                            color = Color(0xFFFF8C00), // Dark orange-gold
-                            shape = RoundedCornerShape(4.dp)
+                            color = Color(0xFFFF8C00),
+                            shape = RoundedCornerShape(6.dp)
                         )
-                    } else {
-                        Modifier
-                    }
+                    } else Modifier
                 )
                 .background(
-                    color = Color.Gray.copy(
-                        alpha = if (isActive) 1f else 0.5f
-                    )
+                    color = Color.Gray.copy(alpha = if (isActive) 0.15f else 0.08f)
                 ),
             contentAlignment = Alignment.Center
         ) {
-            // Placeholder letter or icon
-            Text(
-                text = epgItem.title.firstOrNull()?.uppercase() ?: "?",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White.copy(
-                    alpha = if (isActive) 1f else 0.5f
+            if (epgItem != null && !logoUrl.isNullOrEmpty()) {
+                // ── Echtes Senderlogo ──
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(logoUrl)
+                        .crossfade(300)
+                        .build(),
+                    contentDescription = epgItem.title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
                 )
-            )
+            } else {
+                // ── Platzhalter (erster Buchstabe) ──
+                Text(
+                    text = epgItem?.title?.firstOrNull()?.uppercase() ?: "?",
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White.copy(alpha = alpha)
+                )
+            }
         }
 
-        // Program Name
+        // Programmname (max. 2 Zeilen)
         Text(
-            text = epgItem.title,
-            fontSize = if (isActive) 14.sp else 12.sp,
-            fontWeight = FontWeight.Normal,
-            color = WarmTextPrimary.copy(alpha = if (isActive) 1f else 0.5f),
+            text = epgItem?.title ?: "Keine Info",
+            fontSize = if (isActive) 13.sp else 11.sp,
+            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
+            color = WarmTextPrimary.copy(alpha = alpha),
+            textAlign = TextAlign.Center,
             maxLines = 2,
-            modifier = Modifier.fillMaxWidth(0.9f)
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
