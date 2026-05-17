@@ -41,6 +41,7 @@ import com.nativeplayer.data.model.EpgItem
 import com.nativeplayer.player.PlayerManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import com.nativeplayer.ui.navigation.Screen
 import com.nativeplayer.ui.player.PlayerContext
 import com.nativeplayer.ui.theme.*
@@ -137,14 +138,20 @@ fun LiveScreen(
           BackNavigationState.selectedChannelId?.let { channelId ->
               BackNavigationState.selectedChannelId = null // konsumieren
               viewModel.selectChannelById(channelId)
-              
-              // PlayerContext.currentIndex wird live in switchToNextChannel aktualisiert
-              // und ist der Index im selectedCategory.channels → direkt scrollbar
-              kotlinx.coroutines.delay(300)
-              val index = PlayerContext.currentIndex
-              if (index >= 0) {
-                  try { channelListState.animateScrollToItem(index) } catch (_: Exception) {}
-              }
+
+              // Reaktiv warten, bis selectedCategory?.channels den Kanal enthält.
+              // selectChannelById wechselt ggf. die Kategorie (async) → snapshotFlow
+              // beobachtet den State und .first() wartet, bis der Kanal sichtbar ist.
+              kotlinx.coroutines.delay(100) // kurze Initialisierungszeit
+              snapshotFlow { selectedCategory?.channels ?: emptyList() }
+                  .first { channels -> channels.any { it.id == channelId } }
+                  .also { channels ->
+                      val index = channels.indexOfFirst { it.id == channelId }
+                      if (index >= 0) {
+                          delay(100) // LazyColumn layout abwarten
+                          try { channelListState.animateScrollToItem(index) } catch (_: Exception) {}
+                      }
+                  }
           }
       }
       
