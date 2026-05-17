@@ -377,56 +377,53 @@ fun LiveScreen(
                             modifier = Modifier.focusRequester(focusRequester),
                              onClick = {
                                  if (!isChannelSortMode) {
-                                     if (selectedChannel?.id == channel.id) {
-                                         FocusRestoreManager.saveFocus("live_screen", channel.id)
-                                         val currentChannels = selectedCategory?.channels ?: emptyList()
-                                         val idx = currentChannels.indexOfFirst { it.id == channel.id }
-                                         PlayerContext.setLiveContext(currentChannels, idx)
-                                         
-                                         // Set EPG data for Fullscreen UI
-                                         PlayerContext.setEpgData(
-                                             previousEpgItem = previousEpgItem,
-                                             currentEpgItem = currentEpgItem,
-                                             nextEpgItem = nextEpgItem,
-                                             epgProgress = epgProgress,
-                                             currentTimeInZone = currentTimeInZone,
-                                             remainingMinutes = remainingMinutes,
-                                             categoryTimezone = categoryTimezone
-                                          )
+                                      if (selectedChannel?.id == channel.id) {
+                                          FocusRestoreManager.saveFocus("live_screen", channel.id)
+                                          val currentChannels = selectedCategory?.channels ?: emptyList()
+                                          val idx = currentChannels.indexOfFirst { it.id == channel.id }
+                                          PlayerContext.setLiveContext(currentChannels, idx)
                                           
-                                           playerManager?.stop()
-                                           playerManager?.release()
-                                           playerManager = null
-                                           
-                                           // Debug: Log EPG data before setting
-                                           android.util.Log.d("LiveScreen", "Before setEpgData:")
-                                           android.util.Log.d("LiveScreen", "  previousEpgItem = $previousEpgItem")
-                                           android.util.Log.d("LiveScreen", "  currentEpgItem = $currentEpgItem")
-                                           android.util.Log.d("LiveScreen", "  nextEpgItem = $nextEpgItem")
-                                           android.util.Log.d("LiveScreen", "  epgProgress = $epgProgress")
-                                           android.util.Log.d("LiveScreen", "  categoryTimezone = $categoryTimezone")
-                                           
-                                           // Set EPG data in PlayerContext before navigation
-                                           PlayerContext.setEpgData(
-                                               previousEpgItem = previousEpgItem,
-                                               currentEpgItem = currentEpgItem,
-                                               nextEpgItem = nextEpgItem,
-                                               epgProgress = epgProgress,
-                                               currentTimeInZone = currentTimeInZone,
-                                               remainingMinutes = remainingMinutes,
-                                               categoryTimezone = categoryTimezone
-                                           )
-                                           
-                                           navController.navigate(
-                                               Screen.FullScreenPlayer.createRoute(
-                                                   url = channel.url,
-                                                   type = "live",
-                                                   contentId = channel.id,
-                                                   title = channel.name,
-                                                   imageUrl = channel.logo ?: ""
-                                               )
-                                           )
-                                     } else {
+                                          // CRITICAL: Load EPG data first!
+                                          viewModel.selectChannel(channel)
+                                          
+                                          // Wait a moment for EPG data to be loaded
+                                          coroutineScope.launch {
+                                              delay(500)  // Give ViewModel time to fetch EPG
+                                              
+                                              playerManager?.stop()
+                                              playerManager?.release()
+                                              playerManager = null
+                                              
+                                              // Debug: Log EPG data before setting
+                                              android.util.Log.d("LiveScreen", "After delay - Before setEpgData:")
+                                              android.util.Log.d("LiveScreen", "  previousEpgItem = $previousEpgItem")
+                                              android.util.Log.d("LiveScreen", "  currentEpgItem = $currentEpgItem")
+                                              android.util.Log.d("LiveScreen", "  nextEpgItem = $nextEpgItem")
+                                              android.util.Log.d("LiveScreen", "  epgProgress = $epgProgress")
+                                              android.util.Log.d("LiveScreen", "  categoryTimezone = $categoryTimezone")
+                                              
+                                              // Set EPG data in PlayerContext before navigation
+                                              PlayerContext.setEpgData(
+                                                  previousEpgItem = previousEpgItem,
+                                                  currentEpgItem = currentEpgItem,
+                                                  nextEpgItem = nextEpgItem,
+                                                  epgProgress = epgProgress,
+                                                  currentTimeInZone = currentTimeInZone,
+                                                  remainingMinutes = remainingMinutes,
+                                                  categoryTimezone = categoryTimezone
+                                              )
+                                              
+                                              navController.navigate(
+                                                  Screen.FullScreenPlayer.createRoute(
+                                                      url = channel.url,
+                                                      type = "live",
+                                                      contentId = channel.id,
+                                                      title = channel.name,
+                                                      imageUrl = channel.logo ?: ""
+                                                  )
+                                              )
+                                          }
+                                      } else {
                                          viewModel.selectChannel(channel)
                                          lastClickedChannelId = channel.id
                                      }
