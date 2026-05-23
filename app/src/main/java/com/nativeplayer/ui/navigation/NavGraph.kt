@@ -20,16 +20,11 @@ import com.nativeplayer.ui.search.SearchScreen
 import com.nativeplayer.ui.settings.SettingsScreen
 import com.nativeplayer.ui.settings.PlayerSettingsScreen
 import com.nativeplayer.ui.login.LoginScreen
-import com.nativeplayer.ui.splash.SplashScreen
 import com.nativeplayer.ui.splash.IntroScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.Splash.route) {
-
-        composable(Screen.Splash.route) {
-            SplashScreen(navController = navController)
-        }
+    NavHost(navController = navController, startDestination = Screen.Intro.route) {
 
         composable(Screen.Intro.route) {
             IntroScreen(navController = navController)
