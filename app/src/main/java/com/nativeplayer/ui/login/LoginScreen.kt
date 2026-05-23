@@ -182,7 +182,7 @@ fun LoginScreen(
     LaunchedEffect(state) {
         if (state is LoginState.Success) {
             navController.navigate(Screen.Home.route) {
-                popUpTo(Screen.Splash.route) { inclusive = true }
+                popUpTo(Screen.Intro.route) { inclusive = true }
             }
         }
     }

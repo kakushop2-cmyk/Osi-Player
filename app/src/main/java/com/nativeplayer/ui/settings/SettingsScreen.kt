@@ -67,8 +67,7 @@ fun SettingsScreen(
                 },
                 actions = {
                     TextButton(onClick = {
-                        viewModel.loadData()
-                        navController.navigate(Screen.Splash.route) {
+                        navController.navigate(Screen.Intro.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
                         }
                     }) {
@@ -101,8 +100,7 @@ fun SettingsScreen(
                         .fillMaxWidth()
                         .clickable {
                             viewModel.setActiveAccount(account.id)
-                            viewModel.loadData(account)
-                            navController.navigate(Screen.Splash.route) {
+                            navController.navigate(Screen.Intro.route) {
                                 popUpTo(Screen.Settings.route) { inclusive = true }
                             }
                         },
@@ -460,8 +458,7 @@ fun SettingsScreen(
                 viewModel.saveAccount(account)
                 viewModel.setActiveAccount(account.id)
                 showAddDialog = false
-                viewModel.loadData(account)
-                navController.navigate(Screen.Splash.route) {
+                navController.navigate(Screen.Intro.route) {
                     popUpTo(Screen.Settings.route) { inclusive = true }
                 }
             }

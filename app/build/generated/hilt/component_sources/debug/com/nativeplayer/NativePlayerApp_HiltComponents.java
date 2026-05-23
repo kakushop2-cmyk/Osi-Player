@@ -13,6 +13,7 @@ import com.nativeplayer.ui.search.SearchViewModel_HiltModules;
 import com.nativeplayer.ui.series.SeriesDetailViewModel_HiltModules;
 import com.nativeplayer.ui.series.SeriesViewModel_HiltModules;
 import com.nativeplayer.ui.settings.PlayerSettingsViewModel_HiltModules;
+import com.nativeplayer.ui.splash.IntroViewModel_HiltModules;
 import com.nativeplayer.ui.splash.SplashViewModel_HiltModules;
 import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel_HiltModules;
 import dagger.Binds;
@@ -171,6 +172,7 @@ public final class NativePlayerApp_HiltComponents {
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HiltWrapper_SavedStateHandleModule.class,
           HomeViewModel_HiltModules.KeyModule.class,
+          IntroViewModel_HiltModules.KeyModule.class,
           LiveViewModel_HiltModules.KeyModule.class,
           LoginViewModel_HiltModules.KeyModule.class,
           MovieDetailViewModel_HiltModules.KeyModule.class,
@@ -223,6 +225,7 @@ public final class NativePlayerApp_HiltComponents {
           FavoritesViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           HomeViewModel_HiltModules.BindsModule.class,
+          IntroViewModel_HiltModules.BindsModule.class,
           LiveViewModel_HiltModules.BindsModule.class,
           LoginViewModel_HiltModules.BindsModule.class,
           MovieDetailViewModel_HiltModules.BindsModule.class,

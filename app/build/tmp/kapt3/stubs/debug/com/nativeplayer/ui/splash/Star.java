@@ -2,11 +2,16 @@ package com.nativeplayer.ui.splash;
 
 import android.net.Uri;
 import androidx.compose.foundation.layout.*;
+import androidx.compose.material3.ButtonDefaults;
+import androidx.compose.material3.CardDefaults;
 import androidx.compose.runtime.*;
 import androidx.compose.ui.Alignment;
 import androidx.compose.ui.Modifier;
 import androidx.compose.ui.graphics.Brush;
+import androidx.compose.ui.text.font.FontWeight;
+import androidx.compose.ui.text.style.TextAlign;
 import com.nativeplayer.ui.theme.*;
+import androidx.compose.material.icons.Icons;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
