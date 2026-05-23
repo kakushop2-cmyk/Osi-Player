@@ -1,7 +1,6 @@
 package com.nativeplayer.ui.navigation
 
 sealed class Screen(val route: String) {
-    data object Splash : Screen("splash")
     data object Intro : Screen("intro")
     data object Settings : Screen("settings")
     data object Login : Screen("login")
