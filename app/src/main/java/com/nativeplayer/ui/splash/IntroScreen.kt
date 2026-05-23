@@ -7,7 +7,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -16,10 +23,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import com.nativeplayer.ui.theme.*
 import androidx.compose.ui.graphics.RadialGradientShader
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -46,10 +58,15 @@ private data class Star(
 
 @OptIn(UnstableApi::class)
 @Composable
-fun IntroScreen(navController: NavController) {
+fun IntroScreen(
+    navController: NavController,
+    viewModel: IntroViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
+    val state by viewModel.state.collectAsState()
     var videoEnded by remember { mutableStateOf(false) }
     var showSkip by remember { mutableStateOf(false) }
+    var showErrorOverlay by remember { mutableStateOf(false) }
 
     // Sterne einmalig generieren
     val stars = remember {
@@ -73,10 +90,42 @@ fun IntroScreen(navController: NavController) {
         }
     }
 
-    LaunchedEffect(videoEnded) {
-        if (videoEnded) {
+    // Navigiere zu Login wenn kein Account konfiguriert
+    LaunchedEffect(state) {
+        when (state) {
+            is IntroState.NoAccount -> {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.Intro.route) { inclusive = true }
+                }
+            }
+            else -> {}
+        }
+    }
+
+    // Bei erfolgreichem Retry nach Fehler: navigiere zu Home
+    LaunchedEffect(state) {
+        if (showErrorOverlay && state is IntroState.Success) {
             navController.navigate(Screen.Home.route) {
                 popUpTo(Screen.Intro.route) { inclusive = true }
+            }
+        }
+    }
+
+    // Navigation nach Video-Ende (abhängig vom Ladestatus)
+    LaunchedEffect(videoEnded) {
+        if (videoEnded) {
+            when (state) {
+                is IntroState.Error -> {
+                    showErrorOverlay = true
+                }
+                is IntroState.NoAccount -> {
+                    // wird bereits durch state-LaunchedEffect behandelt
+                }
+                else -> { // Success oder Loading -> zu Home
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Intro.route) { inclusive = true }
+                    }
+                }
             }
         }
     }
@@ -181,6 +230,81 @@ fun IntroScreen(navController: NavController) {
                     color = OsiTextPrimary.copy(alpha = 0.7f),
                     fontSize = 16.sp
                 )
+            }
+        }
+
+        // Layer 5: Error-Overlay (bei Verbindungsfehler nach Video-Ende)
+        AnimatedVisibility(
+            visible = showErrorOverlay,
+            enter = fadeIn(tween(300)),
+            exit = fadeOut(tween(300))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xCC000000))
+                    .clickable(enabled = true) { /* Klicks konsumieren */ },
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    modifier = Modifier
+                        .padding(32.dp)
+                        .fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = WarmSurface
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Filled.Warning,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = WarmError
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            "Verbindungsfehler",
+                            color = WarmTextPrimary,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = (state as? IntroState.Error)?.message
+                                ?: "Unbekannter Fehler",
+                            color = WarmTextSecondary,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(Modifier.height(24.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            OutlinedButton(
+                                onClick = { viewModel.retry() },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = WarmGold
+                                )
+                            ) {
+                                Text("Erneut versuchen")
+                            }
+                            OutlinedButton(
+                                onClick = {
+                                    navController.navigate(Screen.Settings.route) {
+                                        popUpTo(Screen.Intro.route) { inclusive = true }
+                                    }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = WarmTextSecondary
+                                )
+                            ) {
+                                Text("Einstellungen")
+                            }
+                        }
+                    }
+                }
             }
         }
     }
