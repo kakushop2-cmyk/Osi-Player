@@ -34,7 +34,16 @@ class MovieDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _isFavorite.value = favoriteRepository.isFavoriteSync(movieId)
             _watchHistory.value = watchHistoryRepository.getByItemId(movieId)
-            _movieDetails.value = iptvRepository.loadVodInfo(movieId)
+            // Erst versuchen den Film aus dem Cache zu holen (sofortige Anzeige)
+            val cachedMovie = iptvRepository.getMovies().find { it.id == movieId }
+            if (cachedMovie != null && _movieDetails.value == null) {
+                _movieDetails.value = cachedMovie
+            }
+            // Dann Details von der API laden (erweiterte Infos wie Plot, Rating)
+            val detailedMovie = iptvRepository.loadVodInfo(movieId)
+            if (detailedMovie != null) {
+                _movieDetails.value = detailedMovie
+            }
         }
     }
 

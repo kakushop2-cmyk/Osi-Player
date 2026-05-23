@@ -2,19 +2,14 @@ package com.nativeplayer.ui.theme
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// ── Inter Typography ────────────────────────────────────────
-// TODO: Add Inter font files to res/font/ and load via FontFamily:
-//   val Inter = FontFamily(
-//       Font(R.font.inter_regular, FontWeight.Normal),
-//       Font(R.font.inter_medium, FontWeight.Medium),
-//       Font(R.font.inter_bold, FontWeight.Bold),
-//   )
-private val WarmTypography = Typography(
+// ── Typography ──────────────────────────────────────────────
+private val OsiTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
@@ -59,37 +54,37 @@ private val WarmTypography = Typography(
     )
 )
 
-// ── Warm Dark Color Scheme ──────────────────────────────────
-private val WarmDarkColorScheme = darkColorScheme(
-    primary = WarmGold,
-    onPrimary = WarmTextOnGold,
-    primaryContainer = WarmGold.copy(alpha = 0.12f),
-    onPrimaryContainer = WarmGold,
-    secondary = WarmGold,
-    onSecondary = WarmTextOnGold,
-    secondaryContainer = WarmGold.copy(alpha = 0.08f),
-    onSecondaryContainer = WarmGold,
-    tertiary = WarmGold,
-    onTertiary = WarmTextOnGold,
-    background = WarmBackground,
-    onBackground = WarmTextPrimary,
-    surface = WarmSurface,
-    onSurface = WarmTextPrimary,
-    surfaceVariant = WarmSurfaceElevated,
-    onSurfaceVariant = WarmTextSecondary,
-    outline = WarmBorder,
-    outlineVariant = WarmBorder,
-    error = WarmError,
-    onError = WarmTextPrimary
+// ── OSI Dark Color Scheme (Minimal Variant) ─────────────────
+private val OsiDarkColorScheme = darkColorScheme(
+    primary = OsiCyan,
+    onPrimary = Color(0xFF000000),
+    primaryContainer = OsiCyanDim,
+    onPrimaryContainer = OsiCyan,
+    secondary = OsiStarYellow,
+    onSecondary = Color(0xFF000000),
+    secondaryContainer = OsiStarYellowDim,
+    onSecondaryContainer = OsiStarYellow,
+    tertiary = OsiStarYellow,
+    onTertiary = Color(0xFF000000),
+    background = OsiBlack,
+    onBackground = OsiTextPrimary,
+    surface = OsiSurface,
+    onSurface = OsiTextPrimary,
+    surfaceVariant = OsiSurfaceHigh,
+    onSurfaceVariant = OsiTextSecondary,
+    outline = OsiBorder,
+    outlineVariant = OsiDivider,
+    error = OsiError,
+    onError = OsiTextPrimary
 )
 
-// ── Theme ────────────────────────────────────────────────────
+// ── Theme Composable ────────────────────────────────────────
 
 @Composable
 fun WarmNativePlayerTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = WarmDarkColorScheme,
-        typography = WarmTypography,
+        colorScheme = OsiDarkColorScheme,
+        typography = OsiTypography,
         content = content
     )
 }

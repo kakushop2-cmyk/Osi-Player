@@ -285,6 +285,9 @@ drawable ic_call_answer_video
 drawable ic_call_answer_video_low
 drawable ic_call_decline
 drawable ic_call_decline_low
+drawable ic_logo_circle
+drawable logo_osi_player
+drawable logo_splash
 drawable notification_action_background
 drawable notification_bg
 drawable notification_bg_low
@@ -298,6 +301,7 @@ drawable notification_template_icon_bg
 drawable notification_template_icon_low_bg
 drawable notification_tile_bg
 drawable notify_panel_notification_icon_bg
+drawable osiplayer_logo
 drawable splash_preload
 font roboto_medium_numbers
 id accessibility_action_clickable_span
@@ -503,6 +507,7 @@ mipmap ic_launcher
 mipmap ic_launcher_round
 plurals exo_controls_fastforward_by_amount_description
 plurals exo_controls_rewind_by_amount_description
+raw app_intro
 string androidx_startup
 string app_name
 string call_notification_answer_action

@@ -1,5 +1,7 @@
 package com.nativeplayer.ui.home;
 
+import android.app.Application;
+import com.nativeplayer.data.repository.IptvRepository;
 import com.nativeplayer.data.repository.WatchHistoryRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -25,21 +27,30 @@ import javax.inject.Provider;
 public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
   private final Provider<WatchHistoryRepository> watchHistoryRepositoryProvider;
 
-  public HomeViewModel_Factory(Provider<WatchHistoryRepository> watchHistoryRepositoryProvider) {
+  private final Provider<IptvRepository> iptvRepositoryProvider;
+
+  private final Provider<Application> applicationProvider;
+
+  public HomeViewModel_Factory(Provider<WatchHistoryRepository> watchHistoryRepositoryProvider,
+      Provider<IptvRepository> iptvRepositoryProvider, Provider<Application> applicationProvider) {
     this.watchHistoryRepositoryProvider = watchHistoryRepositoryProvider;
+    this.iptvRepositoryProvider = iptvRepositoryProvider;
+    this.applicationProvider = applicationProvider;
   }
 
   @Override
   public HomeViewModel get() {
-    return newInstance(watchHistoryRepositoryProvider.get());
+    return newInstance(watchHistoryRepositoryProvider.get(), iptvRepositoryProvider.get(), applicationProvider.get());
   }
 
   public static HomeViewModel_Factory create(
-      Provider<WatchHistoryRepository> watchHistoryRepositoryProvider) {
-    return new HomeViewModel_Factory(watchHistoryRepositoryProvider);
+      Provider<WatchHistoryRepository> watchHistoryRepositoryProvider,
+      Provider<IptvRepository> iptvRepositoryProvider, Provider<Application> applicationProvider) {
+    return new HomeViewModel_Factory(watchHistoryRepositoryProvider, iptvRepositoryProvider, applicationProvider);
   }
 
-  public static HomeViewModel newInstance(WatchHistoryRepository watchHistoryRepository) {
-    return new HomeViewModel(watchHistoryRepository);
+  public static HomeViewModel newInstance(WatchHistoryRepository watchHistoryRepository,
+      IptvRepository iptvRepository, Application application) {
+    return new HomeViewModel(watchHistoryRepository, iptvRepository, application);
   }
 }

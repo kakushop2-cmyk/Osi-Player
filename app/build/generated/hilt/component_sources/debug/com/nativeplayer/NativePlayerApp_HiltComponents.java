@@ -4,6 +4,7 @@ import com.nativeplayer.di.AppModule;
 import com.nativeplayer.ui.favorites.FavoritesViewModel_HiltModules;
 import com.nativeplayer.ui.home.HomeViewModel_HiltModules;
 import com.nativeplayer.ui.live.LiveViewModel_HiltModules;
+import com.nativeplayer.ui.login.LoginViewModel_HiltModules;
 import com.nativeplayer.ui.movies.MovieDetailViewModel_HiltModules;
 import com.nativeplayer.ui.movies.MoviesViewModel_HiltModules;
 import com.nativeplayer.ui.player.PlayerViewModel_HiltModules;
@@ -171,6 +172,7 @@ public final class NativePlayerApp_HiltComponents {
           HiltWrapper_SavedStateHandleModule.class,
           HomeViewModel_HiltModules.KeyModule.class,
           LiveViewModel_HiltModules.KeyModule.class,
+          LoginViewModel_HiltModules.KeyModule.class,
           MovieDetailViewModel_HiltModules.KeyModule.class,
           MoviesViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
@@ -222,6 +224,7 @@ public final class NativePlayerApp_HiltComponents {
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           HomeViewModel_HiltModules.BindsModule.class,
           LiveViewModel_HiltModules.BindsModule.class,
+          LoginViewModel_HiltModules.BindsModule.class,
           MovieDetailViewModel_HiltModules.BindsModule.class,
           MoviesViewModel_HiltModules.BindsModule.class,
           PlayerSettingsViewModel_HiltModules.BindsModule.class,

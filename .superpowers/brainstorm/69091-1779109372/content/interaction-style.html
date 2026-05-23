@@ -1,0 +1,84 @@
+<h2>Interaktive Kacheln — Welche Interaktion?</h2>
+<p class="subtitle">Wähle wie sich die Kacheln beim Berühren/Klicken verhalten sollen</p>
+
+<div class="cards">
+  <div class="card" data-choice="scale" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0D0D0B; padding: 20px; display: flex; gap: 16px; align-items: center; justify-content: center;">
+      <div style="position: relative;">
+        <div class="demo-tile" style="background: #1A1A17; border: 1px solid rgba(204,167,112,0.15); border-radius: 12px; padding: 20px 28px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s ease; transform: scale(1); box-shadow: 0 2px 8px rgba(0,0,0,0.3);"
+             onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 32px rgba(204,167,112,0.25)'; this.style.borderColor='rgba(204,167,112,0.4)'"
+             onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.3)'; this.style.borderColor='rgba(204,167,112,0.15)'"
+             onmousedown="this.style.transform='scale(0.95)'"
+             onmouseup="this.style.transform='scale(1.05)'">
+          <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #CCA770, #B8956A); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0D0D0B; font-size: 22px;">📺</div>
+          <div>
+            <div style="color: #E8E3D7; font-weight: 600; font-size: 15px;">Live TV</div>
+            <div style="color: #8A857C; font-size: 12px;">248 Sender</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Scale + Glow</h3>
+      <p>Kachel skaliert beim Hover (1.05x) und beim Drücken (0.95x). Goldener Schatten-Glow verstärkt sich. Schnell, responsiv, spielend.</p>
+      <div style="margin-top: 8px; padding: 8px 12px; background: rgba(204,167,112,0.08); border-radius: 6px; font-size: 12px; color: #8A857C;">
+        ✓ Kein Layout-Shift · ✓ Fühlt sich "lebendig" an · ✓ TV-tauglich (D-Pad)
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="ripple" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0D0D0B; padding: 20px; display: flex; gap: 16px; align-items: center; justify-content: center;">
+      <div style="position: relative;">
+        <div class="demo-tile" style="background: #1A1A17; border: 1px solid rgba(204,167,112,0.15); border-radius: 12px; padding: 20px 28px; display: flex; align-items: center; gap: 14px; cursor: pointer; position: relative; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"
+             onmousedown="this.style.background='#252522'; this.style.borderColor='rgba(204,167,112,0.3)'"
+             onmouseup="this.style.background='#1A1A17'; this.style.borderColor='rgba(204,167,112,0.15)'"
+             onmouseover="this.style.borderColor='rgba(204,167,112,0.25)'"
+             onmouseout="this.style.background='#1A1A17'; this.style.borderColor='rgba(204,167,112,0.15)'">
+          <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #CCA770, #B8956A); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0D0D0B; font-size: 22px;">📺</div>
+          <div>
+            <div style="color: #E8E3D7; font-weight: 600; font-size: 15px;">Live TV</div>
+            <div style="color: #8A857C; font-size: 12px;">248 Sender</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Material Ripple</h3>
+      <p>Klassischer Material-Design-Ripple-Effekt beim Klicken. Subtile Hintergrund-Änderung beim Fokus. Eleganter, zurückhaltender.</p>
+      <div style="margin-top: 8px; padding: 8px 12px; background: rgba(204,167,112,0.08); border-radius: 6px; font-size: 12px; color: #8A857C;">
+        ✓ Bewährt · ✓ Weniger ablenkend · ✓ Standard UX-Muster
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="hybrid" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0D0D0B; padding: 20px; display: flex; gap: 16px; align-items: center; justify-content: center;">
+      <div style="position: relative;">
+        <div class="demo-tile" style="background: linear-gradient(135deg, #1A1A17, #252522); border: 1px solid rgba(204,167,112,0.2); border-radius: 12px; padding: 20px 28px; display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 16px rgba(204,167,112,0.1);"
+             onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 8px 32px rgba(204,167,112,0.2)'; this.style.borderColor='rgba(204,167,112,0.4)'"
+             onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 16px rgba(204,167,112,0.1)'; this.style.borderColor='rgba(204,167,112,0.2)'"
+             onmousedown="this.style.transform='translateY(0) scale(0.98)'"
+             onmouseup="this.style.transform='translateY(-2px) scale(1.02)'">
+          <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #CCA770, #B8956A); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0D0D0B; font-size: 22px; box-shadow: 0 2px 12px rgba(204,167,112,0.3);">📺</div>
+          <div>
+            <div style="color: #E8E3D7; font-weight: 600; font-size: 15px;">Live TV</div>
+            <div style="color: #8A856C; font-size: 12px;">248 Sender</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Premium Hybrid</h3>
+      <p>Leichtes Anheben (translateY) + minimale Skalierung + Gold-Glow. Premium-Gefühl wie bei einer Streaming-App.</p>
+      <div style="margin-top: 8px; padding: 8px 12px; background: rgba(204,167,112,0.08); border-radius: 6px; font-size: 12px; color: #8A857C;">
+        ✓ Premium-Gefühl · ✓ Depth-Effekt · ✓ Ähnlich Netflix/Disney+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 24px; padding: 16px; background: rgba(204,167,112,0.05); border-radius: 8px; border-left: 3px solid #CCA770;">
+  <p style="color: #E8E3D7; font-size: 13px; margin: 0 0 8px 0; font-weight: 500;">💡 Interaktivität auf der Seite testen:</p>
+  <p style="color: #8A857C; font-size: 12px; margin: 0;">Hover über die Kachel-Beispiele und klicke drauf um die verschiedenen Interaktionsstile zu erleben.</p>
+</div>

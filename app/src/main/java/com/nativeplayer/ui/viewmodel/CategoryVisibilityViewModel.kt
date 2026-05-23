@@ -3,6 +3,7 @@ package com.nativeplayer.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nativeplayer.data.model.CategoryVisibilitySettings
+import com.nativeplayer.data.repository.IptvRepository
 import com.nativeplayer.data.repository.PreferencesManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,18 +14,40 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CategoryVisibilityViewModel @Inject constructor(
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    private val repository: IptvRepository
 ) : ViewModel() {
 
     private val _categoryVisibility = MutableStateFlow(CategoryVisibilitySettings())
     val categoryVisibility: StateFlow<CategoryVisibilitySettings> = _categoryVisibility.asStateFlow()
 
+    // ── Available categories from Xtream API ──────────────────
+    private val _availableLiveCategories = MutableStateFlow<List<String>>(emptyList())
+    val availableLiveCategories: StateFlow<List<String>> = _availableLiveCategories.asStateFlow()
+
+    private val _availableMovieCategories = MutableStateFlow<List<String>>(emptyList())
+    val availableMovieCategories: StateFlow<List<String>> = _availableMovieCategories.asStateFlow()
+
+    private val _availableSeriesCategories = MutableStateFlow<List<String>>(emptyList())
+    val availableSeriesCategories: StateFlow<List<String>> = _availableSeriesCategories.asStateFlow()
+
     init {
         loadCategoryVisibility()
+        loadAvailableCategories()
     }
 
     private fun loadCategoryVisibility() {
         _categoryVisibility.value = preferencesManager.getCategoryVisibility()
+    }
+
+    /**
+     * Loads available categories from the cached Xtream API data.
+     * These are the real category names from the server.
+     */
+    fun loadAvailableCategories() {
+        _availableLiveCategories.value = repository.getLiveCategoryNames()
+        _availableMovieCategories.value = repository.getMovieCategoryNames()
+        _availableSeriesCategories.value = repository.getSeriesCategoryNames()
     }
 
     fun toggleCategoryVisibility(type: String, categoryName: String) {

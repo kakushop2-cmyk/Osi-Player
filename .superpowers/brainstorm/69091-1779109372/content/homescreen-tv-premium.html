@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSI IPTV — Premium TV Homescreen</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  
+  :root {
+    --bg: #0D0D0B;
+    --surface: #1A1A17;
+    --surface-el: #252522;
+    --gold: #CCA770;
+    --gold-dim: rgba(204,167,112,0.12);
+    --gold-glow: rgba(204,167,112,0.25);
+    --text: #E8E3D7;
+    --text-dim: #8A857C;
+    --error: #E05555;
+    --border: rgba(232,227,215,0.08);
+    --border-focus: rgba(204,167,112,0.4);
+    --focus-glow: 0 0 0 2px var(--gold), 0 0 24px rgba(204,167,112,0.2);
+    --transition: cubic-bezier(0.4, 0, 0.2, 1);
+    --corner: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===========================
+     TV SCREEN CONTAINER 
+     =========================== */
+  .tv {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+  }
+
+  /* Ambient Background Effect */
+  .tv::before {
+    content: '';
+    position: absolute;
+    top: -30%;
+    left: -10%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(204,167,112,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: ambientDrift 20s ease-in-out infinite alternate;
+  }
+  .tv::after {
+    content: '';
+    position: absolute;
+    bottom: -20%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(ellipse, rgba(204,167,112,0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: ambientDrift 25s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes ambientDrift {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(40px, 20px) scale(1.1); }
+  }
+
+  /* ===========================
+     1. TOP BAR
+     =========================== */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 32px;
+    background: linear-gradient(180deg, rgba(26,26,23,0.98) 0%, rgba(26,26,23,0.85) 70%, transparent 100%);
+    position: relative;
+    z-index: 10;
+  }
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #CCA770, #B8956A);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--bg);
+    letter-spacing: 0.5px;
+  }
+  .brand-text {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #CCA770 0%, #E8D5A8 50%, #CCA770 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .topbar-nav {
+    display: flex;
+    gap: 2px;
+    margin-left: 24px;
+  }
+  .nav-item {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s var(--transition);
+    position: relative;
+    border: 2px solid transparent;
+    outline: none;
+    background: none;
+  }
+  .nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 25%;
+    right: 25%;
+    height: 2px;
+    background: var(--gold);
+    border-radius: 2px;
+    transform: scaleX(0);
+    transition: transform 0.2s var(--transition);
+  }
+  .nav-item.focused {
+    color: var(--text);
+    background: var(--gold-dim);
+    border-color: var(--border-focus);
+    box-shadow: var(--focus-glow);
+  }
+  .nav-item.focused::after {
+    transform: scaleX(1);
+  }
+  .nav-item.active {
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .nav-item.active::after {
+    transform: scaleX(1);
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .topbar-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s var(--transition);
+    color: var(--text-dim);
+    font-size: 16px;
+    outline: none;
+  }
+  .topbar-btn.focused {
+    border-color: var(--border-focus);
+    box-shadow: var(--focus-glow);
+    color: var(--gold);
+    background: rgba(204,167,112,0.15);
+  }
+  .clock {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    min-width: 44px;
+    text-align: center;
+  }
+  .live-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgba(204,167,112,0.1);
+    border: 1px solid rgba(204,167,112,0.15);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(204,167,112,0.4); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(204,167,112,0); }
+  }
+
+  /* ===========================
+     2. CATEGORY TABS
+     =========================== */
+  .category-bar {
+    display: flex;
+    gap: 8px;
+    padding: 8px 32px 0;
+    position: relative;
+    z-index: 5;
+  }
+  .cat-tab {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.2s var(--transition);
+    border: 2px solid transparent;
+    border-bottom: none;
+    outline: none;
+    background: none;
+    letter-spacing: 0.3px;
+  }
+  .cat-tab.focused {
+    color: var(--text);
+    background: var(--surface);
+    border-color: var(--border-focus);
+  }
+  .cat-tab.active {
+    color: var(--gold);
+    background: var(--surface);
+  }
+
+  /* ===========================
+     3. MAIN CONTENT
+     =========================== */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    padding: 0 32px;
+    min-height: 0;
+    position: relative;
+    z-index: 5;
+  }
+
+  /* === FEATURED HERO === */
+  .hero {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s var(--transition);
+    border: 2px solid transparent;
+    min-height: 0;
+  }
+  .hero.focused {
+    border-color: var(--gold);
+    box-shadow: 0 0 40px rgba(204,167,112,0.15), 0 0 80px rgba(204,167,112,0.08);
+    transform: scale(1.005);
+  }
+  .hero:active {
+    transform: scale(0.998);
+    transition-duration: 0.1s;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(135deg, #1f1f1c 0%, #161613 30%, #1f1f1c 60%, #252522 100%);
+    background-size: 200% 200%;
+    animation: heroShimmer 30s ease infinite;
+  }
+  @keyframes heroShimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  /* Gradient overlay for text readability */
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(90deg, rgba(13,13,11,0.95) 0%, rgba(13,13,11,0.6) 45%, rgba(13,13,11,0.2) 70%, transparent 100%),
+      linear-gradient(0deg, rgba(13,13,11,0.8) 0%, transparent 40%);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 32px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgba(204,167,112,0.15);
+    border: 1px solid rgba(204,167,112,0.25);
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    width: fit-content;
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .hero-meta .dot {
+    width: 3px;
+    height: 3px;
+    background: var(--text-dim);
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+  .hero-meta .gold { color: var(--gold); font-weight: 600; }
+  .hero-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    max-width: 480px;
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: var(--corner);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s var(--transition);
+    border: none;
+    outline: none;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #CCA770, #B8956A);
+    color: var(--bg);
+  }
+  .btn-primary.focused {
+    box-shadow: 0 0 24px rgba(204,167,112,0.35);
+    transform: scale(1.04);
+  }
+  .btn-secondary {
+    background: rgba(232,227,215,0.08);
+    color: var(--text);
+    border: 1px solid rgba(232,227,215,0.12);
+  }
+  .btn-secondary.focused {
+    background: rgba(232,227,215,0.12);
+    border-color: rgba(232,227,215,0.25);
+    transform: scale(1.04);
+  }
+  .hero-art {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+  .hero-art-icon {
+    font-size: 100px;
+    opacity: 0.08;
+    filter: blur(1px);
+  }
+  /* Gold accent line at top */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 5;
+  }
+  .hero.focused::before {
+    opacity: 1;
+  }
+
+  /* === RIGHT PANEL === */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .panel-link {
+    font-size: 11px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .panel-link:hover { color: var(--gold); }
+
+  /* Channel Cards */
+  .ch-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 2px solid transparent;
+    border-radius: var(--corner);
+    cursor: pointer;
+    transition: all 0.2s var(--transition);
+    flex-shrink: 0;
+  }
+  .ch-card.focused {
+    border-color: var(--border-focus);
+    box-shadow: var(--focus-glow);
+    background: var(--surface-el);
+  }
+  .ch-card:active {
+    transform: scale(0.97);
+    transition-duration: 0.1s;
+  }
+  .ch-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: all 0.2s var(--transition);
+  }
+  .ch-card.focused .ch-logo { transform: scale(1.1); }
+  .ch-logo.ard { background: linear-gradient(135deg, rgba(204,167,112,0.2), rgba(204,167,112,0.08)); }
+  .ch-logo.zdf { background: linear-gradient(135deg, rgba(120,180,100,0.2), rgba(120,180,100,0.08)); }
+  .ch-logo.rtl { background: linear-gradient(135deg, rgba(224,85,85,0.2), rgba(224,85,85,0.08)); }
+  .ch-logo.sat { background: linear-gradient(135deg, rgba(100,150,220,0.2), rgba(100,150,220,0.08)); }
+  .ch-logo.pro { background: linear-gradient(135deg, rgba(180,130,200,0.2), rgba(180,130,200,0.08)); }
+  .ch-info { flex: 1; min-width: 0; }
+  .ch-name {
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ch-program {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ch-time {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    margin-top: 3px;
+  }
+  .ch-badge {
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+  .ch-badge.live {
+    background: rgba(224,85,85,0.15);
+    color: var(--error);
+    border: 1px solid rgba(224,85,85,0.25);
+  }
+  .ch-badge.hd {
+    background: var(--gold-dim);
+    color: var(--gold);
+    border: 1px solid rgba(204,167,112,0.2);
+  }
+  /* EPG progress bar on channel card */
+  .ch-epg-bar {
+    height: 2px;
+    background: var(--surface-el);
+    border-radius: 1px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .ch-epg-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 1px;
+    transition: width 1s linear;
+  }
+  .ch-card.focused .ch-epg-fill {
+    box-shadow: 0 0 6px rgba(204,167,112,0.5);
+  }
+
+  /* ===========================
+     4. BOTTOM: CONTINUE STRIP
+     =========================== */
+  .bottom {
+    padding: 14px 32px 16px;
+    position: relative;
+    z-index: 5;
+  }
+  .bottom-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .strip {
+    display: flex;
+    gap: 14px;
+    overflow: hidden;
+  }
+  .strip-card {
+    flex: 0 0 200px;
+    background: var(--surface);
+    border: 2px solid transparent;
+    border-radius: var(--corner);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s var(--transition);
+  }
+  .strip-card.focused {
+    border-color: var(--gold);
+    box-shadow: 0 8px 32px rgba(204,167,112,0.12);
+    transform: translateY(-4px) scale(1.03);
+  }
+  .strip-card:active {
+    transform: translateY(-1px) scale(1.01);
+    transition-duration: 0.1s;
+  }
+  .strip-poster {
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(135deg, var(--surface-el), var(--surface));
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .strip-poster-icon { font-size: 32px; opacity: 0.2; }
+  .strip-play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.6);
+    width: 36px;
+    height: 36px;
+    background: rgba(204,167,112,0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.2s var(--transition);
+    box-shadow: 0 4px 16px rgba(204,167,112,0.4);
+  }
+  .strip-play span { color: var(--bg); font-size: 14px; margin-left: 2px; }
+  .strip-card.focused .strip-play {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .strip-info { padding: 10px 12px; }
+  .strip-title {
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .strip-meta {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .strip-progress {
+    height: 2px;
+    background: var(--surface-el);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+  .strip-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), #E8D5A8);
+    border-radius: 1px;
+    transition: box-shadow 0.2s;
+  }
+  .strip-card.focused .strip-fill {
+    box-shadow: 0 0 8px rgba(204,167,112,0.6);
+  }
+  .strip-remaining {
+    font-size: 10px;
+    color: var(--gold);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* ===========================
+     MINI PLAYER (bottom-right)
+     =========================== */
+  .mini-player {
+    position: fixed;
+    bottom: 70px;
+    right: 32px;
+    width: 240px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--corner);
+    overflow: hidden;
+    z-index: 50;
+    transition: all 0.25s var(--transition);
+  }
+  .mini-player.focused {
+    border-color: var(--border-focus);
+    box-shadow: var(--focus-glow);
+  }
+  .mp-video {
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(135deg, #252522, #1A1A17);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .mp-live-badge {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    padding: 2px 6px;
+    background: rgba(224,85,85,0.8);
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.5px;
+  }
+  .mp-icon { font-size: 24px; opacity: 0.2; }
+  .mp-info {
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mp-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .mp-title {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mp-sub {
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .mp-controls {
+    display: flex;
+    gap: 4px;
+  }
+  .mp-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: var(--gold-dim);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    color: var(--gold);
+  }
+
+  /* ===========================
+     FOCUS CHAIN INDICATOR
+     =========================== */
+  .focus-indicator {
+    position: fixed;
+    bottom: 16px;
+    left: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    background: rgba(26,26,23,0.92);
+    border: 1px solid rgba(204,167,112,0.1);
+    border-radius: 8px;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .dpad {
+    display: grid;
+    grid-template-areas: ". up ." "left ok right" ". down .";
+    grid-template-columns: 22px 22px 22px;
+    grid-template-rows: 18px 18px 18px;
+    gap: 2px;
+  }
+  .dpad-key {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(204,167,112,0.08);
+    border: 1px solid rgba(204,167,112,0.15);
+    border-radius: 3px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .dpad-key.up { grid-area: up; }
+  .dpad-key.down { grid-area: down; }
+  .dpad-key.left { grid-area: left; }
+  .dpad-key.right { grid-area: right; }
+  .dpad-key.ok { 
+    grid-area: ok; 
+    background: rgba(204,167,112,0.15); 
+    border-color: rgba(204,167,112,0.3);
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 8px;
+  }
+
+  /* ===========================
+     TRANSITIONS & ANIMATIONS
+     =========================== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in {
+    animation: fadeInUp 0.4s var(--transition) forwards;
+  }
+  .delay-1 { animation-delay: 0.05s; opacity: 0; }
+  .delay-2 { animation-delay: 0.1s; opacity: 0; }
+  .delay-3 { animation-delay: 0.15s; opacity: 0; }
+  .delay-4 { animation-delay: 0.2s; opacity: 0; }
+  .delay-5 { animation-delay: 0.25s; opacity: 0; }
+  .delay-6 { animation-delay: 0.3s; opacity: 0; }
+
+  /* Scrollbar hide for horizontal strips */
+  .strip::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+
+<div class="tv">
+
+  <!-- ===== 1. TOP BAR ===== -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="brand">
+        <div class="brand-icon">OSI</div>
+        <div class="brand-text">IPTV</div>
+      </div>
+      <div class="topbar-nav">
+        <div class="nav-item active" tabindex="0">Startseite</div>
+        <div class="nav-item focused" tabindex="0">Live TV</div>
+        <div class="nav-item" tabindex="0">Filme</div>
+        <div class="nav-item" tabindex="0">Serien</div>
+        <div class="nav-item" tabindex="0">Favoriten</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-pill">
+        <div class="live-dot"></div>
+        3 Sender live
+      </div>
+      <div class="clock" id="clock">20:45</div>
+      <div class="topbar-btn focused" tabindex="0">🔍</div>
+      <div class="topbar-btn" tabindex="0">⚙️</div>
+    </div>
+  </div>
+
+  <!-- ===== 2. CATEGORY TABS ===== -->
+  <div class="category-bar">
+    <div class="cat-tab active">Alle</div>
+    <div class="cat-tab focused">Empfehlungen</div>
+    <div class="cat-tab">Neu</div>
+    <div class="cat-tab">Beliebt</div>
+    <div class="cat-tab">Kategorien</div>
+  </div>
+
+  <!-- ===== 3. MAIN CONTENT ===== -->
+  <div class="main">
+
+    <!-- Hero -->
+    <div class="hero focused animate-in" id="hero" onclick="toggleFocus(this)">
+      <div class="hero-bg"></div>
+      <div class="hero-art">
+        <div class="hero-art-icon">🎬</div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-badge">▶ Weitersehen</div>
+        <div class="hero-title">Dune: Part Two</div>
+        <div class="hero-meta">
+          <span>2024</span>
+          <div class="dot"></div>
+          <span>2h 46m</span>
+          <div class="dot"></div>
+          <span>Science-Fiction</span>
+          <div class="dot"></div>
+          <span class="gold">★ 8.6</span>
+          <div class="dot"></div>
+          <span class="gold">HD</span>
+        </div>
+        <div class="hero-desc">Paul Atreides vereint sich mit den Fremen, um einen Krieg gegen die verbündeten Harkonnen zu führen. Eine epische Reise über Schicksal, Macht und die Zukunft des Universums.</div>
+        <div class="hero-actions">
+          <div class="btn btn-primary focused" tabindex="0">▶ Weiter schauen</div>
+          <div class="btn btn-secondary" tabindex="0">+ Meineliste</div>
+          <div class="btn btn-secondary" tabindex="0">ℹ Details</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Live Channels -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Jetzt live</div>
+        <div class="panel-link">Alle Sender →</div>
+      </div>
+
+      <div class="ch-card focused animate-in delay-1" onclick="toggleFocus(this)" tabindex="0">
+        <div class="ch-logo ard">📺</div>
+        <div class="ch-info">
+          <div class="ch-name">Das Erste HD</div>
+          <div class="ch-program">Tagesschau 20:00</div>
+          <div class="ch-epg-bar"><div class="ch-epg-fill" style="width:45%"></div></div>
+        </div>
+        <div>
+          <div class="ch-badge live">● LIVE</div>
+          <div class="ch-time">20:15 – 20:30</div>
+        </div>
+      </div>
+
+      <div class="ch-card animate-in delay-2" onclick="toggleFocus(this)" tabindex="0">
+        <div class="ch-logo zdf">📺</div>
+        <div class="ch-info">
+          <div class="ch-name">ZDF HD</div>
+          <div class="ch-program">heute 20:00</div>
+          <div class="ch-epg-bar"><div class="ch-epg-fill" style="width:60%"></div></div>
+        </div>
+        <div>
+          <div class="ch-badge live">● LIVE</div>
+          <div class="ch-time">20:00 – 20:15</div>
+        </div>
+      </div>
+
+      <div class="ch-card animate-in delay-3" onclick="toggleFocus(this)" tabindex="0">
+        <div class="ch-logo rtl">📺</div>
+        <div class="ch-info">
+          <div class="ch-name">RTL HD</div>
+          <div class="ch-program">Wer wird Millionär?</div>
+          <div class="ch-epg-bar"><div class="ch-epg-fill" style="width:30%"></div></div>
+        </div>
+        <div>
+          <div class="ch-badge hd">HD</div>
+          <div class="ch-time">20:15 – 21:15</div>
+        </div>
+      </div>
+
+      <div class="ch-card animate-in delay-4" onclick="toggleFocus(this)" tabindex="0">
+        <div class="ch-logo sat">📺</div>
+        <div class="ch-info">
+          <div class="ch-name">SAT.1 HD</div>
+          <div class="ch-program">The Voice of Germany</div>
+          <div class="ch-epg-bar"><div class="ch-epg-fill" style="width:75%"></div></div>
+        </div>
+        <div>
+          <div class="ch-badge hd">HD</div>
+          <div class="ch-time">20:15 – 22:15</div>
+        </div>
+      </div>
+
+      <div class="ch-card animate-in delay-5" onclick="toggleFocus(this)" tabindex="0">
+        <div class="ch-logo pro">📺</div>
+        <div class="ch-info">
+          <div class="ch-name">ProSieben HD</div>
+          <div class="ch-program">The Big Bang Theory</div>
+          <div class="ch-epg-bar"><div class="ch-epg-fill" style="width:50%"></div></div>
+        </div>
+        <div>
+          <div class="ch-badge hd">HD</div>
+          <div class="ch-time">20:15 – 20:45</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 4. BOTTOM: CONTINUE WATCHING ===== -->
+  <div class="bottom">
+    <div class="bottom-header">
+      <div class="panel-title">Weitersehen</div>
+      <div class="panel-link">Alle anzeigen →</div>
+    </div>
+    <div class="strip">
+      <div class="strip-card focused animate-in delay-1" onclick="toggleFocus(this)" tabindex="0">
+        <div class="strip-poster">
+          <div class="strip-poster-icon">🎭</div>
+          <div class="strip-play"><span>▶</span></div>
+        </div>
+        <div class="strip-info">
+          <div class="strip-title">The Last Kingdom S3E7</div>
+          <div class="strip-meta">Staffel 3 · Episode 7</div>
+          <div class="strip-progress"><div class="strip-fill" style="width:65%"></div></div>
+          <div class="strip-remaining">Noch 24 Min.</div>
+        </div>
+      </div>
+
+      <div class="strip-card animate-in delay-2" onclick="toggleFocus(this)" tabindex="0">
+        <div class="strip-poster">
+          <div class="strip-poster-icon">🎬</div>
+          <div class="strip-play"><span>▶</span></div>
+        </div>
+        <div class="strip-info">
+          <div class="strip-title">Oppenheimer</div>
+          <div class="strip-meta">Film · Christopher Nolan</div>
+          <div class="strip-progress"><div class="strip-fill" style="width:55%"></div></div>
+          <div class="strip-remaining">Noch 1h 12m</div>
+        </div>
+      </div>
+
+      <div class="strip-card animate-in delay-3" onclick="toggleFocus(this)" tabindex="0">
+        <div class="strip-poster">
+          <div class="strip-poster-icon">🎭</div>
+          <div class="strip-play"><span>▶</span></div>
+        </div>
+        <div class="strip-info">
+          <div class="strip-title">Breaking Bad S5E8</div>
+          <div class="strip-meta">Staffel 5 · Episode 8</div>
+          <div class="strip-progress"><div class="strip-fill" style="width:30%"></div></div>
+          <div class="strip-remaining">Noch 32 Min.</div>
+        </div>
+      </div>
+
+      <div class="strip-card animate-in delay-4" onclick="toggleFocus(this)" tabindex="0">
+        <div class="strip-poster">
+          <div class="strip-poster-icon">🎬</div>
+          <div class="strip-play"><span>▶</span></div>
+        </div>
+        <div class="strip-info">
+          <div class="strip-title">Inception</div>
+          <div class="strip-meta">Film · Sci-Fi Thriller</div>
+          <div class="strip-progress"><div class="strip-fill" style="width:72%"></div></div>
+          <div class="strip-remaining">Noch 38 Min.</div>
+        </div>
+      </div>
+
+      <div class="strip-card animate-in delay-5" onclick="toggleFocus(this)" tabindex="0">
+        <div class="strip-poster">
+          <div class="strip-poster-icon">🎭</div>
+          <div class="strip-play"><span>▶</span></div>
+        </div>
+        <div class="strip-info">
+          <div class="strip-title">Stranger Things S4E3</div>
+          <div class="strip-meta">Staffel 4 · Episode 3</div>
+          <div class="strip-progress"><div class="strip-fill" style="width:42%"></div></div>
+          <div class="strip-remaining">Noch 48 Min.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mini Player -->
+<div class="mini-player focused" onclick="toggleFocus(this)">
+  <div class="mp-video">
+    <div class="mp-live-badge">● LIVE</div>
+    <div class="mp-icon">📺</div>
+  </div>
+  <div class="mp-info">
+    <div class="mp-text">
+      <div class="mp-title">Das Erste HD</div>
+      <div class="mp-sub">Tagesschau 20:00</div>
+    </div>
+    <div class="mp-controls">
+      <div class="mp-btn">◀◀</div>
+      <div class="mp-btn" style="font-size:12px;">▶</div>
+      <div class="mp-btn">▶▶</div>
+    </div>
+  </div>
+</div>
+
+<!-- D-Pad Indicator -->
+<div class="focus-indicator">
+  <div class="dpad">
+    <div class="dpad-key up">▲</div>
+    <div class="dpad-key left">◀</div>
+    <div class="dpad-key ok">OK</div>
+    <div class="dpad-key right">▶</div>
+    <div class="dpad-key down">▼</div>
+  </div>
+  <span>D-Pad Navigation</span>
+</div>
+
+<script>
+  // Clock
+  function updateClock() {
+    const n = new Date();
+    document.getElementById('clock').textContent = 
+      n.getHours().toString().padStart(2,'0') + ':' + 
+      n.getMinutes().toString().padStart(2,'0');
+  }
+  setInterval(updateClock, 10000);
+  updateClock();
+
+  // Toggle focus
+  function toggleFocus(el) {
+    el.classList.toggle('focused');
+  }
+
+  // D-Pad keyboard navigation
+  const focusableSelector = '.nav-item, .cat-tab, .hero, .ch-card, .strip-card, .btn, .topbar-btn, .mini-player';
+  
+  document.addEventListener('keydown', (e) => {
+    const all = Array.from(document.querySelectorAll(focusableSelector));
+    const focused = document.querySelector('.focused');
+    const idx = all.indexOf(focused);
+    
+    let next = -1;
+    
+    switch(e.key) {
+      case 'ArrowRight':
+        next = Math.min(idx + 1, all.length - 1);
+        break;
+      case 'ArrowLeft':
+        next = Math.max(idx - 1, 0);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        next = Math.min(idx + 4, all.length - 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        next = Math.max(idx - 4, 0);
+        break;
+      case 'Enter':
+      case ' ':
+        if (focused && focused.classList.contains('hero')) {
+          // Simulate play
+        }
+        return;
+    }
+    
+    if (next >= 0 && next !== idx) {
+      focused?.classList.remove('focused');
+      all[next].classList.add('focused');
+      all[next].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+  });
+
+  // Update EPG bars every minute (simulated)
+  setInterval(() => {
+    document.querySelectorAll('.ch-epg-fill').forEach(bar => {
+      const current = parseFloat(bar.style.width);
+      if (current < 100) {
+        bar.style.width = (current + 0.5) + '%';
+      }
+    });
+  }, 60000);
+</script>
+
+</body>
+</html>

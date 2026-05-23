@@ -20,6 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -190,7 +195,7 @@ fun LiveScreen(
                  Box(
                      modifier = Modifier
                          .fillMaxSize()
-                         .background(Color.Black),
+                         .background(OsiBlack),
                      contentAlignment = Alignment.Center
                  ) {
                      AndroidView(
@@ -234,12 +239,12 @@ fun LiveScreen(
                      modifier = Modifier
                          .align(Alignment.TopStart)
                          .padding(8.dp)
-                         .background(Color.Black.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp))
+                         .background(OsiBlack.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp))
                  ) {
                      Icon(
                          imageVector = Icons.Filled.FullscreenExit,
                          contentDescription = "Exit Fullscreen",
-                         tint = WarmGold,
+                         tint = OsiCyan,
                          modifier = Modifier.size(32.dp)
                      )
                  }
@@ -265,7 +270,7 @@ fun LiveScreen(
                 ) {
                     Text(
                         "Kategorien",
-                        color = WarmGold,
+                        color = OsiCyan,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         modifier = Modifier.weight(1f)
@@ -274,7 +279,7 @@ fun LiveScreen(
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
-                            .background(if (isCategorySortMode) WarmGoldDim else Color.Transparent)
+                            .background(if (isCategorySortMode) OsiCyan.copy(alpha = 0.12f) else Color.Transparent)
                             .clickable {
                                 categorySortActiveIndex = -1
                                 viewModel.toggleCategorySortMode()
@@ -286,13 +291,13 @@ fun LiveScreen(
                         Icon(
                             if (isCategorySortMode) Icons.Filled.Check else Icons.Filled.UnfoldMore,
                             contentDescription = null,
-                            tint = if (isCategorySortMode) WarmGold else WarmTextSecondary,
+                            tint = if (isCategorySortMode) OsiCyan else WarmTextSecondary,
                             modifier = Modifier.size(12.dp)
                         )
                         Text(
                             if (isCategorySortMode) "Fertig" else "Kat. verschieben",
                             fontSize = 9.sp,
-                            color = if (isCategorySortMode) WarmGold else WarmTextSecondary
+                            color = if (isCategorySortMode) OsiCyan else WarmTextSecondary
                         )
                     }
                 }
@@ -349,7 +354,7 @@ fun LiveScreen(
                 ) {
                     Text(
                         selectedCategory?.name ?: "Sender",
-                        color = WarmGold,
+                        color = OsiCyan,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         maxLines = 1,
@@ -361,7 +366,7 @@ fun LiveScreen(
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(4.dp))
-                                .background(if (isChannelSortMode) WarmGoldDim else Color.Transparent)
+                                .background(if (isChannelSortMode) OsiCyan.copy(alpha = 0.12f) else Color.Transparent)
                                 .clickable {
                                     channelSortActiveIndex = -1
                                     viewModel.toggleChannelSortMode()
@@ -373,13 +378,13 @@ fun LiveScreen(
                             Icon(
                                 if (isChannelSortMode) Icons.Filled.Check else Icons.Filled.UnfoldMore,
                                 contentDescription = null,
-                                tint = if (isChannelSortMode) WarmGold else WarmTextSecondary,
+                                tint = if (isChannelSortMode) OsiCyan else WarmTextSecondary,
                                 modifier = Modifier.size(12.dp)
                             )
                             Text(
                                 if (isChannelSortMode) "Fertig" else "Sender verschieben",
                                 fontSize = 9.sp,
-                                color = if (isChannelSortMode) WarmGold else WarmTextSecondary
+                                color = if (isChannelSortMode) OsiCyan else WarmTextSecondary
                             )
                         }
                     }
@@ -497,7 +502,7 @@ fun LiveScreen(
                         .fillMaxWidth()
                         .weight(0.5f)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color.Black),
+                        .background(OsiBlack),
                     contentAlignment = Alignment.Center
                 ) {
                     if (selectedChannel != null) {
@@ -539,12 +544,12 @@ fun LiveScreen(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(8.dp)
-                            .background(Color.Black.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp))
+                            .background(OsiBlack.copy(alpha = 0.6f), shape = RoundedCornerShape(8.dp))
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Fullscreen,
                             contentDescription = "Enter Fullscreen",
-                            tint = WarmGold,
+                            tint = OsiCyan,
                             modifier = Modifier.size(32.dp)
                         )
                     }
@@ -559,7 +564,7 @@ fun LiveScreen(
                 ) {
                     Text(
                         "EPG - Programm",
-                        color = WarmGold,
+                        color = OsiCyan,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(8.dp, 4.dp)
@@ -592,7 +597,20 @@ private fun CategoryItem(
     onClick: () -> Unit,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit
-) {
+    ) {
+    var isFocused by remember { mutableStateOf(false) }
+    val pulseScale = remember { Animatable(1f) }
+    var prevFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isFocused) {
+        if (isFocused && !prevFocused) {
+            pulseScale.snapTo(1f)
+            pulseScale.animateTo(1.08f, spring(stiffness = Spring.StiffnessMedium))
+            pulseScale.animateTo(1f, spring(stiffness = Spring.StiffnessMedium))
+        }
+        prevFocused = isFocused
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -600,11 +618,13 @@ private fun CategoryItem(
             .background(
                 when {
                     isActive            -> WarmError.copy(alpha = 0.15f)
-                    isSelected && !isSortMode -> WarmGoldDim
+                    isSelected && !isSortMode -> OsiCyan.copy(alpha = 0.12f)
                     else                -> Color.Transparent
                 }
             )
             .then(if (!isSortMode) Modifier.clickable(onClick = onClick) else Modifier)
+            .onFocusChanged { isFocused = it.isFocused }
+            .graphicsLayer { scaleX = pulseScale.value; scaleY = pulseScale.value }
             .padding(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -621,7 +641,7 @@ private fun CategoryItem(
             category.name,
             color = when {
                 isActive                  -> WarmError
-                isSelected && !isSortMode -> WarmGold
+                isSelected && !isSortMode -> OsiCyan
                 else                      -> WarmTextPrimary
             },
             fontSize = 13.sp,
@@ -642,7 +662,7 @@ private fun CategoryItem(
                         Icons.Filled.KeyboardArrowUp,
                         contentDescription = "Nach oben",
                         modifier = Modifier.size(16.dp),
-                        tint = if (canMoveUp) WarmGold else WarmTextSecondary.copy(alpha = 0.4f)
+                        tint = if (canMoveUp) OsiCyan else WarmTextSecondary.copy(alpha = 0.4f)
                     )
                 }
                 IconButton(onClick = onMoveDown, enabled = canMoveDown, modifier = Modifier.size(24.dp)) {
@@ -650,7 +670,7 @@ private fun CategoryItem(
                         Icons.Filled.KeyboardArrowDown,
                         contentDescription = "Nach unten",
                         modifier = Modifier.size(16.dp),
-                        tint = if (canMoveDown) WarmGold else WarmTextSecondary.copy(alpha = 0.4f)
+                        tint = if (canMoveDown) OsiCyan else WarmTextSecondary.copy(alpha = 0.4f)
                     )
                 }
             }
@@ -674,6 +694,19 @@ private fun ChannelItem(
     onMoveDown: () -> Unit = {},
     onFavoriteClick: () -> Unit
 ) {
+    var isFocused by remember { mutableStateOf(false) }
+    val pulseScale = remember { Animatable(1f) }
+    var prevFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isFocused) {
+        if (isFocused && !prevFocused) {
+            pulseScale.snapTo(1f)
+            pulseScale.animateTo(1.08f, spring(stiffness = Spring.StiffnessMedium))
+            pulseScale.animateTo(1f, spring(stiffness = Spring.StiffnessMedium))
+        }
+        prevFocused = isFocused
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -681,12 +714,14 @@ private fun ChannelItem(
             .background(
                 when {
                     isActive            -> WarmError.copy(alpha = 0.15f)
-                    isSelected && !isSortMode -> WarmGoldDim
+                    isSelected && !isSortMode -> OsiCyan.copy(alpha = 0.12f)
                     else                -> Color.Transparent
                 }
             )
             .then(if (!isSortMode) Modifier.clickable(onClick = onClick) else Modifier)
             .focusable()
+            .onFocusChanged { isFocused = it.isFocused }
+            .graphicsLayer { scaleX = pulseScale.value; scaleY = pulseScale.value }
             .padding(horizontal = 4.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -715,7 +750,7 @@ private fun ChannelItem(
                     Icons.Filled.LiveTv,
                     contentDescription = null,
                     modifier = Modifier.size(10.dp),
-                    tint = if (isSelected) WarmGold else WarmTextSecondary
+                    tint = if (isSelected) OsiCyan else WarmTextSecondary
                 )
             }
             Spacer(Modifier.width(6.dp))
@@ -724,7 +759,7 @@ private fun ChannelItem(
             channel.name,
             color = when {
                 isActive                  -> WarmError
-                isSelected && !isSortMode -> WarmGold
+                isSelected && !isSortMode -> OsiCyan
                 else                      -> WarmTextPrimary
             },
             fontSize = 13.sp,
@@ -752,7 +787,7 @@ private fun ChannelItem(
                         Icons.Filled.KeyboardArrowUp,
                         contentDescription = "Nach oben",
                         modifier = Modifier.size(16.dp),
-                        tint = if (canMoveUp) WarmGold else WarmTextSecondary.copy(alpha = 0.4f)
+                        tint = if (canMoveUp) OsiCyan else WarmTextSecondary.copy(alpha = 0.4f)
                     )
                 }
                 IconButton(onClick = onMoveDown, enabled = canMoveDown, modifier = Modifier.size(24.dp)) {
@@ -760,7 +795,7 @@ private fun ChannelItem(
                         Icons.Filled.KeyboardArrowDown,
                         contentDescription = "Nach unten",
                         modifier = Modifier.size(16.dp),
-                        tint = if (canMoveDown) WarmGold else WarmTextSecondary.copy(alpha = 0.4f)
+                        tint = if (canMoveDown) OsiCyan else WarmTextSecondary.copy(alpha = 0.4f)
                     )
                 }
             }
@@ -782,7 +817,7 @@ private fun EpgItemView(epg: EpgItem) {
     ) {
         Text(
             timeFormat.format(Date(epg.startTime)),
-            color = WarmGold,
+            color = OsiCyan,
             fontSize = 11.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.width(48.dp)

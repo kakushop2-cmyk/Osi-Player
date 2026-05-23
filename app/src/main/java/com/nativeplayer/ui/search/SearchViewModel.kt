@@ -27,6 +27,9 @@ class SearchViewModel @Inject constructor(
         val series: List<Series> = emptyList()
     )
 
+    /** Gibt alle gecachten Channels zurück (für PlayerContext-Initialisierung). */
+    fun getAllChannels(): List<Channel> = repository.getCachedChannels()
+
     fun onQueryChanged(q: String) {
         _query.value = q
         if (q.length < 2) {

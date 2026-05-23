@@ -1,5 +1,6 @@
 package com.nativeplayer.ui.player
 
+import android.util.Log
 import android.view.SurfaceView
 import android.view.SurfaceHolder
 import android.view.ViewGroup
@@ -7,6 +8,8 @@ import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.media3.ui.SubtitleView
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,14 +24,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -42,6 +52,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nativeplayer.data.model.PlayerSettings
+import com.nativeplayer.ui.navigation.Screen
 import com.nativeplayer.data.model.AspectRatio
 import com.nativeplayer.player.PlayerManager
 import com.nativeplayer.player.PlayerState
@@ -83,13 +94,13 @@ private fun SeekButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = Color.White,
-            modifier = Modifier.size(40.dp)
+            tint = OsiTextPrimary,
+            modifier = Modifier.size(60.dp)
         )
         Text(
             text = label,
-            color = Color.White.copy(alpha = 0.9f),
-            fontSize = 11.sp,
+            color = OsiTextPrimary.copy(alpha = 0.9f),
+            fontSize = 16.5.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 2.dp)
         )
@@ -105,6 +116,8 @@ fun PlayerScreen(
     contentTitle: String = "",
     resumePosition: Long = 0L,
     imageUrl: String = "",
+    seasonNumber: Int = -1,
+    episodeNumber: Int = -1,
     viewModel: PlayerViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -117,6 +130,8 @@ fun PlayerScreen(
     var currentTitle by remember { mutableStateOf(contentTitle) }
     var currentImageUrl by remember { mutableStateOf(imageUrl) }
     var currentResumePos by remember { mutableLongStateOf(resumePosition) }
+    var currentSeason by remember { mutableIntStateOf(seasonNumber) }
+    var currentEpisode by remember { mutableIntStateOf(episodeNumber) }
 
     var playerManager by remember { mutableStateOf<PlayerManager?>(null) }
     var surfaceView by remember { mutableStateOf<SurfaceView?>(null) }
@@ -151,6 +166,12 @@ fun PlayerScreen(
         AspectRatio.FIT,
         AspectRatio.FILL
     )
+
+    // ── Countdown / Auto-Play Next Episode State ──
+    var showCountdown by remember { mutableStateOf(false) }
+    var countdownSeconds by remember { mutableIntStateOf(5) }
+    var nextEpisodeForAutoplay by remember { mutableStateOf<NextEpisodeInfo?>(null) }
+    var autoPlayTriggered by remember { mutableStateOf(false) }
 
     // ── Player-Einstellungen (einmalig beim Start geladen) ──────
     var playerSettings by remember { mutableStateOf(PlayerSettings()) }
@@ -304,6 +325,49 @@ fun PlayerScreen(
         }
     }
 
+    // ── EPG-Daten nachladen wenn sie fehlen (z.B. aus SearchScreen) ──
+    LaunchedEffect(contentTyp, currentContentId) {
+        if (contentTyp == ContentType.LIVE && PlayerContext.currentEpgItem == null) {
+            val ch = PlayerContext.current() ?: return@LaunchedEffect
+            val epgList = viewModel.loadEpgForChannel(ch.id)
+            if (epgList.isNotEmpty()) {
+                val now = System.currentTimeMillis()
+                val tz = java.util.TimeZone.getTimeZone(PlayerContext.categoryTimezone)
+                val offsetMs = tz.getOffset(now)
+                val sorted = epgList
+                    .map { item ->
+                        item.copy(
+                            startTime = item.startTime - offsetMs,
+                            endTime = item.endTime - offsetMs
+                        )
+                    }
+                    .sortedBy { it.startTime }
+                val current = sorted.firstOrNull { item ->
+                    item.startTime <= now && item.endTime > now
+                }
+                if (current != null) {
+                    val idx = sorted.indexOf(current)
+                    val remaining = ((current.endTime - now) / 60000).toInt()
+                    val progress = ((now - current.startTime).toFloat() / (current.endTime - current.startTime) * 100f).coerceIn(0f, 100f)
+                    PlayerContext.setEpgData(
+                        previousEpgItem = if (idx > 0) sorted[idx - 1] else null,
+                        currentEpgItem = current,
+                        nextEpgItem = if (idx < sorted.size - 1) sorted[idx + 1] else null,
+                        channelLogoUrl = PlayerContext.channelLogoUrl,
+                        epgProgress = progress,
+                        currentTimeInZone = now,
+                        remainingMinutes = remaining,
+                        categoryTimezone = PlayerContext.categoryTimezone
+                    )
+                    epgProgress = progress
+                    epgRemainingMinutes = remaining
+                    epgCurrentTimeInZone = now
+                    epgRefreshTrigger++
+                }
+            }
+        }
+    }
+
     // ── EPG-Fortschritt kontinuierlich aktualisieren (Live-TV) ───
     LaunchedEffect(contentTyp, isPlaying, epgRefreshTrigger) {
         if (contentTyp != ContentType.LIVE || !isPlaying) return@LaunchedEffect
@@ -410,7 +474,9 @@ fun PlayerScreen(
     // (z.B. bei Surface-Rekreation oder Retry). Der alte ExoPlayer läuft dann
     // weiter im Hintergrund und erzeugt doppelte Audio-Streams.
     LaunchedEffect(surfaceView, subtitleView, isSurfaceReady, retryTrigger, currentUrl) {
+        Log.d("PlayerScreen", "Player init check: surfaceView=${surfaceView != null}, isSurfaceReady=$isSurfaceReady, url=$currentUrl")
         if (surfaceView != null && isSurfaceReady) {
+            Log.d("PlayerScreen", "Initializing player with url=$currentUrl")
             errorMessage = null
             playerState = PlayerState.IDLE
             playerManager?.release()   // Alten Player freigeben
@@ -420,11 +486,42 @@ fun PlayerScreen(
                 // SubtitleView binden, sobald sie verfügbar ist
                 subtitleView?.let { pm.setSubtitleView(it) }
                 pm.setOnStateChangeListener { state ->
+                    Log.d("PlayerScreen", "Player state changed: $state")
                     playerState = state
                     isPlaying = state == PlayerState.PLAYING
                     if (state == PlayerState.ERROR) {
                         errorMessage = pm.getLastError() ?: "Unbekannter Fehler"
                         showControls = true
+                    }
+                    if (state == PlayerState.ENDED && contentTyp == ContentType.SERIES && playerSettings.autoPlayNext) {
+                        if (currentSeason > 0 && currentEpisode > 0 && !autoPlayTriggered) {
+                            autoPlayTriggered = true
+                            coroutineScope.launch {
+                                val nextEpisode = viewModel.loadNextEpisode(
+                                    seriesId = currentContentId,
+                                    currentSeason = currentSeason,
+                                    currentEpisode = currentEpisode
+                                )
+                                if (nextEpisode != null) {
+                                    viewModel.savePosition(
+                                        url = currentUrl,
+                                        position = currentPosition,
+                                        duration = duration,
+                                        type = ContentType.SERIES,
+                                        contentId = currentContentId,
+                                        title = currentTitle.ifEmpty { "Wiedergabe" },
+                                        imageUrl = currentImageUrl,
+                                        seasonNumber = currentSeason,
+                                        episodeNumber = currentEpisode
+                                    )
+                                    nextEpisodeForAutoplay = nextEpisode
+                                    countdownSeconds = 5
+                                    showCountdown = true
+                                    showControls = true
+                                    hideJob?.cancel()
+                                }
+                            }
+                        }
                     }
                 }
                 pm.setOnTimeUpdateListener { pos, dur ->
@@ -469,7 +566,9 @@ fun PlayerScreen(
                             type = contentTyp,
                             contentId = currentContentId,
                             title = currentTitle.ifEmpty { "Wiedergabe" },
-                            imageUrl = currentImageUrl
+                            imageUrl = currentImageUrl,
+                            seasonNumber = currentSeason,
+                            episodeNumber = currentEpisode
                         )
                     }
                 } catch (_: Exception) {
@@ -477,6 +576,29 @@ fun PlayerScreen(
                     break
                 }
             }
+        }
+    }
+
+    // ── Countdown für Auto-Play Next Episode ─────────────────────
+    LaunchedEffect(showCountdown) {
+        if (!showCountdown) return@LaunchedEffect
+        while (countdownSeconds > 0) {
+            delay(1000)
+            countdownSeconds--
+        }
+        // Countdown abgelaufen → nächste Episode starten
+        nextEpisodeForAutoplay?.let { next ->
+            showCountdown = false
+            navController.navigate(
+                Screen.FullScreenPlayer.createRoute(
+                    url = next.url,
+                    type = "series",
+                    contentId = currentContentId,
+                    title = next.title,
+                    season = next.seasonNumber,
+                    episode = next.episodeNumber
+                )
+            )
         }
     }
     
@@ -528,7 +650,9 @@ fun PlayerScreen(
                     type = contentTyp,
                     contentId = currentContentId,
                     title = currentTitle.ifEmpty { "Wiedergabe" },
-                    imageUrl = currentImageUrl
+                    imageUrl = currentImageUrl,
+                    seasonNumber = currentSeason,
+                    episodeNumber = currentEpisode
                 )
             }
             pm.release()
@@ -561,7 +685,9 @@ fun PlayerScreen(
                     type = contentTyp,
                     contentId = currentContentId,
                     title = currentTitle.ifEmpty { "Wiedergabe" },
-                    imageUrl = currentImageUrl
+                    imageUrl = currentImageUrl,
+                    seasonNumber = currentSeason,
+                    episodeNumber = currentEpisode
                 )
             }
             pm.stop()
@@ -575,7 +701,7 @@ fun PlayerScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(OsiBlack)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -733,11 +859,11 @@ fun PlayerScreen(
             ) {
                 Text(
                     text = channelOverlayText,
-                    color = Color.White,
-                    fontSize = 28.sp,
+                    color = OsiTextPrimary,
+                    fontSize = 42.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .background(Color.Black.copy(alpha = 0.7f), RoundedCornerShape(12.dp))
+                        .background(OsiBlack.copy(alpha = 0.7f), RoundedCornerShape(12.dp))
                         .padding(horizontal = 32.dp, vertical = 16.dp)
                 )
             }
@@ -747,12 +873,12 @@ fun PlayerScreen(
         if (playerState == PlayerState.BUFFERING || playerState == PlayerState.IDLE) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(color = WarmGold, modifier = Modifier.size(48.dp))
+                    CircularProgressIndicator(color = WarmGold, modifier = Modifier.size(72.dp))
                     Spacer(Modifier.height(12.dp))
                     Text(
                         "Lädt Stream...",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 14.sp
+                        color = OsiTextPrimary.copy(alpha = 0.7f),
+                        fontSize = 21.sp
                     )
                 }
             }
@@ -761,29 +887,29 @@ fun PlayerScreen(
         // ── Error State (unterdrückt während Channel-Wechsel) ───
         if (playerState == PlayerState.ERROR && !isChannelSwitching) {
             Box(
-                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.85f)),
+                modifier = Modifier.fillMaxSize().background(OsiBlack.copy(alpha = 0.85f)),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(
                         Icons.Filled.ErrorOutline,
                         contentDescription = null,
-                        modifier = Modifier.size(64.dp),
+                        modifier = Modifier.size(96.dp),
                         tint = WarmError
                     )
                     Spacer(Modifier.height(16.dp))
                     Text(
                         "Fehler bei der Wiedergabe",
-                        color = Color.White,
-                        fontSize = 18.sp,
+                        color = OsiTextPrimary,
+                        fontSize = 27.sp,
                         fontWeight = FontWeight.Bold
                     )
                     if (errorMessage != null) {
                         Spacer(Modifier.height(8.dp))
                         Text(
                             errorMessage!!,
-                            color = Color.White.copy(alpha = 0.7f),
-                            fontSize = 13.sp,
+                            color = OsiTextPrimary.copy(alpha = 0.7f),
+                            fontSize = 19.5.sp,
                             modifier = Modifier.padding(horizontal = 32.dp)
                         )
                     }
@@ -803,9 +929,9 @@ fun PlayerScreen(
                             .focusable()
                             .focusRequester(retryFocus)
                     ) {
-                        Icon(Icons.Filled.Refresh, null, Modifier.size(20.dp))
+                        Icon(Icons.Filled.Refresh, null, Modifier.size(30.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Neu laden", fontSize = 15.sp)
+                        Text("Neu laden", fontSize = 22.5.sp)
                     }
 
                     Spacer(Modifier.height(12.dp))
@@ -817,7 +943,112 @@ fun PlayerScreen(
                         .focusable()
                         .focusRequester(backTextFocus)
                     ) {
-                        Text("Zurück", color = WarmTextSecondary, fontSize = 14.sp)
+                        Text("Zurück", color = WarmTextSecondary, fontSize = 21.sp)
+                    }
+                }
+            }
+        }
+
+        // ── Countdown Overlay (Nächste Episode Auto-Play) ──────────
+        AnimatedVisibility(
+            visible = showCountdown,
+            enter = fadeIn(animationSpec = tween(300)),
+            exit = fadeOut(animationSpec = tween(200))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(OsiBlack.copy(alpha = 0.9f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = { /* keine Aktion – Countdown erst bei 0 oder Button-Klick */ }
+                        )
+                ) {
+                    Text(
+                        "Nächste Episode",
+                        color = WarmTextSecondary,
+                        fontSize = 21.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    nextEpisodeForAutoplay?.let { ep ->
+                        Text(
+                            "S${ep.seasonNumber}E${ep.episodeNumber}",
+                            color = WarmGold,
+                            fontSize = 45.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            ep.title,
+                            color = OsiTextPrimary,
+                            fontSize = 27.sp,
+                            fontWeight = FontWeight.Medium,
+                            maxLines = 2,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
+                    }
+                    Spacer(Modifier.height(36.dp))
+                    Text(
+                        "startet in",
+                        color = WarmTextSecondary,
+                        fontSize = 21.sp
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "$countdownSeconds",
+                        color = WarmGold,
+                        fontSize = 108.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(40.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                showCountdown = false
+                                nextEpisodeForAutoplay = null
+                                cleanupAndGoBack()
+                            },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = WarmTextSecondary
+                            )
+                        ) {
+                            Icon(Icons.Filled.Close, null, Modifier.size(27.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Zurück")
+                        }
+                        Button(
+                            onClick = {
+                                nextEpisodeForAutoplay?.let { next ->
+                                    showCountdown = false
+                                    navController.navigate(
+                                        Screen.FullScreenPlayer.createRoute(
+                                            url = next.url,
+                                            type = "series",
+                                            contentId = currentContentId,
+                                            title = next.title,
+                                            season = next.seasonNumber,
+                                            episode = next.episodeNumber
+                                        )
+                                    )
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = WarmGold),
+                            modifier = Modifier.height(48.dp)
+                        ) {
+                            Icon(Icons.Filled.PlayArrow, null, Modifier.size(36.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Jetzt starten", fontSize = 24.sp)
+                        }
                     }
                 }
             }
@@ -839,7 +1070,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .padding(16.dp)
-                        .background(Color.Black.copy(alpha = 0.5f), CircleShape)
+                        .background(OsiBlack.copy(alpha = 0.5f), CircleShape)
                         .focusable()
                         .focusRequester(backFocus)
                         .focusProperties { down = playPauseFocus }
@@ -847,8 +1078,8 @@ fun PlayerScreen(
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Zurück",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
+                        tint = OsiTextPrimary,
+                        modifier = Modifier.size(42.dp)
                     )
                 }
 
@@ -857,13 +1088,13 @@ fun PlayerScreen(
                     // Live TV: Show current program title
                     Text(
                         PlayerContext.currentEpgItem?.title ?: "Live",
-                        color = Color.White,
-                        fontSize = 16.sp,
+                        color = OsiTextPrimary,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier
                             .align(Alignment.TopCenter)
                             .padding(20.dp)
-                            .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .background(OsiBlack.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                             .padding(horizontal = 16.dp, vertical = 6.dp)
                     )
                 } else {
@@ -876,13 +1107,13 @@ fun PlayerScreen(
                                 ContentType.LIVE -> "Live"
                             }
                         },
-                        color = Color.White,
-                        fontSize = 16.sp,
+                        color = OsiTextPrimary,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier
                             .align(Alignment.TopCenter)
                             .padding(20.dp)
-                            .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .background(OsiBlack.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                             .padding(horizontal = 16.dp, vertical = 6.dp)
                     )
                 }
@@ -892,12 +1123,12 @@ fun PlayerScreen(
                     Text(
                         "${playbackSpeed}x",
                         color = WarmGold,
-                        fontSize = 13.sp,
+                        fontSize = 19.5.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .align(Alignment.TopEnd)
                             .padding(20.dp)
-                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
+                            .background(OsiBlack.copy(alpha = 0.6f), RoundedCornerShape(4.dp))
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
@@ -939,415 +1170,347 @@ fun PlayerScreen(
                       )
                   }
                  
-                 // Bottom Controls Bar
+                 // ═══════════════════════════════════════════════════════════════
+                 // FLOATING PILL PLAYERBAR — New Design
+                 // ═══════════════════════════════════════════════════════════════
                  Box(
                      modifier = Modifier
                          .align(Alignment.BottomCenter)
                          .fillMaxWidth()
-                         .background(
-                             Brush.verticalGradient(
-                                 colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f))
-                             )
-                         )
+                         .padding(bottom = 16.dp)
                  ) {
                      if (contentTyp == ContentType.LIVE) {
-                         // Live TV: Show EPG Timeline
-                         Column(
-                             modifier = Modifier
-                                 .fillMaxWidth()
-                                 .padding(horizontal = 16.dp, vertical = 12.dp)
-                          ) {
-                               EPGTimelineBar(
-                                   currentEpgItem = PlayerContext.currentEpgItem,
-                                   epgProgress = epgProgress,
-                                   currentTimeInZone = epgCurrentTimeInZone,
-                                   remainingMinutes = epgRemainingMinutes,
-                                   timeDisplayString = formatCurrentTimeForDisplay(
-                                       epgCurrentTimeInZone,
-                                       PlayerContext.categoryTimezone
-                                   ),
-                                   timezoneName = PlayerContext.categoryTimezone
-                               )
-                         }
+                         // ── Live TV: Floating Pill with EPG ──────────────────
+                         LiveTvPlayerPill(
+                             currentEpgItem = PlayerContext.currentEpgItem,
+                             epgProgress = epgProgress,
+                             channelName = currentTitle,
+                             currentTimeInZone = epgCurrentTimeInZone,
+                             remainingMinutes = epgRemainingMinutes,
+                             timeDisplayString = formatCurrentTimeForDisplay(
+                                 epgCurrentTimeInZone,
+                                 PlayerContext.categoryTimezone
+                             ),
+                             epgRefreshTrigger = epgRefreshTrigger
+                         )
                      } else {
-                // Timeline
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        formatTime(currentPosition),
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        modifier = Modifier.width(52.dp)
-                    )
-
-                    Slider(
-                        value = if (duration > 0) {
-                            (currentPosition.toFloat() / duration).coerceIn(0f, 1f)
-                        } else 0f,
-                        onValueChange = { fraction ->
-                            val pos = (fraction * duration).toLong()
-                            currentPosition = pos
-                            isDragging = true
-                        },
-                        onValueChangeFinished = {
-                            playerManager?.seekTo(currentPosition)
-                            isDragging = false
-                            resetHideTimer()
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(24.dp)
-                            .focusable()
-                            .focusRequester(sliderFocus)
-                            .focusProperties { down = playPauseFocus },
-                        colors = SliderDefaults.colors(
-                            thumbColor = WarmGold,
-                            activeTrackColor = WarmGold,
-                            inactiveTrackColor = Color.White.copy(alpha = 0.3f)
-                        )
-                    )
-
-                    Text(
-                        formatTime(duration),
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        modifier = Modifier.width(52.dp)
-                    )
-                }
-
-                Spacer(Modifier.height(4.dp))
-
-                // Control buttons row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Rewind
-                    SeekButton(
-                        icon = Icons.Filled.Replay,
-                        label = formatSeekLabel(playerSettings.seekBackwardMs),
-                        contentDescription = "Zurückspulen",
-                        onClick = {
-                            val pos = (currentPosition - playerSettings.seekBackwardMs).coerceAtLeast(0)
-                            playerManager?.seekTo(pos)
-                            currentPosition = pos
-                            resetHideTimer()
-                        },
-                        modifier = Modifier
-                            .focusable()
-                            .focusRequester(rewindFocus)
-                            .focusProperties {
-                                right = playPauseFocus
-                                up = sliderFocus
-                            }
-                    )
-
-                    // Play/Pause
-                    IconButton(
-                        onClick = {
-                            if (isPlaying) {
-                                playerManager?.pause()
-                                isPlaying = false
-                            } else {
-                                playerManager?.play()
-                                isPlaying = true
-                            }
-                            resetHideTimer()
-                        },
-                        modifier = Modifier
-                            .size(56.dp)
-                            .background(WarmGold, CircleShape)
-                            .focusable()
-                            .focusRequester(playPauseFocus)
-                            .focusProperties {
-                                left = rewindFocus
-                                right = forwardFocus
-                                up = sliderFocus
-                            }
-                    ) {
-                        Icon(
-                            if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                            contentDescription = if (isPlaying) "Pause" else "Play",
-                            tint = Color.White,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-
-                    // Forward
-                    SeekButton(
-                        icon = Icons.Filled.Forward,
-                        label = formatSeekLabel(playerSettings.seekForwardMs),
-                        contentDescription = "Vorspulen",
-                        onClick = {
-                            val pos = (currentPosition + playerSettings.seekForwardMs).coerceAtMost(duration)
-                            playerManager?.seekTo(pos)
-                            currentPosition = pos
-                            resetHideTimer()
-                        },
-                        modifier = Modifier
-                            .focusable()
-                            .focusRequester(forwardFocus)
-                            .focusProperties {
-                                left = playPauseFocus
-                                right = speedFocus
-                                up = sliderFocus
-                            }
-                    )
-
-                    // Speed
-                    Box {
-                        IconButton(onClick = {
-                            showSpeedMenu = !showSpeedMenu
-                            resetHideTimer()
-                        },
-                        modifier = Modifier
-                            .focusable()
-                            .focusRequester(speedFocus)
-                            .focusProperties {
-                                left = forwardFocus
-                                right = aspectRatioFocus
-                                up = sliderFocus
-                            }
-                        ) {
-                            Icon(
-                                Icons.Filled.Speed,
-                                contentDescription = "Geschwindigkeit",
-                                tint = if (playbackSpeed != 1.0f) WarmGold else Color.White,
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                        // Speed dropdown menu
-                        DropdownMenu(
-                            expanded = showSpeedMenu,
-                            onDismissRequest = { showSpeedMenu = false }
-                        ) {
-                            SPEED_OPTIONS.forEach { speed ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text(
-                                                "${speed}x",
-                                                color = if (speed == playbackSpeed) WarmGold else WarmTextPrimary,
-                                                fontSize = 14.sp
-                                            )
-                                            if (speed == 1.0f) {
-                                                Spacer(Modifier.width(6.dp))
-                                                Text(
-                                                    "(normal)",
-                                                    color = WarmTextSecondary,
-                                                    fontSize = 11.sp
-                                                )
-                                            }
-                                        }
-                                    },
-                                    onClick = {
-                                        playbackSpeed = speed
-                                        playerManager?.setPlaybackSpeed(speed)
-                                        showSpeedMenu = false
-                                        resetHideTimer()
-                                    },
-                                    leadingIcon = if (speed == playbackSpeed) {
-                                        {
-                                            Icon(
-                                                Icons.Filled.Check,
-                                                null,
-                                                tint = WarmGold,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                        }
-                                    } else null
-                                )
-                            }
-                        }
-                    }
-
-                    // Aspect Ratio
-                    IconButton(onClick = {
-                        val currentIndex = ASPECT_RATIO_CYCLE.indexOf(currentAspectRatio)
-                        val nextIndex = (currentIndex + 1) % ASPECT_RATIO_CYCLE.size
-                        currentAspectRatio = ASPECT_RATIO_CYCLE[nextIndex]
-                        playerManager?.setAspectRatio(ASPECT_RATIO_CYCLE[nextIndex])
-                        resetHideTimer()
-                    },
-                    modifier = Modifier
-                        .focusable()
-                        .focusRequester(aspectRatioFocus)
-                        .focusProperties {
-                            left = speedFocus
-                            right = stopFocus
-                            up = sliderFocus
-                        }
-                    ) {
-                        Icon(
-                            Icons.Filled.Crop,
-                            contentDescription = "Seitenverhältnis",
-                            tint = if (currentAspectRatio != AspectRatio.FIT) WarmGold else Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-
-                    // Stop
-                    IconButton(onClick = {
-                        playerManager?.let {
-                        viewModel.savePosition(
-                            url = currentUrl,
-                            position = it.getCurrentPosition(),
-                            duration = it.getDuration(),
-                            type = contentTyp,
-                            contentId = currentContentId,
-                            title = currentTitle.ifEmpty { "Wiedergabe" },
-                            imageUrl = currentImageUrl
-                        )
-                        }
-                        playerManager?.stop()
-                        isPlaying = false
-                        resetHideTimer()
-                    },
-                    modifier = Modifier
-                        .focusable()
-                        .focusRequester(stopFocus)
-                        .focusProperties {
-                            left = aspectRatioFocus
-                            // Nur auf subtitleFocus zeigen wenn der Button tatsächlich sichtbar ist,
-                            // sonst bleibt right unverändert (FocusRequester nicht gebunden → Crash)
-                            if (showSubtitleButton) right = subtitleFocus
-                            up = sliderFocus
-                        }
-                    ) {
-                        Icon(
-                            Icons.Filled.Stop,
-                            contentDescription = "Stop",
-                            tint = Color.White,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                    
-                    // Subtitle Selection
-                    if (showSubtitleButton) {
-                        Box {
-                            IconButton(onClick = {
-                                showSubtitleMenu = !showSubtitleMenu
-                                resetHideTimer()
-                            },
-                            modifier = Modifier
-                                .focusable()
-                                .focusRequester(subtitleFocus)
-                                .focusProperties {
-                                    left = stopFocus
-                                    if (showAudioButton) right = audioFocus
-                                    up = sliderFocus
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Filled.ClosedCaption,
-                                    contentDescription = "Untertitel",
-                                    tint = if (currentSubtitleTrack != null) WarmGold else Color.White,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            }
-                            // Subtitle dropdown menu
-                            DropdownMenu(
-                                expanded = showSubtitleMenu,
-                                onDismissRequest = { showSubtitleMenu = false }
-                            ) {
-                                subtitleTracks.forEach { track ->
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                track.label,
-                                                color = if (track.id == currentSubtitleTrack?.id) WarmGold else WarmTextPrimary,
-                                                fontSize = 14.sp
-                                            )
-                                        },
-                                        onClick = {
-                                            playerManager?.selectSubtitleTrack(
-                                                if (track.id == "none") null else track.id
-                                            )
-                                            currentSubtitleTrack = if (track.id == "none") null else track
-                                            showSubtitleMenu = false
-                                            resetHideTimer()
-                                        },
-                                        leadingIcon = if (track.id == currentSubtitleTrack?.id) {
-                                            {
-                                                Icon(
-                                                    Icons.Filled.Check,
-                                                    null,
-                                                    tint = WarmGold,
-                                                    modifier = Modifier.size(18.dp)
-                                                )
-                                            }
-                                        } else null
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Audio Track Selection
-                    if (showAudioButton) {
-                        Box {
-                            IconButton(onClick = {
-                                showAudioMenu = !showAudioMenu
-                                resetHideTimer()
-                            },
-                            modifier = Modifier
-                                .focusable()
-                                .focusRequester(audioFocus)
-                                .focusProperties {
-                                    left = if (showSubtitleButton) subtitleFocus else stopFocus
-                                    up = sliderFocus
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Filled.VolumeUp,
-                                    contentDescription = "Audio",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            }
-                            // Audio dropdown menu
-                            DropdownMenu(
-                                expanded = showAudioMenu,
-                                onDismissRequest = { showAudioMenu = false }
-                            ) {
-                                audioTracks.forEach { track ->
-                                    DropdownMenuItem(
-                                        text = {
-                                            Text(
-                                                track.label,
-                                                color = if (track.id == currentAudioTrack?.id) WarmGold else WarmTextPrimary,
-                                                fontSize = 14.sp
-                                            )
-                                        },
-                                        onClick = {
-                                            playerManager?.selectAudioTrack(track.id)
-                                            currentAudioTrack = track
-                                            showAudioMenu = false
-                                            resetHideTimer()
-                                        },
-                                        leadingIcon = if (track.id == currentAudioTrack?.id) {
-                                            {
-                                                Icon(
-                                                    Icons.Filled.Check,
-                                                    null,
-                                                    tint = WarmGold,
-                                                    modifier = Modifier.size(18.dp)
-                                                )
-                                            }
-                        } else null
-                            )
-                        }
-                    }
-                }
-            }
-                }  // Close else block (VOD controls)
-            }  // Close bottom Box
+                         // ── VOD: Floating Pill with Controls ─────────────────
+                         var showMoreMenu by remember { mutableStateOf(false) }
+                         
+                         Column(
+                             modifier = Modifier.fillMaxWidth(),
+                             verticalArrangement = Arrangement.spacedBy(8.dp)
+                         ) {
+                             // More Menu (above pill, slide-up)
+                             AnimatedVisibility(
+                                 visible = showMoreMenu,
+                                 enter = slideInVertically(
+                                     initialOffsetY = { it },
+                                     animationSpec = tween(250)
+                                 ) + fadeIn(tween(200)),
+                                 exit = slideOutVertically(
+                                     targetOffsetY = { it },
+                                     animationSpec = tween(200)
+                                 ) + fadeOut(tween(150))
+                             ) {
+                                 PlayerMoreMenuPanel(
+                                     playbackSpeed = playbackSpeed,
+                                     currentAspectRatio = currentAspectRatio,
+                                     currentSubtitleTrack = currentSubtitleTrack,
+                                     subtitleTracks = subtitleTracks,
+                                     audioTracks = audioTracks,
+                                     currentAudioTrack = currentAudioTrack,
+                                     showSubtitleButton = showSubtitleButton,
+                                     showAudioButton = showAudioButton,
+                                     onSpeedChange = { speed ->
+                                         playbackSpeed = speed
+                                         playerManager?.setPlaybackSpeed(speed)
+                                         resetHideTimer()
+                                     },
+                                     onAspectRatioChange = {
+                                         val currentIndex = ASPECT_RATIO_CYCLE.indexOf(currentAspectRatio)
+                                         val nextIndex = (currentIndex + 1) % ASPECT_RATIO_CYCLE.size
+                                         currentAspectRatio = ASPECT_RATIO_CYCLE[nextIndex]
+                                         playerManager?.setAspectRatio(ASPECT_RATIO_CYCLE[nextIndex])
+                                         resetHideTimer()
+                                     },
+                                     onSubtitleSelect = { track ->
+                                         playerManager?.selectSubtitleTrack(
+                                             if (track.id == "none") null else track.id
+                                         )
+                                         currentSubtitleTrack = if (track.id == "none") null else track
+                                         resetHideTimer()
+                                     },
+                                     onAudioSelect = { track ->
+                                         playerManager?.selectAudioTrack(track.id)
+                                         currentAudioTrack = track
+                                         resetHideTimer()
+                                     },
+                                     onStop = {
+                                         playerManager?.let {
+                                             viewModel.savePosition(
+                                                 url = currentUrl,
+                                                 position = it.getCurrentPosition(),
+                                                 duration = it.getDuration(),
+                                                 type = contentTyp,
+                                                 contentId = currentContentId,
+                                                 title = currentTitle.ifEmpty { "Wiedergabe" },
+                                                 imageUrl = currentImageUrl
+                                             )
+                                         }
+                                         playerManager?.stop()
+                                         isPlaying = false
+                                         resetHideTimer()
+                                     },
+                                     onDismiss = { showMoreMenu = false },
+                                     speedFocus = speedFocus,
+                                     aspectRatioFocus = aspectRatioFocus,
+                                     stopFocus = stopFocus,
+                                     subtitleFocus = subtitleFocus,
+                                     audioFocus = audioFocus
+                                 )
+                             }
+                             
+                             // Main Floating Pill
+                             Box(
+                                 modifier = Modifier
+                                     .fillMaxWidth()
+                                     .padding(horizontal = 16.dp)
+                                     .clip(RoundedCornerShape(14.dp))
+                                     .background(Color(0xCC0A0A0A))
+                                     .border(
+                                         width = 1.dp,
+                                         brush = Brush.linearGradient(
+                                             colors = listOf(
+                                                 OsiCyan.copy(alpha = 0.3f),
+                                                 OsiBorder,
+                                                 OsiCyan.copy(alpha = 0.1f)
+                                             )
+                                         ),
+                                         shape = RoundedCornerShape(14.dp)
+                                     )
+                                     .padding(16.dp)
+                             ) {
+                                 Column(
+                                     modifier = Modifier.fillMaxWidth(),
+                                     verticalArrangement = Arrangement.spacedBy(12.dp)
+                                 ) {
+                                     // ── Progress Bar ────────────────────────
+                                     Column(
+                                         modifier = Modifier.fillMaxWidth(),
+                                         verticalArrangement = Arrangement.spacedBy(4.dp)
+                                     ) {
+                                          // Custom Slider with Cyan Gradient
+                                          Box(
+                                              modifier = Modifier
+                                                  .fillMaxWidth()
+                                                  .height(20.dp)
+                                                  .focusRequester(sliderFocus)
+                                                  .focusProperties { down = playPauseFocus }
+                                                  .focusable(),
+                                              contentAlignment = Alignment.Center
+                                          ) {
+                                             // Track Background
+                                             Box(
+                                                 modifier = Modifier
+                                                     .fillMaxWidth()
+                                                     .height(4.dp)
+                                                     .clip(RoundedCornerShape(2.dp))
+                                                     .background(Color(0xFF2A2A2A))
+                                             )
+                                             // Progress Fill
+                                             val progress = if (duration > 0) {
+                                                 (currentPosition.toFloat() / duration).coerceIn(0f, 1f)
+                                             } else 0f
+                                             Box(
+                                                 modifier = Modifier
+                                                     .fillMaxWidth(progress)
+                                                     .height(4.dp)
+                                                     .align(Alignment.CenterStart)
+                                                     .clip(RoundedCornerShape(2.dp))
+                                                     .background(
+                                                         Brush.horizontalGradient(
+                                                             colors = listOf(OsiCyan, OsiCyan.copy(alpha = 0.7f))
+                                                         )
+                                                     )
+                                             )
+                                             // Seek Thumb
+                                             Box(
+                                                 modifier = Modifier
+                                                     .fillMaxWidth(progress)
+                                                     .wrapContentSize(Alignment.CenterEnd)
+                                             ) {
+                                                 Box(
+                                                     modifier = Modifier
+                                                         .size(12.dp)
+                                                         .shadow(4.dp, CircleShape)
+                                                         .clip(CircleShape)
+                                                         .background(OsiCyan)
+                                                         .border(2.dp, Color.White, CircleShape)
+                                                 )
+                                             }
+                                             // Invisible Slider for actual seek interaction
+                                             Slider(
+                                                 value = if (duration > 0) {
+                                                     (currentPosition.toFloat() / duration).coerceIn(0f, 1f)
+                                                 } else 0f,
+                                                 onValueChange = { fraction ->
+                                                     val pos = (fraction * duration).toLong()
+                                                     currentPosition = pos
+                                                     isDragging = true
+                                                 },
+                                                 onValueChangeFinished = {
+                                                     playerManager?.seekTo(currentPosition)
+                                                     isDragging = false
+                                                     resetHideTimer()
+                                                 },
+                                                 modifier = Modifier
+                                                     .fillMaxWidth()
+                                                     .height(20.dp)
+                                                     .graphicsLayer(alpha = 0f),
+                                                 colors = SliderDefaults.colors(
+                                                     thumbColor = Color.Transparent,
+                                                     activeTrackColor = Color.Transparent,
+                                                     inactiveTrackColor = Color.Transparent
+                                                 )
+                                             )
+                                         }
+                                         
+                                          // Time Labels
+                                          Row(
+                                              modifier = Modifier.fillMaxWidth(),
+                                              verticalAlignment = Alignment.CenterVertically
+                                          ) {
+                                              Text(
+                                                  text = formatTime(currentPosition),
+                                                  color = OsiTextSecondary,
+                                                  fontSize = 16.5.sp,
+                                                  fontWeight = FontWeight.Medium
+                                              )
+                                              Text(
+                                                  text = currentTitle.ifEmpty { "Wiedergabe" },
+                                                  color = OsiTextPrimary.copy(alpha = 0.6f),
+                                                  fontSize = 16.5.sp,
+                                                  maxLines = 1,
+                                                  overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                                  modifier = Modifier
+                                                      .weight(1f)
+                                                      .padding(horizontal = 12.dp),
+                                                  textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                              )
+                                              Text(
+                                                  text = formatTime(duration),
+                                                  color = OsiTextSecondary,
+                                                  fontSize = 16.5.sp,
+                                                  fontWeight = FontWeight.Medium
+                                              )
+                                              // More Options (three dots) in seekbar
+                                              IconButton(
+                                                  onClick = {
+                                                      showMoreMenu = !showMoreMenu
+                                                      resetHideTimer()
+                                                  },
+                                                  modifier = Modifier.size(42.dp)
+                                              ) {
+                                                  Icon(
+                                                      imageVector = Icons.Filled.MoreVert,
+                                                      contentDescription = "Mehr Optionen",
+                                                      tint = OsiTextSecondary,
+                                                      modifier = Modifier.size(27.dp)
+                                                  )
+                                              }
+                                          }
+                                     }
+                                     
+                                     // ── Control Buttons Row ─────────────────
+                                     Row(
+                                         modifier = Modifier.fillMaxWidth(),
+                                         horizontalArrangement = Arrangement.SpaceEvenly,
+                                         verticalAlignment = Alignment.CenterVertically
+                                     ) {
+                                         // Rewind
+                                         PlayerPillControlButton(
+                                             icon = Icons.Filled.FastRewind,
+                                             label = formatSeekLabel(playerSettings.seekBackwardMs),
+                                             onClick = {
+                                                 val pos = (currentPosition - playerSettings.seekBackwardMs).coerceAtLeast(0)
+                                                 playerManager?.seekTo(pos)
+                                                 currentPosition = pos
+                                                 resetHideTimer()
+                                             },
+                                             modifier = Modifier
+                                                 .focusRequester(rewindFocus)
+                                                 .focusProperties {
+                                                     right = playPauseFocus
+                                                     up = sliderFocus
+                                                 }
+                                         )
+                                         
+                                         // Play/Pause — Primary Button
+                                         if (playerState == PlayerState.BUFFERING) {
+                                             // Buffering indicator
+                                             Box(
+                                                 modifier = Modifier
+                                                     .size(56.dp)
+                                                     .clip(CircleShape)
+                                                     .background(OsiCyan.copy(alpha = 0.15f))
+                                                     .border(2.dp, OsiCyan.copy(alpha = 0.4f), CircleShape),
+                                                 contentAlignment = Alignment.Center
+                                             ) {
+                                                 CircularProgressIndicator(
+                                                     modifier = Modifier.size(42.dp),
+                                                     color = OsiCyan,
+                                                     strokeWidth = 2.5.dp
+                                                 )
+                                             }
+                                         } else {
+                                             PlayerPillPlayPauseButton(
+                                                 isPlaying = isPlaying,
+                                                 onClick = {
+                                                     if (isPlaying) {
+                                                         playerManager?.pause()
+                                                         isPlaying = false
+                                                     } else {
+                                                         playerManager?.play()
+                                                         isPlaying = true
+                                                     }
+                                                     resetHideTimer()
+                                                 },
+                                                 modifier = Modifier
+                                                     .focusRequester(playPauseFocus)
+                                                     .focusProperties {
+                                                         left = rewindFocus
+                                                         right = forwardFocus
+                                                         up = sliderFocus
+                                                     }
+                                             )
+                                         }
+                                         
+                                          // Forward
+                                          PlayerPillControlButton(
+                                              icon = Icons.Filled.FastForward,
+                                              label = formatSeekLabel(playerSettings.seekForwardMs),
+                                              onClick = {
+                                                  val pos = (currentPosition + playerSettings.seekForwardMs).coerceAtMost(duration)
+                                                  playerManager?.seekTo(pos)
+                                                  currentPosition = pos
+                                                  resetHideTimer()
+                                              },
+                                               modifier = Modifier
+                                                   .focusRequester(forwardFocus)
+                                                   .focusProperties {
+                                                       left = playPauseFocus
+                                                       up = sliderFocus
+                                                   }
+                                          )
+                                     }
+                                 }
+                             }
+                         }
+                     }
+                 }  // Close Floating Pill bottom box
         }  // Close fillMaxSize Box
     }  // Close AnimatedVisibility
-}  // Close main Box
 }  // Close main Box
 }  // Close PlayerScreen function
 
@@ -1388,4 +1551,616 @@ private fun formatCurrentTimeForDisplay(timestamp: Long, timezoneName: String): 
     val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
     formatter.timeZone = TimeZone.getTimeZone(timezoneName)
     return formatter.format(Date(timestamp))
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FLOATING PILL COMPONENTS — New Playerbar Design
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Play/Pause Button — Circular with Glow Effect and Spring Animation.
+ * 56dp diameter, radial gradient OsiCyan, shadow glow on focus.
+ */
+@Composable
+private fun PlayerPillPlayPauseButton(
+    isPlaying: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    val glowAlpha by animateFloatAsState(
+        targetValue = if (isFocused) 0.6f else 0.2f,
+        animationSpec = tween(300),
+        label = "glowAlpha"
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = if (isFocused) 1.1f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "scale"
+    )
+
+    Box(
+        modifier = modifier
+            .size(56.dp)
+            .graphicsLayer(scaleX = scale, scaleY = scale)
+            .shadow(
+                elevation = if (isFocused) 12.dp else 4.dp,
+                shape = CircleShape,
+                ambientColor = OsiCyan.copy(alpha = glowAlpha),
+                spotColor = OsiCyan.copy(alpha = glowAlpha)
+            )
+            .clip(CircleShape)
+            .background(
+                Brush.radialGradient(
+                    colors = listOf(
+                        OsiCyan,
+                        OsiCyan.copy(alpha = 0.85f)
+                    )
+                )
+            )
+            .border(
+                width = if (isFocused) 2.dp else 0.dp,
+                color = if (isFocused) Color.White else Color.Transparent,
+                shape = CircleShape
+            )
+            .clickable(onClick = onClick)
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusable(),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
+            contentDescription = if (isPlaying) "Pause" else "Play",
+            tint = Color.Black,
+            modifier = Modifier.size(42.dp)
+        )
+    }
+}
+
+/**
+ * Control Button — 44dp circle with scale + border animation on focus.
+ */
+@Composable
+private fun PlayerPillControlButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: Dp = 44.dp
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    val borderColor by animateColorAsState(
+        targetValue = if (isFocused) OsiCyan else Color.Transparent,
+        animationSpec = tween(200),
+        label = "borderColor"
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = if (isFocused) 1.08f else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "scale"
+    )
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        Box(
+            modifier = modifier
+                .size(size)
+                .graphicsLayer(scaleX = scale, scaleY = scale)
+                .clip(CircleShape)
+                .background(
+                    if (isFocused) OsiCyan.copy(alpha = 0.1f) else Color(0xFF1A1A1A)
+                )
+                .border(
+                    width = 1.5.dp,
+                    color = borderColor,
+                    shape = CircleShape
+                )
+                .clickable(onClick = onClick)
+                .onFocusChanged { isFocused = it.isFocused }
+                .focusable(),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = if (isFocused) OsiCyan else OsiTextPrimary,
+                modifier = Modifier.size(33.dp)
+            )
+        }
+        Text(
+            text = label,
+            color = if (isFocused) OsiCyan else OsiTextSecondary,
+            fontSize = 13.5.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+/**
+ * More Menu Panel — Slide-up panel with Speed, Aspect, Subtitles, Audio, Stop.
+ * Glassmorphism container matching the pill design.
+ */
+@Composable
+private fun PlayerMoreMenuPanel(
+    playbackSpeed: Float,
+    currentAspectRatio: AspectRatio,
+    currentSubtitleTrack: SubtitleTrack?,
+    subtitleTracks: List<SubtitleTrack>,
+    audioTracks: List<AudioTrack>,
+    currentAudioTrack: AudioTrack?,
+    showSubtitleButton: Boolean,
+    showAudioButton: Boolean,
+    onSpeedChange: (Float) -> Unit,
+    onAspectRatioChange: () -> Unit,
+    onSubtitleSelect: (SubtitleTrack) -> Unit,
+    onAudioSelect: (AudioTrack) -> Unit,
+    onStop: () -> Unit,
+    onDismiss: () -> Unit,
+    speedFocus: FocusRequester,
+    aspectRatioFocus: FocusRequester,
+    stopFocus: FocusRequester,
+    subtitleFocus: FocusRequester,
+    audioFocus: FocusRequester
+) {
+    var showSpeedSubmenu by remember { mutableStateOf(false) }
+    var showSubtitleSubmenu by remember { mutableStateOf(false) }
+    var showAudioSubmenu by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color(0xE60A0A0A))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        OsiCyan.copy(alpha = 0.2f),
+                        OsiBorder
+                    )
+                ),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Main menu items row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Speed
+                MoreMenuItemButton(
+                    icon = Icons.Filled.Speed,
+                    label = "${playbackSpeed}x",
+                    isActive = playbackSpeed != 1.0f,
+                    onClick = { showSpeedSubmenu = !showSpeedSubmenu },
+                    modifier = Modifier
+                        .focusRequester(speedFocus)
+                        .focusProperties {
+                            right = aspectRatioFocus
+                        }
+                )
+                // Aspect Ratio
+                MoreMenuItemButton(
+                    icon = Icons.Filled.AspectRatio,
+                    label = if (currentAspectRatio == AspectRatio.FIT) "FIT" else "FILL",
+                    isActive = currentAspectRatio != AspectRatio.FIT,
+                    onClick = onAspectRatioChange,
+                    modifier = Modifier
+                        .focusRequester(aspectRatioFocus)
+                        .focusProperties {
+                            left = speedFocus
+                            right = if (showSubtitleButton) subtitleFocus else stopFocus
+                        }
+                )
+                // Subtitles (conditional)
+                if (showSubtitleButton) {
+                    MoreMenuItemButton(
+                        icon = Icons.Filled.Subtitles,
+                        label = currentSubtitleTrack?.label?.take(8) ?: "Aus",
+                        isActive = currentSubtitleTrack != null,
+                        onClick = { showSubtitleSubmenu = !showSubtitleSubmenu },
+                        modifier = Modifier
+                            .focusRequester(subtitleFocus)
+                            .focusProperties {
+                                left = aspectRatioFocus
+                                right = if (showAudioButton) audioFocus else stopFocus
+                            }
+                    )
+                }
+                // Audio (conditional)
+                if (showAudioButton) {
+                    MoreMenuItemButton(
+                        icon = Icons.Filled.Audiotrack,
+                        label = currentAudioTrack?.label?.take(8) ?: "Audio",
+                        isActive = false,
+                        onClick = { showAudioSubmenu = !showAudioSubmenu },
+                        modifier = Modifier
+                            .focusRequester(audioFocus)
+                            .focusProperties {
+                                left = if (showSubtitleButton) subtitleFocus else aspectRatioFocus
+                                right = stopFocus
+                            }
+                    )
+                }
+                // Stop
+                MoreMenuItemButton(
+                    icon = Icons.Filled.Stop,
+                    label = "Stop",
+                    isActive = false,
+                    onClick = {
+                        onStop()
+                        onDismiss()
+                    },
+                    modifier = Modifier
+                        .focusRequester(stopFocus)
+                        .focusProperties {
+                            left = if (showAudioButton) audioFocus
+                                   else if (showSubtitleButton) subtitleFocus
+                                   else aspectRatioFocus
+                        }
+                )
+            }
+
+            // Speed Submenu
+            AnimatedVisibility(
+                visible = showSpeedSubmenu,
+                enter = expandVertically(tween(200)) + fadeIn(tween(150)),
+                exit = shrinkVertically(tween(150)) + fadeOut(tween(100))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    SPEED_OPTIONS.forEach { speed ->
+                        val isSelected = speed == playbackSpeed
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    if (isSelected) OsiCyan.copy(alpha = 0.15f) else Color.Transparent
+                                )
+                                .border(
+                                    width = if (isSelected) 1.dp else 0.dp,
+                                    color = if (isSelected) OsiCyan.copy(alpha = 0.5f) else Color.Transparent,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .clickable {
+                                    onSpeedChange(speed)
+                                    showSpeedSubmenu = false
+                                }
+                                .padding(horizontal = 14.dp, vertical = 8.dp)
+                                .focusable(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "${speed}x",
+                                color = if (isSelected) OsiCyan else OsiTextPrimary,
+                                fontSize = 19.5.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Subtitle Submenu
+            AnimatedVisibility(
+                visible = showSubtitleSubmenu,
+                enter = expandVertically(tween(200)) + fadeIn(tween(150)),
+                exit = shrinkVertically(tween(150)) + fadeOut(tween(100))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    subtitleTracks.forEach { track ->
+                        val isSelected = track.id == currentSubtitleTrack?.id
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    if (isSelected) OsiCyan.copy(alpha = 0.1f) else Color.Transparent
+                                )
+                                .clickable {
+                                    onSubtitleSelect(track)
+                                    showSubtitleSubmenu = false
+                                }
+                                .padding(horizontal = 12.dp, vertical = 10.dp)
+                                .focusable()
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (isSelected) {
+                                    Icon(
+                                        Icons.Filled.Check,
+                                        null,
+                                        tint = OsiCyan,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                }
+                                Text(
+                                    text = track.label,
+                                    color = if (isSelected) OsiCyan else OsiTextPrimary,
+                                    fontSize = 19.5.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Audio Submenu
+            AnimatedVisibility(
+                visible = showAudioSubmenu,
+                enter = expandVertically(tween(200)) + fadeIn(tween(150)),
+                exit = shrinkVertically(tween(150)) + fadeOut(tween(100))
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    audioTracks.forEach { track ->
+                        val isSelected = track.id == currentAudioTrack?.id
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(
+                                    if (isSelected) OsiCyan.copy(alpha = 0.1f) else Color.Transparent
+                                )
+                                .clickable {
+                                    onAudioSelect(track)
+                                    showAudioSubmenu = false
+                                }
+                                .padding(horizontal = 12.dp, vertical = 10.dp)
+                                .focusable()
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (isSelected) {
+                                    Icon(
+                                        Icons.Filled.Check,
+                                        null,
+                                        tint = OsiCyan,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(Modifier.width(8.dp))
+                                }
+                                Text(
+                                    text = track.label,
+                                    color = if (isSelected) OsiCyan else OsiTextPrimary,
+                                    fontSize = 19.5.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Single item in the More Menu — 48dp rounded square with icon + label.
+ */
+@Composable
+private fun MoreMenuItemButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    isActive: Boolean = false,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Box(
+            modifier = modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(
+                    when {
+                        isActive -> OsiCyan.copy(alpha = 0.1f)
+                        isFocused -> Color(0xFF1A1A1A)
+                        else -> Color.Transparent
+                    }
+                )
+                .border(
+                    width = if (isFocused || isActive) 1.dp else 0.dp,
+                    color = when {
+                        isActive -> OsiCyan.copy(alpha = 0.5f)
+                        isFocused -> OsiCyan
+                        else -> Color.Transparent
+                    },
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .clickable(onClick = onClick)
+                .onFocusChanged { isFocused = it.isFocused }
+                .focusable(),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = if (isActive || isFocused) OsiCyan else OsiTextPrimary,
+                modifier = Modifier.size(33.dp)
+            )
+        }
+        Text(
+            text = label,
+            color = if (isActive || isFocused) OsiCyan else OsiTextSecondary,
+            fontSize = 15.sp,
+            fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+        )
+    }
+}
+
+/**
+ * Live TV Floating Pill — EPG-focused with StarYellow accent.
+ * Shows channel name, current program, progress bar, and channel switch hints.
+ */
+@Composable
+private fun LiveTvPlayerPill(
+    currentEpgItem: EpgItem?,
+    epgProgress: Float,
+    channelName: String,
+    currentTimeInZone: Long,
+    remainingMinutes: Int,
+    timeDisplayString: String,
+    epgRefreshTrigger: Int
+) {
+    // Force recomposition on EPG updates
+    @Suppress("UNUSED_EXPRESSION")
+    epgRefreshTrigger
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(Color(0xCC0A0A0A))
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        OsiStarYellow.copy(alpha = 0.3f),
+                        OsiBorder,
+                        OsiStarYellow.copy(alpha = 0.1f)
+                    )
+                ),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            // Channel + Time Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Channel Badge
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(OsiStarYellow.copy(alpha = 0.1f))
+                        .border(1.dp, OsiStarYellow.copy(alpha = 0.3f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = channelName,
+                        color = OsiStarYellow,
+                        fontSize = 16.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                }
+                // Current Time
+                Text(
+                    text = timeDisplayString,
+                    color = OsiTextSecondary,
+                    fontSize = 16.5.sp
+                )
+            }
+
+            // Program Title
+            Text(
+                text = currentEpgItem?.title ?: "Kein EPG",
+                color = OsiTextPrimary,
+                fontSize = 22.5.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+
+            // EPG Progress Bar (StarYellow gradient)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(Color(0xFF2A2A2A))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(epgProgress.coerceIn(0f, 1f))
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(
+                            Brush.horizontalGradient(
+                                colors = listOf(OsiStarYellow, OsiStarYellow.copy(alpha = 0.7f))
+                            )
+                        )
+                )
+            }
+
+            // Remaining time + Channel navigation hint
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (remainingMinutes > 0) {
+                    Text(
+                        text = "Noch ${remainingMinutes} Min.",
+                        color = OsiTextSecondary,
+                        fontSize = 15.sp
+                    )
+                } else {
+                    Spacer(Modifier.width(1.dp))
+                }
+                
+                // Channel Navigation Hint
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Filled.KeyboardArrowUp,
+                        contentDescription = null,
+                        tint = OsiTextSecondary,
+                        modifier = Modifier.size(21.dp)
+                    )
+                    Text(
+                        text = "CH",
+                        color = OsiTextSecondary,
+                        fontSize = 13.5.sp
+                    )
+                    Icon(
+                        Icons.Filled.KeyboardArrowDown,
+                        contentDescription = null,
+                        tint = OsiTextSecondary,
+                        modifier = Modifier.size(21.dp)
+                    )
+                }
+            }
+        }
+    }
 }

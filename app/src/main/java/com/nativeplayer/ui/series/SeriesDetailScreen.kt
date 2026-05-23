@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
@@ -32,6 +33,11 @@ import com.nativeplayer.ui.navigation.Screen
 import com.nativeplayer.ui.theme.*
 import com.nativeplayer.ui.util.FocusRestoreManager
 import kotlinx.coroutines.delay
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.graphicsLayer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,6 +116,21 @@ private fun SeriesDetailContent(
     val lastFocus = remember { FocusRestoreManager.getLastFocus("series_detail_screen") }
     val resumeFocusRequester = remember { FocusRequester() }
 
+    // Pulse animation for "Weiterschauen" card
+    var isFocusedResume by remember { mutableStateOf(false) }
+    val pulseScaleResume = remember { Animatable(1f) }
+    var prevFocusedResume by remember { mutableStateOf(false) }
+
+    // Pulse animation on focus
+    LaunchedEffect(isFocusedResume) {
+        if (isFocusedResume && !prevFocusedResume) {
+            pulseScaleResume.snapTo(1f)
+            pulseScaleResume.animateTo(1.08f, spring(stiffness = Spring.StiffnessMedium))
+            pulseScaleResume.animateTo(1f, spring(stiffness = Spring.StiffnessMedium))
+        }
+        prevFocusedResume = isFocusedResume
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
     ) {
@@ -144,6 +165,7 @@ private fun SeriesDetailContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(resumeFocusRequester)
+                        .onFocusChanged { isFocusedResume = it.isFocused }
                         .clickable {
                             FocusRestoreManager.saveFocus("series_detail_screen", "resume")
                             navController.navigate(Screen.FullScreenPlayer.createRoute(
@@ -151,9 +173,12 @@ private fun SeriesDetailContent(
                                 type = "series",
                                 contentId = series.id,
                                 title = watchHistory.title,
-                                imageUrl = series.posterUrl ?: ""
+                                imageUrl = series.posterUrl ?: "",
+                                season = watchHistory.seasonNumber,
+                                episode = watchHistory.episodeNumber
                             ))
-                        },
+                        }
+                        .graphicsLayer { scaleX = pulseScaleResume.value; scaleY = pulseScaleResume.value },
                     shape = RoundedCornerShape(10.dp),
                     colors = CardDefaults.cardColors(containerColor = WarmGold.copy(alpha = 0.15f))
                 ) {
@@ -214,6 +239,7 @@ private fun SeriesDetailContent(
                         episode = episode,
                         series = series,
                         navController = navController,
+                        seasonNumber = currentSeason.number,
                         isRestored = lastFocus?.itemKey == "ep_${episode.number}"
                     )
                 }
@@ -229,9 +255,24 @@ private fun EpisodeItem(
     episode: Episode,
     series: Series,
     navController: NavController,
+    seasonNumber: Int = 1,
     isRestored: Boolean = false
 ) {
     val focusRequester = remember(episode.number) { FocusRequester() }
+
+    // Pulse animation on focus
+    var isFocused by remember { mutableStateOf(false) }
+    val pulseScale = remember { Animatable(1f) }
+    var prevFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isFocused) {
+        if (isFocused && !prevFocused) {
+            pulseScale.snapTo(1f)
+            pulseScale.animateTo(1.08f, spring(stiffness = Spring.StiffnessMedium))
+            pulseScale.animateTo(1f, spring(stiffness = Spring.StiffnessMedium))
+        }
+        prevFocused = isFocused
+    }
 
     // Wenn dies die wiederherzustellende Episode ist, setze den Fokus
     LaunchedEffect(isRestored) {
@@ -252,17 +293,21 @@ private fun EpisodeItem(
                     url = episode.streamUrl,
                     type = "series",
                     contentId = series.id,
-                    title = "${series.title} — E${episode.number}",
-                    imageUrl = series.posterUrl ?: ""
+                    title = "${series.title} — S${seasonNumber}E${episode.number}",
+                    imageUrl = series.posterUrl ?: "",
+                    season = seasonNumber,
+                    episode = episode.number
                 ))
             })
             .focusRequester(focusRequester)
-            .padding(12.dp),
+            .onFocusChanged { isFocused = it.isFocused }
+            .padding(12.dp)
+            .graphicsLayer { scaleX = pulseScale.value; scaleY = pulseScale.value },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(Modifier.size(36.dp).background(WarmGoldDim, RoundedCornerShape(6.dp)),
+        Box(Modifier.size(36.dp).background(OsiStarYellow.copy(alpha = 0.2f), RoundedCornerShape(6.dp)),
             contentAlignment = Alignment.Center) {
-            Text("${episode.number}", color = WarmGold, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text("${episode.number}", color = OsiStarYellow, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
@@ -271,6 +316,6 @@ private fun EpisodeItem(
                 Text(episode.duration, color = WarmTextSecondary, fontSize = 11.sp)
             }
         }
-        Icon(Icons.Filled.PlayArrow, null, Modifier.size(24.dp), tint = WarmGold)
+        Icon(Icons.Filled.PlayArrow, null, Modifier.size(24.dp), tint = OsiStarYellow)
     }
 }

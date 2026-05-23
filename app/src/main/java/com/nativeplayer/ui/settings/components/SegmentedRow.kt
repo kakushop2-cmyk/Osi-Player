@@ -9,10 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nativeplayer.ui.theme.WarmGold
-import com.nativeplayer.ui.theme.WarmSurfaceElevated
-import com.nativeplayer.ui.theme.WarmTextPrimary
-import com.nativeplayer.ui.theme.WarmTextSecondary
+import com.nativeplayer.ui.theme.*
 
 /**
  * A row with a label and a horizontal group of buttons for discrete values.
@@ -52,7 +49,7 @@ fun <T> SegmentedRow(
                     contentPadding = PaddingValues(horizontal = 4.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (isSelected) WarmGold else WarmSurfaceElevated,
-                        contentColor = if (isSelected) Color.Black else WarmTextSecondary
+                        contentColor = if (isSelected) OsiBlack else WarmTextSecondary
                     )
                 ) {
                     Text(

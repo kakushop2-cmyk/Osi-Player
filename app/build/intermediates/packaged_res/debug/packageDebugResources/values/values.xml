@@ -2,6 +2,6 @@
 <resources>
     <color name="ic_launcher_background">#121212</color>
     <color name="ic_launcher_foreground">#3D8BFD</color>
-    <string name="app_name">OSI IPTV</string>
+    <string name="app_name">Osi Player</string>
     <style name="Theme.NativePlayer" parent="android:Theme.Material.NoActionBar"/>
 </resources>

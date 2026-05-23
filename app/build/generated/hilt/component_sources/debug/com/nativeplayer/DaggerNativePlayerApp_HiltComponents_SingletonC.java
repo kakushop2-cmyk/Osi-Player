@@ -31,6 +31,8 @@ import com.nativeplayer.ui.home.HomeViewModel;
 import com.nativeplayer.ui.home.HomeViewModel_HiltModules;
 import com.nativeplayer.ui.live.LiveViewModel;
 import com.nativeplayer.ui.live.LiveViewModel_HiltModules;
+import com.nativeplayer.ui.login.LoginViewModel;
+import com.nativeplayer.ui.login.LoginViewModel_HiltModules;
 import com.nativeplayer.ui.movies.MovieDetailViewModel;
 import com.nativeplayer.ui.movies.MovieDetailViewModel_HiltModules;
 import com.nativeplayer.ui.movies.MoviesViewModel;
@@ -65,6 +67,7 @@ import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories_Internal
 import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory;
 import dagger.hilt.android.internal.managers.SavedStateHandleHolder;
 import dagger.hilt.android.internal.modules.ApplicationContextModule;
+import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideApplicationFactory;
 import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
@@ -410,7 +413,7 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
-      return LazyClassKeyMap.<Boolean>of(ImmutableMap.<String, Boolean>builderWithExpectedSize(13).put(LazyClassKeyProvider.com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel, CategoryVisibilityViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_favorites_FavoritesViewModel, FavoritesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_home_HomeViewModel, HomeViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_live_LiveViewModel, LiveViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_movies_MovieDetailViewModel, MovieDetailViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_movies_MoviesViewModel, MoviesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_settings_PlayerSettingsViewModel, PlayerSettingsViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_player_PlayerViewModel, PlayerViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_resume_ResumeViewModel, ResumeViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_search_SearchViewModel, SearchViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_series_SeriesDetailViewModel, SeriesDetailViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_series_SeriesViewModel, SeriesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_splash_SplashViewModel, SplashViewModel_HiltModules.KeyModule.provide()).build());
+      return LazyClassKeyMap.<Boolean>of(ImmutableMap.<String, Boolean>builderWithExpectedSize(14).put(LazyClassKeyProvider.com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel, CategoryVisibilityViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_favorites_FavoritesViewModel, FavoritesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_home_HomeViewModel, HomeViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_live_LiveViewModel, LiveViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_login_LoginViewModel, LoginViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_movies_MovieDetailViewModel, MovieDetailViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_movies_MoviesViewModel, MoviesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_settings_PlayerSettingsViewModel, PlayerSettingsViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_player_PlayerViewModel, PlayerViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_resume_ResumeViewModel, ResumeViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_search_SearchViewModel, SearchViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_series_SeriesDetailViewModel, SeriesDetailViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_series_SeriesViewModel, SeriesViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_nativeplayer_ui_splash_SplashViewModel, SplashViewModel_HiltModules.KeyModule.provide()).build());
     }
 
     @Override
@@ -430,43 +433,42 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_nativeplayer_ui_player_PlayerViewModel = "com.nativeplayer.ui.player.PlayerViewModel";
-
-      static String com_nativeplayer_ui_series_SeriesDetailViewModel = "com.nativeplayer.ui.series.SeriesDetailViewModel";
+      static String com_nativeplayer_ui_splash_SplashViewModel = "com.nativeplayer.ui.splash.SplashViewModel";
 
       static String com_nativeplayer_ui_favorites_FavoritesViewModel = "com.nativeplayer.ui.favorites.FavoritesViewModel";
 
-      static String com_nativeplayer_ui_series_SeriesViewModel = "com.nativeplayer.ui.series.SeriesViewModel";
+      static String com_nativeplayer_ui_home_HomeViewModel = "com.nativeplayer.ui.home.HomeViewModel";
 
       static String com_nativeplayer_ui_resume_ResumeViewModel = "com.nativeplayer.ui.resume.ResumeViewModel";
 
       static String com_nativeplayer_ui_search_SearchViewModel = "com.nativeplayer.ui.search.SearchViewModel";
 
-      static String com_nativeplayer_ui_home_HomeViewModel = "com.nativeplayer.ui.home.HomeViewModel";
-
-      static String com_nativeplayer_ui_live_LiveViewModel = "com.nativeplayer.ui.live.LiveViewModel";
-
-      static String com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel = "com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel";
-
       static String com_nativeplayer_ui_movies_MoviesViewModel = "com.nativeplayer.ui.movies.MoviesViewModel";
 
       static String com_nativeplayer_ui_movies_MovieDetailViewModel = "com.nativeplayer.ui.movies.MovieDetailViewModel";
 
-      static String com_nativeplayer_ui_splash_SplashViewModel = "com.nativeplayer.ui.splash.SplashViewModel";
+      static String com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel = "com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel";
+
+      static String com_nativeplayer_ui_series_SeriesViewModel = "com.nativeplayer.ui.series.SeriesViewModel";
+
+      static String com_nativeplayer_ui_login_LoginViewModel = "com.nativeplayer.ui.login.LoginViewModel";
+
+      static String com_nativeplayer_ui_live_LiveViewModel = "com.nativeplayer.ui.live.LiveViewModel";
 
       static String com_nativeplayer_ui_settings_PlayerSettingsViewModel = "com.nativeplayer.ui.settings.PlayerSettingsViewModel";
 
-      @KeepFieldType
-      PlayerViewModel com_nativeplayer_ui_player_PlayerViewModel2;
+      static String com_nativeplayer_ui_player_PlayerViewModel = "com.nativeplayer.ui.player.PlayerViewModel";
+
+      static String com_nativeplayer_ui_series_SeriesDetailViewModel = "com.nativeplayer.ui.series.SeriesDetailViewModel";
 
       @KeepFieldType
-      SeriesDetailViewModel com_nativeplayer_ui_series_SeriesDetailViewModel2;
+      SplashViewModel com_nativeplayer_ui_splash_SplashViewModel2;
 
       @KeepFieldType
       FavoritesViewModel com_nativeplayer_ui_favorites_FavoritesViewModel2;
 
       @KeepFieldType
-      SeriesViewModel com_nativeplayer_ui_series_SeriesViewModel2;
+      HomeViewModel com_nativeplayer_ui_home_HomeViewModel2;
 
       @KeepFieldType
       ResumeViewModel com_nativeplayer_ui_resume_ResumeViewModel2;
@@ -475,25 +477,31 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
       SearchViewModel com_nativeplayer_ui_search_SearchViewModel2;
 
       @KeepFieldType
-      HomeViewModel com_nativeplayer_ui_home_HomeViewModel2;
-
-      @KeepFieldType
-      LiveViewModel com_nativeplayer_ui_live_LiveViewModel2;
-
-      @KeepFieldType
-      CategoryVisibilityViewModel com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel2;
-
-      @KeepFieldType
       MoviesViewModel com_nativeplayer_ui_movies_MoviesViewModel2;
 
       @KeepFieldType
       MovieDetailViewModel com_nativeplayer_ui_movies_MovieDetailViewModel2;
 
       @KeepFieldType
-      SplashViewModel com_nativeplayer_ui_splash_SplashViewModel2;
+      CategoryVisibilityViewModel com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel2;
+
+      @KeepFieldType
+      SeriesViewModel com_nativeplayer_ui_series_SeriesViewModel2;
+
+      @KeepFieldType
+      LoginViewModel com_nativeplayer_ui_login_LoginViewModel2;
+
+      @KeepFieldType
+      LiveViewModel com_nativeplayer_ui_live_LiveViewModel2;
 
       @KeepFieldType
       PlayerSettingsViewModel com_nativeplayer_ui_settings_PlayerSettingsViewModel2;
+
+      @KeepFieldType
+      PlayerViewModel com_nativeplayer_ui_player_PlayerViewModel2;
+
+      @KeepFieldType
+      SeriesDetailViewModel com_nativeplayer_ui_series_SeriesDetailViewModel2;
     }
   }
 
@@ -511,6 +519,8 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
     private Provider<HomeViewModel> homeViewModelProvider;
 
     private Provider<LiveViewModel> liveViewModelProvider;
+
+    private Provider<LoginViewModel> loginViewModelProvider;
 
     private Provider<MovieDetailViewModel> movieDetailViewModelProvider;
 
@@ -547,20 +557,21 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
       this.favoritesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
       this.homeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
       this.liveViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
-      this.movieDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
-      this.moviesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
-      this.playerSettingsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
-      this.playerViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 7);
-      this.resumeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 8);
-      this.searchViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 9);
-      this.seriesDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 10);
-      this.seriesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 11);
-      this.splashViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 12);
+      this.loginViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
+      this.movieDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
+      this.moviesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
+      this.playerSettingsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 7);
+      this.playerViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 8);
+      this.resumeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 9);
+      this.searchViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 10);
+      this.seriesDetailViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 11);
+      this.seriesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 12);
+      this.splashViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 13);
     }
 
     @Override
     public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(ImmutableMap.<String, javax.inject.Provider<ViewModel>>builderWithExpectedSize(13).put(LazyClassKeyProvider.com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel, ((Provider) categoryVisibilityViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_favorites_FavoritesViewModel, ((Provider) favoritesViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_home_HomeViewModel, ((Provider) homeViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_live_LiveViewModel, ((Provider) liveViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_movies_MovieDetailViewModel, ((Provider) movieDetailViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_movies_MoviesViewModel, ((Provider) moviesViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_settings_PlayerSettingsViewModel, ((Provider) playerSettingsViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_player_PlayerViewModel, ((Provider) playerViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_resume_ResumeViewModel, ((Provider) resumeViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_search_SearchViewModel, ((Provider) searchViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_series_SeriesDetailViewModel, ((Provider) seriesDetailViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_series_SeriesViewModel, ((Provider) seriesViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_splash_SplashViewModel, ((Provider) splashViewModelProvider)).build());
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(ImmutableMap.<String, javax.inject.Provider<ViewModel>>builderWithExpectedSize(14).put(LazyClassKeyProvider.com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel, ((Provider) categoryVisibilityViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_favorites_FavoritesViewModel, ((Provider) favoritesViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_home_HomeViewModel, ((Provider) homeViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_live_LiveViewModel, ((Provider) liveViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_login_LoginViewModel, ((Provider) loginViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_movies_MovieDetailViewModel, ((Provider) movieDetailViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_movies_MoviesViewModel, ((Provider) moviesViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_settings_PlayerSettingsViewModel, ((Provider) playerSettingsViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_player_PlayerViewModel, ((Provider) playerViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_resume_ResumeViewModel, ((Provider) resumeViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_search_SearchViewModel, ((Provider) searchViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_series_SeriesDetailViewModel, ((Provider) seriesDetailViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_series_SeriesViewModel, ((Provider) seriesViewModelProvider)).put(LazyClassKeyProvider.com_nativeplayer_ui_splash_SplashViewModel, ((Provider) splashViewModelProvider)).build());
     }
 
     @Override
@@ -570,70 +581,75 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
+      static String com_nativeplayer_ui_favorites_FavoritesViewModel = "com.nativeplayer.ui.favorites.FavoritesViewModel";
+
+      static String com_nativeplayer_ui_splash_SplashViewModel = "com.nativeplayer.ui.splash.SplashViewModel";
+
       static String com_nativeplayer_ui_movies_MoviesViewModel = "com.nativeplayer.ui.movies.MoviesViewModel";
 
+      static String com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel = "com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel";
+
       static String com_nativeplayer_ui_series_SeriesDetailViewModel = "com.nativeplayer.ui.series.SeriesDetailViewModel";
+
+      static String com_nativeplayer_ui_player_PlayerViewModel = "com.nativeplayer.ui.player.PlayerViewModel";
+
+      static String com_nativeplayer_ui_search_SearchViewModel = "com.nativeplayer.ui.search.SearchViewModel";
+
+      static String com_nativeplayer_ui_movies_MovieDetailViewModel = "com.nativeplayer.ui.movies.MovieDetailViewModel";
+
+      static String com_nativeplayer_ui_resume_ResumeViewModel = "com.nativeplayer.ui.resume.ResumeViewModel";
+
+      static String com_nativeplayer_ui_live_LiveViewModel = "com.nativeplayer.ui.live.LiveViewModel";
+
+      static String com_nativeplayer_ui_login_LoginViewModel = "com.nativeplayer.ui.login.LoginViewModel";
+
+      static String com_nativeplayer_ui_series_SeriesViewModel = "com.nativeplayer.ui.series.SeriesViewModel";
 
       static String com_nativeplayer_ui_home_HomeViewModel = "com.nativeplayer.ui.home.HomeViewModel";
 
       static String com_nativeplayer_ui_settings_PlayerSettingsViewModel = "com.nativeplayer.ui.settings.PlayerSettingsViewModel";
 
-      static String com_nativeplayer_ui_player_PlayerViewModel = "com.nativeplayer.ui.player.PlayerViewModel";
+      @KeepFieldType
+      FavoritesViewModel com_nativeplayer_ui_favorites_FavoritesViewModel2;
 
-      static String com_nativeplayer_ui_live_LiveViewModel = "com.nativeplayer.ui.live.LiveViewModel";
-
-      static String com_nativeplayer_ui_splash_SplashViewModel = "com.nativeplayer.ui.splash.SplashViewModel";
-
-      static String com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel = "com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel";
-
-      static String com_nativeplayer_ui_movies_MovieDetailViewModel = "com.nativeplayer.ui.movies.MovieDetailViewModel";
-
-      static String com_nativeplayer_ui_search_SearchViewModel = "com.nativeplayer.ui.search.SearchViewModel";
-
-      static String com_nativeplayer_ui_favorites_FavoritesViewModel = "com.nativeplayer.ui.favorites.FavoritesViewModel";
-
-      static String com_nativeplayer_ui_series_SeriesViewModel = "com.nativeplayer.ui.series.SeriesViewModel";
-
-      static String com_nativeplayer_ui_resume_ResumeViewModel = "com.nativeplayer.ui.resume.ResumeViewModel";
+      @KeepFieldType
+      SplashViewModel com_nativeplayer_ui_splash_SplashViewModel2;
 
       @KeepFieldType
       MoviesViewModel com_nativeplayer_ui_movies_MoviesViewModel2;
 
       @KeepFieldType
+      CategoryVisibilityViewModel com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel2;
+
+      @KeepFieldType
       SeriesDetailViewModel com_nativeplayer_ui_series_SeriesDetailViewModel2;
+
+      @KeepFieldType
+      PlayerViewModel com_nativeplayer_ui_player_PlayerViewModel2;
+
+      @KeepFieldType
+      SearchViewModel com_nativeplayer_ui_search_SearchViewModel2;
+
+      @KeepFieldType
+      MovieDetailViewModel com_nativeplayer_ui_movies_MovieDetailViewModel2;
+
+      @KeepFieldType
+      ResumeViewModel com_nativeplayer_ui_resume_ResumeViewModel2;
+
+      @KeepFieldType
+      LiveViewModel com_nativeplayer_ui_live_LiveViewModel2;
+
+      @KeepFieldType
+      LoginViewModel com_nativeplayer_ui_login_LoginViewModel2;
+
+      @KeepFieldType
+      SeriesViewModel com_nativeplayer_ui_series_SeriesViewModel2;
 
       @KeepFieldType
       HomeViewModel com_nativeplayer_ui_home_HomeViewModel2;
 
       @KeepFieldType
       PlayerSettingsViewModel com_nativeplayer_ui_settings_PlayerSettingsViewModel2;
-
-      @KeepFieldType
-      PlayerViewModel com_nativeplayer_ui_player_PlayerViewModel2;
-
-      @KeepFieldType
-      LiveViewModel com_nativeplayer_ui_live_LiveViewModel2;
-
-      @KeepFieldType
-      SplashViewModel com_nativeplayer_ui_splash_SplashViewModel2;
-
-      @KeepFieldType
-      CategoryVisibilityViewModel com_nativeplayer_ui_viewmodel_CategoryVisibilityViewModel2;
-
-      @KeepFieldType
-      MovieDetailViewModel com_nativeplayer_ui_movies_MovieDetailViewModel2;
-
-      @KeepFieldType
-      SearchViewModel com_nativeplayer_ui_search_SearchViewModel2;
-
-      @KeepFieldType
-      FavoritesViewModel com_nativeplayer_ui_favorites_FavoritesViewModel2;
-
-      @KeepFieldType
-      SeriesViewModel com_nativeplayer_ui_series_SeriesViewModel2;
-
-      @KeepFieldType
-      ResumeViewModel com_nativeplayer_ui_resume_ResumeViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -658,42 +674,45 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel 
-          return (T) new CategoryVisibilityViewModel(singletonCImpl.providePreferencesManagerProvider.get());
+          return (T) new CategoryVisibilityViewModel(singletonCImpl.providePreferencesManagerProvider.get(), singletonCImpl.provideIptvRepositoryProvider.get());
 
           case 1: // com.nativeplayer.ui.favorites.FavoritesViewModel 
           return (T) new FavoritesViewModel(singletonCImpl.provideFavoriteRepositoryProvider.get());
 
           case 2: // com.nativeplayer.ui.home.HomeViewModel 
-          return (T) new HomeViewModel(singletonCImpl.provideWatchHistoryRepositoryProvider.get());
+          return (T) new HomeViewModel(singletonCImpl.provideWatchHistoryRepositoryProvider.get(), singletonCImpl.provideIptvRepositoryProvider.get(), ApplicationContextModule_ProvideApplicationFactory.provideApplication(singletonCImpl.applicationContextModule));
 
           case 3: // com.nativeplayer.ui.live.LiveViewModel 
           return (T) new LiveViewModel(singletonCImpl.provideIptvRepositoryProvider.get(), singletonCImpl.provideFavoriteRepositoryProvider.get(), singletonCImpl.providePreferencesManagerProvider.get());
 
-          case 4: // com.nativeplayer.ui.movies.MovieDetailViewModel 
+          case 4: // com.nativeplayer.ui.login.LoginViewModel 
+          return (T) new LoginViewModel(singletonCImpl.provideIptvRepositoryProvider.get(), singletonCImpl.providePreferencesManagerProvider.get());
+
+          case 5: // com.nativeplayer.ui.movies.MovieDetailViewModel 
           return (T) new MovieDetailViewModel(singletonCImpl.provideFavoriteRepositoryProvider.get(), singletonCImpl.provideWatchHistoryRepositoryProvider.get(), singletonCImpl.provideIptvRepositoryProvider.get());
 
-          case 5: // com.nativeplayer.ui.movies.MoviesViewModel 
+          case 6: // com.nativeplayer.ui.movies.MoviesViewModel 
           return (T) new MoviesViewModel(singletonCImpl.provideIptvRepositoryProvider.get(), singletonCImpl.provideFavoriteRepositoryProvider.get(), singletonCImpl.providePreferencesManagerProvider.get());
 
-          case 6: // com.nativeplayer.ui.settings.PlayerSettingsViewModel 
+          case 7: // com.nativeplayer.ui.settings.PlayerSettingsViewModel 
           return (T) new PlayerSettingsViewModel(singletonCImpl.providePreferencesManagerProvider.get());
 
-          case 7: // com.nativeplayer.ui.player.PlayerViewModel 
+          case 8: // com.nativeplayer.ui.player.PlayerViewModel 
           return (T) new PlayerViewModel(singletonCImpl.provideWatchHistoryRepositoryProvider.get(), singletonCImpl.providePreferencesManagerProvider.get(), singletonCImpl.provideIptvRepositoryProvider.get());
 
-          case 8: // com.nativeplayer.ui.resume.ResumeViewModel 
+          case 9: // com.nativeplayer.ui.resume.ResumeViewModel 
           return (T) new ResumeViewModel(singletonCImpl.provideWatchHistoryRepositoryProvider.get());
 
-          case 9: // com.nativeplayer.ui.search.SearchViewModel 
+          case 10: // com.nativeplayer.ui.search.SearchViewModel 
           return (T) new SearchViewModel(singletonCImpl.provideIptvRepositoryProvider.get());
 
-          case 10: // com.nativeplayer.ui.series.SeriesDetailViewModel 
+          case 11: // com.nativeplayer.ui.series.SeriesDetailViewModel 
           return (T) new SeriesDetailViewModel(singletonCImpl.provideIptvRepositoryProvider.get(), singletonCImpl.provideFavoriteRepositoryProvider.get(), singletonCImpl.provideWatchHistoryRepositoryProvider.get());
 
-          case 11: // com.nativeplayer.ui.series.SeriesViewModel 
+          case 12: // com.nativeplayer.ui.series.SeriesViewModel 
           return (T) new SeriesViewModel(singletonCImpl.provideIptvRepositoryProvider.get(), singletonCImpl.provideFavoriteRepositoryProvider.get(), singletonCImpl.providePreferencesManagerProvider.get());
 
-          case 12: // com.nativeplayer.ui.splash.SplashViewModel 
+          case 13: // com.nativeplayer.ui.splash.SplashViewModel 
           return (T) new SplashViewModel(singletonCImpl.provideIptvRepositoryProvider.get(), singletonCImpl.providePreferencesManagerProvider.get(), singletonCImpl.provideWatchHistoryRepositoryProvider.get());
 
           default: throw new AssertionError(id);
@@ -780,6 +799,10 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
 
     private Provider<PreferencesManager> providePreferencesManagerProvider;
 
+    private Provider<OkHttpClient> provideOkHttpClientProvider;
+
+    private Provider<IptvRepository> provideIptvRepositoryProvider;
+
     private Provider<AppDatabase> provideAppDatabaseProvider;
 
     private Provider<FavoriteDao> provideFavoriteDaoProvider;
@@ -789,10 +812,6 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
     private Provider<WatchHistoryDao> provideWatchHistoryDaoProvider;
 
     private Provider<WatchHistoryRepository> provideWatchHistoryRepositoryProvider;
-
-    private Provider<OkHttpClient> provideOkHttpClientProvider;
-
-    private Provider<IptvRepository> provideIptvRepositoryProvider;
 
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
@@ -804,13 +823,13 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
       this.provideSharedPreferencesProvider = DoubleCheck.provider(new SwitchingProvider<SharedPreferences>(singletonCImpl, 1));
       this.providePreferencesManagerProvider = DoubleCheck.provider(new SwitchingProvider<PreferencesManager>(singletonCImpl, 0));
-      this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 4));
-      this.provideFavoriteDaoProvider = DoubleCheck.provider(new SwitchingProvider<FavoriteDao>(singletonCImpl, 3));
-      this.provideFavoriteRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<FavoriteRepository>(singletonCImpl, 2));
-      this.provideWatchHistoryDaoProvider = DoubleCheck.provider(new SwitchingProvider<WatchHistoryDao>(singletonCImpl, 6));
-      this.provideWatchHistoryRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<WatchHistoryRepository>(singletonCImpl, 5));
-      this.provideOkHttpClientProvider = DoubleCheck.provider(new SwitchingProvider<OkHttpClient>(singletonCImpl, 8));
-      this.provideIptvRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<IptvRepository>(singletonCImpl, 7));
+      this.provideOkHttpClientProvider = DoubleCheck.provider(new SwitchingProvider<OkHttpClient>(singletonCImpl, 3));
+      this.provideIptvRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<IptvRepository>(singletonCImpl, 2));
+      this.provideAppDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 6));
+      this.provideFavoriteDaoProvider = DoubleCheck.provider(new SwitchingProvider<FavoriteDao>(singletonCImpl, 5));
+      this.provideFavoriteRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<FavoriteRepository>(singletonCImpl, 4));
+      this.provideWatchHistoryDaoProvider = DoubleCheck.provider(new SwitchingProvider<WatchHistoryDao>(singletonCImpl, 8));
+      this.provideWatchHistoryRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<WatchHistoryRepository>(singletonCImpl, 7));
     }
 
     @Override
@@ -852,26 +871,26 @@ public final class DaggerNativePlayerApp_HiltComponents_SingletonC {
           case 1: // android.content.SharedPreferences 
           return (T) AppModule_ProvideSharedPreferencesFactory.provideSharedPreferences(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 2: // com.nativeplayer.data.repository.FavoriteRepository 
-          return (T) AppModule_ProvideFavoriteRepositoryFactory.provideFavoriteRepository(singletonCImpl.provideFavoriteDaoProvider.get());
-
-          case 3: // com.nativeplayer.data.repository.FavoriteDao 
-          return (T) AppModule_ProvideFavoriteDaoFactory.provideFavoriteDao(singletonCImpl.provideAppDatabaseProvider.get());
-
-          case 4: // com.nativeplayer.data.repository.AppDatabase 
-          return (T) AppModule_ProvideAppDatabaseFactory.provideAppDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
-
-          case 5: // com.nativeplayer.data.repository.WatchHistoryRepository 
-          return (T) AppModule_ProvideWatchHistoryRepositoryFactory.provideWatchHistoryRepository(singletonCImpl.provideWatchHistoryDaoProvider.get());
-
-          case 6: // com.nativeplayer.data.repository.WatchHistoryDao 
-          return (T) AppModule_ProvideWatchHistoryDaoFactory.provideWatchHistoryDao(singletonCImpl.provideAppDatabaseProvider.get());
-
-          case 7: // com.nativeplayer.data.repository.IptvRepository 
+          case 2: // com.nativeplayer.data.repository.IptvRepository 
           return (T) AppModule_ProvideIptvRepositoryFactory.provideIptvRepository(singletonCImpl.provideOkHttpClientProvider.get(), singletonCImpl.providePreferencesManagerProvider.get());
 
-          case 8: // okhttp3.OkHttpClient 
+          case 3: // okhttp3.OkHttpClient 
           return (T) AppModule_ProvideOkHttpClientFactory.provideOkHttpClient();
+
+          case 4: // com.nativeplayer.data.repository.FavoriteRepository 
+          return (T) AppModule_ProvideFavoriteRepositoryFactory.provideFavoriteRepository(singletonCImpl.provideFavoriteDaoProvider.get());
+
+          case 5: // com.nativeplayer.data.repository.FavoriteDao 
+          return (T) AppModule_ProvideFavoriteDaoFactory.provideFavoriteDao(singletonCImpl.provideAppDatabaseProvider.get());
+
+          case 6: // com.nativeplayer.data.repository.AppDatabase 
+          return (T) AppModule_ProvideAppDatabaseFactory.provideAppDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+
+          case 7: // com.nativeplayer.data.repository.WatchHistoryRepository 
+          return (T) AppModule_ProvideWatchHistoryRepositoryFactory.provideWatchHistoryRepository(singletonCImpl.provideWatchHistoryDaoProvider.get());
+
+          case 8: // com.nativeplayer.data.repository.WatchHistoryDao 
+          return (T) AppModule_ProvideWatchHistoryDaoFactory.provideWatchHistoryDao(singletonCImpl.provideAppDatabaseProvider.get());
 
           default: throw new AssertionError(id);
         }

@@ -10,6 +10,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.TrackSelectionParameters
 import androidx.media3.common.text.CueGroup
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.ui.SubtitleView
 import com.nativeplayer.data.model.AspectRatio
@@ -237,6 +238,7 @@ class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
             exoPlayer.trackSelectionParameters = exoPlayer.trackSelectionParameters
                 .buildUpon()
                 .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+                .clearOverridesOfType(C.TRACK_TYPE_TEXT)
                 .build()
             currentSubtitleTrack = null
         } else {
@@ -258,10 +260,13 @@ class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
                                 language = format.language ?: "",
                                 label = format.label ?: format.language ?: "Unbekannt"
                             )
-                            // Track selektieren über den TrackSelector
+                            // Direkte Track-Auswahl mit Override statt bevorzugter Sprache
                             exoPlayer.trackSelectionParameters = exoPlayer.trackSelectionParameters
                                 .buildUpon()
-                                .setPreferredTextLanguage(format.language ?: "")
+                                .clearOverridesOfType(C.TRACK_TYPE_TEXT)
+                                .setOverrideForType(
+                                    TrackSelectionOverride(group.mediaTrackGroup, listOf(i))
+                                )
                                 .build()
                             return
                         }
@@ -283,10 +288,13 @@ class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
                             language = format.language ?: "",
                             label = format.label ?: format.language ?: "Unbekannt"
                         )
-                        // Track selektieren über den TrackSelector
+                        // Direkte Track-Auswahl mit Override statt bevorzugter Sprache
                         exoPlayer.trackSelectionParameters = exoPlayer.trackSelectionParameters
                             .buildUpon()
-                            .setPreferredAudioLanguage(format.language ?: "")
+                            .clearOverridesOfType(C.TRACK_TYPE_AUDIO)
+                            .setOverrideForType(
+                                TrackSelectionOverride(group.mediaTrackGroup, listOf(i))
+                            )
                             .build()
                         return
                     }

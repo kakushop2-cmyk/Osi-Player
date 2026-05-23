@@ -266,6 +266,19 @@ class IptvRepository @Inject constructor(
     fun getOrderedSeriesCategories(): List<String> = cachedSeriesCategoryOrder
     fun isLoaded(): Boolean = isDataLoaded
 
+    /** Returns the names of all cached live TV categories (from Xtream API). */
+    fun getLiveCategoryNames(): List<String> = cachedCategories.map { it.name }.sorted()
+
+    /** Returns the names of all cached movie categories (from Xtream API). */
+    fun getMovieCategoryNames(): List<String> = cachedMovieCategoryOrder.ifEmpty {
+        cachedMoviesByCategory.keys.sorted()
+    }
+
+    /** Returns the names of all cached series categories (from Xtream API). */
+    fun getSeriesCategoryNames(): List<String> = cachedSeriesCategoryOrder.ifEmpty {
+        cachedSeriesByCategory.keys.sorted()
+    }
+
     // ── User-defined Reordering ───────────────────────────────
 
     /** Reorders live TV categories and persists the new order. */

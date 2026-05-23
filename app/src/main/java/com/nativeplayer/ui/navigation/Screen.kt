@@ -2,6 +2,7 @@ package com.nativeplayer.ui.navigation
 
 sealed class Screen(val route: String) {
     data object Splash : Screen("splash")
+    data object Intro : Screen("intro")
     data object Settings : Screen("settings")
     data object Login : Screen("login")
     data object Home : Screen("home")
@@ -18,6 +19,7 @@ sealed class Screen(val route: String) {
     }
     data object Search : Screen("search")
     data object PlayerSettings : Screen("player_settings")
+    data object PlayerBarDemo : Screen("player_bar_demo")
     data object FullScreenPlayer : Screen("player/{type}/{url}?contentId={contentId}&title={title}&resumePosition={resumePosition}&imageUrl={imageUrl}&season={season}&episode={episode}") {
         fun createRoute(
             url: String,

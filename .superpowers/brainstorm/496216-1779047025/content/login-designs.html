@@ -1,0 +1,189 @@
+<h2>Login Screen — 4 Design-Varianten</h2>
+<p class="subtitle">Welcher Stil passt am besten? Alle folgen dem Warm Dark Theme (Gold-Akzent, OLED-optimiert).</p>
+
+<div class="cards">
+
+  <!-- DESIGN A: Centered Card -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-body" style="background:#0D0D0B; padding:24px; display:flex; flex-direction:column; align-items:center; gap:12px; min-height:380px; border-radius:10px;">
+          <!-- Logo -->
+          <div style="width:48px;height:48px;background:#CCA770;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;">📺</div>
+          <div style="font-size:20px;font-weight:700;color:#E8E3D7;font-family:sans-serif;">OSI IPTV</div>
+          <div style="font-size:11px;color:#8A857C;font-family:sans-serif;margin-top:-4px;">IPTV Player</div>
+          
+          <!-- Card -->
+          <div style="background:#1A1A17;border-radius:10px;padding:20px;width:100%;max-width:320px;border:1px solid rgba(232,227,215,0.08);">
+            <!-- Tabs -->
+            <div style="display:flex;border-bottom:1px solid rgba(232,227,215,0.08);margin-bottom:16px;">
+              <div style="flex:1;text-align:center;padding:8px 0;color:#CCA770;font-size:13px;font-family:sans-serif;font-weight:600;border-bottom:2px solid #CCA770;">Xtream</div>
+              <div style="flex:1;text-align:center;padding:8px 0;color:#8A857C;font-size:13px;font-family:sans-serif;">M3U</div>
+            </div>
+            <!-- Form -->
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="mock-input" style="background:#252522;border-radius:10px;padding:12px;text-align:left;">http://server.com</div>
+              <div class="mock-input" style="background:#252522;border-radius:10px;padding:12px;text-align:left;">Benutzername</div>
+              <div class="mock-input" style="background:#252522;border-radius:10px;padding:12px;text-align:left;">••••••••••</div>
+            </div>
+            <button class="mock-button" style="width:100%;margin-top:14px;background:#CCA770;color:#0D0D0B;font-weight:600;border-radius:10px;padding:12px;">Verbinden</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A: Zentrierte Card</h3>
+      <p>Logo+Name oben, Login-Card zentriert. Klassisch, sauber, fokussiert. Am häufigsten verwendet.</p>
+    </div>
+  </div>
+
+  <!-- DESIGN B: Full-Screen Split -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-body" style="background:#0D0D0B; padding:0; display:flex; flex-direction:column; min-height:380px; border-radius:10px; overflow:hidden;">
+          <!-- Hero Area -->
+          <div style="background:linear-gradient(180deg, #1A1A17 0%, #0D0D0B 100%); padding:32px 24px 24px; display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0;">
+            <div style="width:64px;height:64px;background:#CCA770;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;">📺</div>
+            <div style="font-size:24px;font-weight:700;color:#E8E3D7;font-family:sans-serif;">OSI IPTV</div>
+            <div style="font-size:12px;color:#8A857C;font-family:sans-serif;">Dein IPTV Player für alle Geräte</div>
+          </div>
+          <!-- Form Area -->
+          <div style="padding:0 24px 24px; display:flex; flex-direction:column; gap:10px; flex:1;">
+            <!-- Pill Tabs -->
+            <div style="display:flex;background:#1A1A17;border-radius:20px;padding:4px;">
+              <div style="flex:1;text-align:center;padding:8px;border-radius:16px;background:#CCA770;color:#0D0D0B;font-size:13px;font-family:sans-serif;font-weight:600;">Xtream Codes</div>
+              <div style="flex:1;text-align:center;padding:8px;border-radius:16px;color:#8A857C;font-size:13px;font-family:sans-serif;">M3U</div>
+            </div>
+            <div class="mock-input" style="background:#252522;border-radius:10px;padding:14px;">http://server.com</div>
+            <div class="mock-input" style="background:#252522;border-radius:10px;padding:14px;">Benutzername</div>
+            <div class="mock-input" style="background:#252522;border-radius:10px;padding:14px;">••••••••••</div>
+            <button class="mock-button" style="width:100%;background:#CCA770;color:#0D0D0B;font-weight:600;border-radius:10px;padding:14px;font-size:15px;">Verbinden</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B: Hero + Form (Full-Width)</h3>
+      <p>Großes Logo oben als Hero, Formular darunter. Pill-Tabs. Mehr Branding-Präsenz, moderner Look.</p>
+    </div>
+  </div>
+
+  <!-- DESIGN C: Minimal Tab-First -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-body" style="background:#0D0D0B; padding:32px 24px; display:flex; flex-direction:column; align-items:center; gap:16px; min-height:380px; border-radius:10px;">
+          <!-- App Bar Style Top -->
+          <div style="display:flex;align-items:center;gap:12px;align-self:stretch;margin-bottom:8px;">
+            <div style="width:36px;height:36px;background:#CCA770;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">📺</div>
+            <div style="font-size:16px;font-weight:600;color:#E8E3D7;font-family:sans-serif;">OSI IPTV</div>
+          </div>
+          <!-- Large Tabs -->
+          <div style="display:flex;gap:8px;align-self:stretch;">
+            <div style="flex:1;text-align:center;padding:14px 12px;border-radius:12px;background:#1A1A17;border:1.5px solid #CCA770;font-size:14px;font-family:sans-serif;color:#CCA770;font-weight:600;">
+              <div style="margin-bottom:4px;">🔑</div>
+              Xtream Codes
+            </div>
+            <div style="flex:1;text-align:center;padding:14px 12px;border-radius:12px;background:#1A1A17;border:1.5px solid rgba(232,227,215,0.08);font-size:14px;font-family:sans-serif;color:#8A857C;">
+              <div style="margin-bottom:4px;">📋</div>
+              M3U Playlist
+            </div>
+          </div>
+          <!-- Form -->
+          <div style="display:flex;flex-direction:column;gap:10px;align-self:stretch;">
+            <div class="mock-input" style="background:#252522;border-radius:10px;padding:12px;">http://server.com</div>
+            <div class="mock-input" style="background:#252522;border-radius:10px;padding:12px;">Benutzername</div>
+            <div class="mock-input" style="background:#252522;border-radius:10px;padding:12px;">••••••••••</div>
+          </div>
+          <button class="mock-button" style="width:100%;background:#CCA770;color:#0D0D0B;font-weight:600;border-radius:10px;padding:12px;">Verbinden</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C: Card-Tab Auswahl (2 Cards)</h3>
+      <p>Zwei große Auswahl-Cards für Xtream/M3U. Erst Card wählen, dann Formular. Klarere Trennung der Methoden.</p>
+    </div>
+  </div>
+
+  <!-- DESIGN D: Overlay / Dialog Style -->
+  <div class="card" data-choice="d" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-body" style="background:#0D0D0B; padding:24px; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:380px; border-radius:10px; position:relative;">
+          <!-- Background subtle pattern hint -->
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:200px;background:radial-gradient(circle, rgba(204,167,112,0.06) 0%, transparent 70%);border-radius:50%;"></div>
+          <!-- Content -->
+          <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;max-width:320px;">
+            <!-- Logo Center -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+              <div style="width:72px;height:72px;background:#CCA770;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 4px 24px rgba(204,167,112,0.25);">📺</div>
+              <div style="font-size:22px;font-weight:700;color:#E8E3D7;font-family:sans-serif;margin-top:4px;">OSI IPTV</div>
+            </div>
+            <!-- Segmented Control -->
+            <div style="display:flex;align-self:stretch;background:#1A1A17;border-radius:10px;padding:3px;">
+              <div style="flex:1;text-align:center;padding:10px;border-radius:8px;background:#252522;color:#E8E3D7;font-size:13px;font-family:sans-serif;font-weight:500;">Xtream Codes</div>
+              <div style="flex:1;text-align:center;padding:10px;border-radius:8px;color:#8A857C;font-size:13px;font-family:sans-serif;">M3U Playlist</div>
+            </div>
+            <!-- Form -->
+            <div style="display:flex;flex-direction:column;gap:8px;align-self:stretch;">
+              <div class="mock-input" style="background:#252522;border-radius:10px;padding:12px;">Server URL</div>
+              <div class="mock-input" style="background:#252522;border-radius:10px;padding:12px;">Benutzername</div>
+              <div class="mock-input" style="background:#252522;border-radius:10px;padding:12px;">Passwort</div>
+            </div>
+            <button class="mock-button" style="width:100%;background:#CCA770;color:#0D0D0B;font-weight:600;border-radius:10px;padding:13px;font-size:14px;">Verbinden</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>D: Logo-zentriert + Segmented Control</h3>
+      <p>Großes Logo im Fokus (mit Gold-Glow). iOS-artige Segmented-Control für Tabs. Clean und aufgeräumt.</p>
+    </div>
+  </div>
+
+</div>
+
+<h3 style="margin-top:28px;">Vergleich der Tab-Stile</h3>
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">A: Underline Tabs (einfach)</div>
+    <div class="mockup-body" style="background:#1A1A17;padding:16px;border-radius:0 0 10px 10px;">
+      <div style="display:flex;border-bottom:1px solid rgba(232,227,215,0.08);">
+        <div style="flex:1;text-align:center;padding:10px;color:#CCA770;font-family:sans-serif;font-size:13px;font-weight:600;border-bottom:2px solid #CCA770;">Xtream</div>
+        <div style="flex:1;text-align:center;padding:10px;color:#8A857C;font-family:sans-serif;font-size:13px;">M3U</div>
+        <div style="flex:1;text-align:center;padding:10px;color:#8A857C;font-family:sans-serif;font-size:13px;">Extra</div>
+      </div>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">B: Pill Tabs (modern)</div>
+    <div class="mockup-body" style="background:#1A1A17;padding:16px;border-radius:0 0 10px 10px;">
+      <div style="display:flex;background:#0D0D0B;border-radius:20px;padding:3px;">
+        <div style="flex:1;text-align:center;padding:10px;border-radius:17px;background:#CCA770;color:#0D0D0B;font-family:sans-serif;font-size:13px;font-weight:600;">Xtream</div>
+        <div style="flex:1;text-align:center;padding:10px;border-radius:17px;color:#8A857C;font-family:sans-serif;font-size:13px;">M3U</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="split" style="margin-top:8px;">
+  <div class="mockup">
+    <div class="mockup-header">C: Card Tabs (getrennt)</div>
+    <div class="mockup-body" style="background:#1A1A17;padding:16px;border-radius:0 0 10px 10px;">
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;text-align:center;padding:16px 8px;border-radius:10px;background:#252522;border:1.5px solid #CCA770;font-family:sans-serif;font-size:13px;color:#CCA770;font-weight:600;">🔑 Xtream</div>
+        <div style="flex:1;text-align:center;padding:16px 8px;border-radius:10px;background:#252522;border:1.5px solid rgba(232,227,215,0.06);font-family:sans-serif;font-size:13px;color:#8A857C;">📋 M3U</div>
+      </div>
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">D: Segmented Control (iOS)</div>
+    <div class="mockup-body" style="background:#1A1A17;padding:16px;border-radius:0 0 10px 10px;">
+      <div style="display:flex;background:#0D0D0B;border-radius:8px;padding:3px;">
+        <div style="flex:1;text-align:center;padding:10px;border-radius:6px;background:#252522;color:#E8E3D7;font-family:sans-serif;font-size:13px;font-weight:500;">Xtream Codes</div>
+        <div style="flex:1;text-align:center;padding:10px;border-radius:6px;color:#8A857C;font-family:sans-serif;font-size:13px;">M3U</div>
+      </div>
+    </div>
+  </div>
+</div>

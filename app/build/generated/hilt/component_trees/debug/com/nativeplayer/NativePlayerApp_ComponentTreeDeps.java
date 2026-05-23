@@ -26,6 +26,8 @@ import hilt_aggregated_deps._com_nativeplayer_ui_home_HomeViewModel_HiltModules_
 import hilt_aggregated_deps._com_nativeplayer_ui_home_HomeViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_nativeplayer_ui_live_LiveViewModel_HiltModules_BindsModule;
 import hilt_aggregated_deps._com_nativeplayer_ui_live_LiveViewModel_HiltModules_KeyModule;
+import hilt_aggregated_deps._com_nativeplayer_ui_login_LoginViewModel_HiltModules_BindsModule;
+import hilt_aggregated_deps._com_nativeplayer_ui_login_LoginViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_nativeplayer_ui_movies_MovieDetailViewModel_HiltModules_BindsModule;
 import hilt_aggregated_deps._com_nativeplayer_ui_movies_MovieDetailViewModel_HiltModules_KeyModule;
 import hilt_aggregated_deps._com_nativeplayer_ui_movies_MoviesViewModel_HiltModules_BindsModule;
@@ -95,6 +97,8 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_Ac
         _com_nativeplayer_ui_home_HomeViewModel_HiltModules_KeyModule.class,
         _com_nativeplayer_ui_live_LiveViewModel_HiltModules_BindsModule.class,
         _com_nativeplayer_ui_live_LiveViewModel_HiltModules_KeyModule.class,
+        _com_nativeplayer_ui_login_LoginViewModel_HiltModules_BindsModule.class,
+        _com_nativeplayer_ui_login_LoginViewModel_HiltModules_KeyModule.class,
         _com_nativeplayer_ui_movies_MovieDetailViewModel_HiltModules_BindsModule.class,
         _com_nativeplayer_ui_movies_MovieDetailViewModel_HiltModules_KeyModule.class,
         _com_nativeplayer_ui_movies_MoviesViewModel_HiltModules_BindsModule.class,

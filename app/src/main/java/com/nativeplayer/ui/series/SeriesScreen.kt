@@ -1,7 +1,9 @@
 package com.nativeplayer.ui.series
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -19,7 +21,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -80,7 +87,7 @@ fun SeriesScreen(
             ) {
                 Text(
                     "Kategorien",
-                    color = WarmGold,
+                    color = OsiCyan,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     modifier = Modifier.weight(1f)
@@ -89,7 +96,7 @@ fun SeriesScreen(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(4.dp))
-                        .background(if (isSortMode) WarmGoldDim else Color.Transparent)
+                        .background(if (isSortMode) OsiCyan.copy(alpha = 0.12f) else Color.Transparent)
                         .clickable {
                             sortActiveIndex = -1
                             viewModel.toggleSortMode()
@@ -101,13 +108,13 @@ fun SeriesScreen(
                     Icon(
                         if (isSortMode) Icons.Filled.Check else Icons.Filled.UnfoldMore,
                         contentDescription = null,
-                        tint = if (isSortMode) WarmGold else WarmTextSecondary,
+                        tint = if (isSortMode) OsiCyan else WarmTextSecondary,
                         modifier = Modifier.size(12.dp)
                     )
                     Text(
                         if (isSortMode) "Fertig" else "Kat. verschieben",
                         fontSize = 9.sp,
-                        color = if (isSortMode) WarmGold else WarmTextSecondary
+                        color = if (isSortMode) OsiCyan else WarmTextSecondary
                     )
                 }
             }
@@ -118,17 +125,32 @@ fun SeriesScreen(
                     val isAlle = index == 0
                     val isActive = sortActiveIndex == index && !isAlle
 
+                    var isFocused by remember { mutableStateOf(false) }
+                    val pulseScale = remember { Animatable(1f) }
+                    var prevFocused by remember { mutableStateOf(false) }
+
+                    LaunchedEffect(isFocused) {
+                        if (isFocused && !prevFocused) {
+                            pulseScale.snapTo(1f)
+                            pulseScale.animateTo(1.08f, spring(stiffness = Spring.StiffnessMedium))
+                            pulseScale.animateTo(1f, spring(stiffness = Spring.StiffnessMedium))
+                        }
+                        prevFocused = isFocused
+                    }
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(6.dp))
+                            .graphicsLayer { scaleX = pulseScale.value; scaleY = pulseScale.value }
                             .background(
                                 when {
                                     isActive            -> WarmError.copy(alpha = 0.15f)
-                                    isSelected && !isSortMode -> WarmGoldDim
+                                    isSelected && !isSortMode -> OsiCyan.copy(alpha = 0.12f)
                                     else                -> Color.Transparent
                                 }
                             )
+                            .onFocusChanged { isFocused = it.isFocused }
                             .then(
                                 if (!isSortMode) Modifier.clickable { viewModel.selectCategory(category) }
                                 else Modifier
@@ -151,7 +173,7 @@ fun SeriesScreen(
                             category,
                             color = when {
                                 isActive                  -> WarmError
-                                isSelected && !isSortMode -> WarmGold
+                                isSelected && !isSortMode -> OsiCyan
                                 else                      -> WarmTextPrimary
                             },
                             fontSize = 13.sp,
@@ -190,7 +212,7 @@ fun SeriesScreen(
                                         Icons.Filled.KeyboardArrowUp,
                                         contentDescription = "Nach oben",
                                         modifier = Modifier.size(16.dp),
-                                        tint = if (index > 1) WarmGold else WarmTextSecondary.copy(alpha = 0.4f)
+                                        tint = if (index > 1) OsiCyan else WarmTextSecondary.copy(alpha = 0.4f)
                                     )
                                 }
                                 IconButton(
@@ -210,7 +232,7 @@ fun SeriesScreen(
                                         Icons.Filled.KeyboardArrowDown,
                                         contentDescription = "Nach unten",
                                         modifier = Modifier.size(16.dp),
-                                        tint = if (index < filteredCategories.size - 1) WarmGold else WarmTextSecondary.copy(alpha = 0.4f)
+                                        tint = if (index < filteredCategories.size - 1) OsiCyan else WarmTextSecondary.copy(alpha = 0.4f)
                                     )
                                 }
                             }
@@ -224,12 +246,12 @@ fun SeriesScreen(
         Column(modifier = Modifier.fillMaxHeight().weight(0.75f).padding(4.dp)) {
             Text(
                 "Serien${selectedCategory?.let { " - $it" } ?: ""}",
-                color = WarmGold, fontWeight = FontWeight.Bold, fontSize = 14.sp,
+                color = OsiCyan, fontWeight = FontWeight.Bold, fontSize = 14.sp,
                 modifier = Modifier.padding(8.dp, 8.dp, 8.dp, 4.dp)
             )
             val series = selectedCategory?.let { seriesByCategory[it] } ?: seriesByCategory.values.flatten()
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(70.dp),
+                columns = GridCells.Adaptive(105.dp),
                 contentPadding = PaddingValues(2.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -269,15 +291,36 @@ private fun SeriesPosterItem(
     onFavoriteClick: () -> Unit,
     onClick: () -> Unit
 ) {
+    var isFocused by remember { mutableStateOf(false) }
+    val pulseScale = remember { Animatable(1f) }
+    var prevFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isFocused) {
+        if (isFocused && !prevFocused) {
+            pulseScale.snapTo(1f)
+            pulseScale.animateTo(1.08f, spring(stiffness = Spring.StiffnessMedium))
+            pulseScale.animateTo(1f, spring(stiffness = Spring.StiffnessMedium))
+        }
+        prevFocused = isFocused
+    }
+
     Card(
-        modifier = modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = modifier
+            .fillMaxWidth()
+            .graphicsLayer { scaleX = pulseScale.value; scaleY = pulseScale.value }
+            .onFocusChanged { isFocused = it.isFocused }
+            .focusable()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = WarmSurface)
+        colors = CardDefaults.cardColors(
+            containerColor = if (isFocused) OsiCyan.copy(alpha = 0.12f) else WarmSurface
+        ),
+        border = if (isFocused) BorderStroke(1.5.dp, OsiCyan) else null
     ) {
         Box {
             Column {
                 Box(
-                    Modifier.fillMaxWidth().height(90.dp).background(WarmSurfaceElevated),
+                    Modifier.fillMaxWidth().height(161.dp).background(WarmSurfaceElevated),
                     contentAlignment = Alignment.Center
                 ) {
                     if (!series.posterUrl.isNullOrEmpty()) {
@@ -294,12 +337,12 @@ private fun SeriesPosterItem(
                 }
                 Column(Modifier.padding(4.dp)) {
                     Text(
-                        series.title, color = WarmTextPrimary, fontSize = 6.sp,
+                        series.title, color = WarmTextPrimary, fontSize = 9.sp,
                         fontWeight = FontWeight.Medium, maxLines = 1, overflow = TextOverflow.Ellipsis
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Star, null, Modifier.size(6.dp), tint = WarmGold)
-                        Text(" ${series.rating}", color = WarmTextSecondary, fontSize = 5.sp)
+                        Icon(Icons.Filled.Star, null, Modifier.size(18.dp), tint = OsiStarYellow)
+                        Text(" ${series.rating}", color = OsiStarYellow, fontSize = 15.sp)
                         Spacer(Modifier.weight(1f))
                         Text(series.year, color = WarmTextSecondary, fontSize = 5.sp)
                     }

@@ -9,12 +9,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -29,7 +29,6 @@ import com.nativeplayer.data.model.Account
 import com.nativeplayer.ui.navigation.Screen
 import com.nativeplayer.ui.splash.SplashViewModel
 import com.nativeplayer.ui.viewmodel.CategoryVisibilityViewModel
-import com.nativeplayer.ui.components.CategoriesCheckboxGrid
 import com.nativeplayer.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,9 +43,17 @@ fun SettingsScreen(
     var editingAccount by remember { mutableStateOf<Account?>(null) }
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var cacheCleared by remember { mutableStateOf(false) }
-    
+
     // Category visibility state
     val categoryVisibility by categoryVisibilityViewModel.categoryVisibility.collectAsState()
+    val availableLiveCategories by categoryVisibilityViewModel.availableLiveCategories.collectAsState()
+    val availableMovieCategories by categoryVisibilityViewModel.availableMovieCategories.collectAsState()
+    val availableSeriesCategories by categoryVisibilityViewModel.availableSeriesCategories.collectAsState()
+
+    // Dialog state for category visibility
+    var showLiveTVDialog by remember { mutableStateOf(false) }
+    var showMoviesDialog by remember { mutableStateOf(false) }
+    var showSeriesDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = WarmBackground,
@@ -55,7 +62,7 @@ fun SettingsScreen(
                 title = { Text("Einstellungen", color = WarmTextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.ArrowBack, "Zurück", tint = WarmTextPrimary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Zurück", tint = WarmTextPrimary)
                     }
                 },
                 actions = {
@@ -240,29 +247,171 @@ fun SettingsScreen(
                 Spacer(Modifier.height(16.dp))
                 Text("Kategorien", color = WarmGold, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Spacer(Modifier.height(8.dp))
-            }
 
-            item {
-                LiveTVCategorySection(
-                    categoryVisibilityViewModel = categoryVisibilityViewModel,
-                    hiddenCategories = categoryVisibility.hiddenCategoriesLiveTV
-                )
-            }
+                // Live TV Kategorien Button
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showLiveTVDialog = true },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = WarmSurface)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Tv,
+                            contentDescription = null,
+                            tint = WarmGold,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(Modifier.width(14.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                text = "Live TV Kategorien",
+                                color = WarmTextPrimary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                text = "${availableLiveCategories.size - categoryVisibility.hiddenCategoriesLiveTV.size}/${availableLiveCategories.size} sichtbar",
+                                color = WarmTextSecondary,
+                                fontSize = 12.sp
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Filled.ChevronRight,
+                            contentDescription = null,
+                            tint = WarmTextSecondary.copy(alpha = 0.5f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
 
-            item {
-                MoviesCategorySection(
-                    categoryVisibilityViewModel = categoryVisibilityViewModel,
-                    hiddenCategories = categoryVisibility.hiddenCategoriesMovies
-                )
-            }
+                Spacer(Modifier.height(8.dp))
 
-            item {
-                SeriesCategorySection(
-                    categoryVisibilityViewModel = categoryVisibilityViewModel,
-                    hiddenCategories = categoryVisibility.hiddenCategoriesSeries
-                )
+                // Movies Kategorien Button
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showMoviesDialog = true },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = WarmSurface)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Movie,
+                            contentDescription = null,
+                            tint = WarmGold,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(Modifier.width(14.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                text = "Film Kategorien",
+                                color = WarmTextPrimary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                text = "${availableMovieCategories.size - categoryVisibility.hiddenCategoriesMovies.size}/${availableMovieCategories.size} sichtbar",
+                                color = WarmTextSecondary,
+                                fontSize = 12.sp
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Filled.ChevronRight,
+                            contentDescription = null,
+                            tint = WarmTextSecondary.copy(alpha = 0.5f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                // Series Kategorien Button
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showSeriesDialog = true },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = WarmSurface)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.VideoLibrary,
+                            contentDescription = null,
+                            tint = WarmGold,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(Modifier.width(14.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                text = "Serie Kategorien",
+                                color = WarmTextPrimary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                text = "${availableSeriesCategories.size - categoryVisibility.hiddenCategoriesSeries.size}/${availableSeriesCategories.size} sichtbar",
+                                color = WarmTextSecondary,
+                                fontSize = 12.sp
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Filled.ChevronRight,
+                            contentDescription = null,
+                            tint = WarmTextSecondary.copy(alpha = 0.5f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
             }
         }
+    }
+
+    // Live TV Category Visibility Dialog
+    if (showLiveTVDialog) {
+        CategoryVisibilityDialog(
+            title = "Live TV Kategorien",
+            categoryType = "live",
+            availableCategories = availableLiveCategories,
+            hiddenCategories = categoryVisibility.hiddenCategoriesLiveTV,
+            onDismiss = { showLiveTVDialog = false },
+            categoryVisibilityViewModel = categoryVisibilityViewModel
+        )
+    }
+
+    // Movies Category Visibility Dialog
+    if (showMoviesDialog) {
+        CategoryVisibilityDialog(
+            title = "Film Kategorien",
+            categoryType = "movies",
+            availableCategories = availableMovieCategories,
+            hiddenCategories = categoryVisibility.hiddenCategoriesMovies,
+            onDismiss = { showMoviesDialog = false },
+            categoryVisibilityViewModel = categoryVisibilityViewModel
+        )
+    }
+
+    // Series Category Visibility Dialog
+    if (showSeriesDialog) {
+        CategoryVisibilityDialog(
+            title = "Serie Kategorien",
+            categoryType = "series",
+            availableCategories = availableSeriesCategories,
+            hiddenCategories = categoryVisibility.hiddenCategoriesSeries,
+            onDismiss = { showSeriesDialog = false },
+            categoryVisibilityViewModel = categoryVisibilityViewModel
+        )
     }
 
     // Clear Watch History Dialog
@@ -450,92 +599,7 @@ fun AccountDialog(
     )
 }
 
-/**
- * Section for controlling Live TV category visibility.
- */
-@Composable
-fun LiveTVCategorySection(
-    categoryVisibilityViewModel: CategoryVisibilityViewModel,
-    hiddenCategories: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    val availableCategories = listOf("News", "Sports", "Movies", "Music", "Kids", "Documentaries")
-    
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = "Live TV Kategorien",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = WarmTextPrimary,
-            modifier = Modifier.padding(16.dp)
-        )
-        CategoriesCheckboxGrid(
-            categories = availableCategories,
-            hiddenCategories = hiddenCategories,
-            onCategoryToggle = { categoryName ->
-                categoryVisibilityViewModel.toggleCategoryVisibility("live", categoryName)
-            }
-        )
-    }
-}
 
-/**
- * Section for controlling Movies category visibility.
- */
-@Composable
-fun MoviesCategorySection(
-    categoryVisibilityViewModel: CategoryVisibilityViewModel,
-    hiddenCategories: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    val availableCategories = listOf("Action", "Comedy", "Drama", "Horror", "Sci-Fi", "Romance", "Thriller")
-    
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = "Film Kategorien",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = WarmTextPrimary,
-            modifier = Modifier.padding(16.dp)
-        )
-        CategoriesCheckboxGrid(
-            categories = availableCategories,
-            hiddenCategories = hiddenCategories,
-            onCategoryToggle = { categoryName ->
-                categoryVisibilityViewModel.toggleCategoryVisibility("movies", categoryName)
-            }
-        )
-    }
-}
-
-/**
- * Section for controlling Series category visibility.
- */
-@Composable
-fun SeriesCategorySection(
-    categoryVisibilityViewModel: CategoryVisibilityViewModel,
-    hiddenCategories: Set<String>,
-    modifier: Modifier = Modifier
-) {
-    val availableCategories = listOf("Drama", "Comedy", "Crime", "Fantasy", "Sci-Fi", "Romance", "Thriller", "Documentary")
-    
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = "Serie Kategorien",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = WarmTextPrimary,
-            modifier = Modifier.padding(16.dp)
-        )
-        CategoriesCheckboxGrid(
-            categories = availableCategories,
-            hiddenCategories = hiddenCategories,
-            onCategoryToggle = { categoryName ->
-                categoryVisibilityViewModel.toggleCategoryVisibility("series", categoryName)
-            }
-        )
-    }
-}
 
 @Composable
 fun darkTextFieldColors() = OutlinedTextFieldDefaults.colors(

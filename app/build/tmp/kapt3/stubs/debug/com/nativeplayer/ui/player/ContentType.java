@@ -9,6 +9,7 @@ import com.nativeplayer.data.repository.PreferencesManager;
 import com.nativeplayer.data.repository.WatchHistoryRepository;
 import com.nativeplayer.player.PlayerManager;
 import com.nativeplayer.player.PlayerState;
+import com.nativeplayer.data.model.Episode;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import javax.inject.Inject;
 

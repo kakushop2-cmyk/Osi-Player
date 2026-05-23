@@ -20,8 +20,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.nativeplayer.data.model.EpgItem
-import com.nativeplayer.ui.theme.WarmSurface
-import com.nativeplayer.ui.theme.WarmTextPrimary
+import com.nativeplayer.ui.theme.*
 
 /** Breite der EPG-Seitenleiste (ca. 22 % des Bildschirms). */
 private const val SIDEBAR_WIDTH_FRACTION = 0.22f
@@ -131,9 +130,9 @@ private fun ChannelProgramCard(
         // Label (VORHER / JETZT / NÄCHSTES)
         Text(
             text = label,
-            fontSize = 9.sp,
+            fontSize = 13.5.sp,
             fontWeight = FontWeight.Bold,
-            color = if (isActive) Color(0xFFFFD700).copy(alpha = 0.7f) else Color.Gray.copy(alpha = alpha * 0.6f),
+            color = if (isActive) OsiStarYellow.copy(alpha = 0.7f) else Color.Gray.copy(alpha = alpha * 0.6f),
             letterSpacing = 2.sp
         )
 
@@ -171,9 +170,9 @@ private fun ChannelProgramCard(
                 // ── Platzhalter (erster Buchstabe) ──
                 Text(
                     text = epgItem?.title?.firstOrNull()?.uppercase() ?: "TV",
-                    fontSize = 20.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White.copy(alpha = alpha * 0.6f)
+                    color = OsiTextPrimary.copy(alpha = alpha * 0.6f)
                 )
             }
         }

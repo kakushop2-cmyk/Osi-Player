@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.nativeplayer.ui.navigation.Screen
+import com.nativeplayer.ui.player.PlayerContext
 import com.nativeplayer.ui.theme.*
 import com.nativeplayer.ui.util.FocusRestoreManager
 import kotlinx.coroutines.delay
@@ -121,6 +122,11 @@ fun SearchScreen(
                             modifier = Modifier.focusRequester(focusRequester),
                             onClick = {
                                 FocusRestoreManager.saveFocus("search_screen", "ch_${ch.id}")
+                                // PlayerContext initialisieren, damit Channel-Switching & EPG funktionieren
+                                val allChannels = viewModel.getAllChannels()
+                                val idx = allChannels.indexOfFirst { it.id == ch.id }
+                                PlayerContext.setLiveContext(allChannels, idx)
+                                PlayerContext.channelLogoUrl = ch.logo
                                 navController.navigate(Screen.FullScreenPlayer.createRoute(
                                     url = ch.url,
                                     type = "live",

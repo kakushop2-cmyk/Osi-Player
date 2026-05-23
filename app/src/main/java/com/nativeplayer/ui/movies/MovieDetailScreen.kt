@@ -29,6 +29,11 @@ import com.nativeplayer.ui.navigation.Screen
 import com.nativeplayer.ui.theme.*
 import com.nativeplayer.ui.util.FocusRestoreManager
 import kotlinx.coroutines.delay
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.graphicsLayer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,7 +53,7 @@ fun MovieDetailScreen(
     val isFavorite by detailViewModel.isFavorite.collectAsState()
     val watchHistory by detailViewModel.watchHistory.collectAsState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(movieId) {
         moviesViewModel.loadMovies()
         detailViewModel.load(movieId)
     }
@@ -136,6 +141,16 @@ private fun MovieDetailContent(
     var expanded by remember { mutableStateOf(false) }
     var showResumeDialog by remember { mutableStateOf(false) }
 
+    // Pulse animation for "Weiterschauen" card
+    var isFocusedResume by remember { mutableStateOf(false) }
+    val pulseScaleResume = remember { Animatable(1f) }
+    var prevFocusedResume by remember { mutableStateOf(false) }
+
+    // Pulse animation for "Abspielen" button
+    var isFocusedPlay by remember { mutableStateOf(false) }
+    val pulseScalePlay = remember { Animatable(1f) }
+    var prevFocusedPlay by remember { mutableStateOf(false) }
+
     // ── Focus Restore: Gespeicherten Fokus auslesen ──
     val lastFocus = remember { FocusRestoreManager.getLastFocus("movie_detail_screen") }
     val resumeFocusRequester = remember { FocusRequester() }
@@ -150,11 +165,31 @@ private fun MovieDetailContent(
         }
     }
 
+    // Pulse animation on focus: "Weiterschauen"
+    LaunchedEffect(isFocusedResume) {
+        if (isFocusedResume && !prevFocusedResume) {
+            pulseScaleResume.snapTo(1f)
+            pulseScaleResume.animateTo(1.08f, spring(stiffness = Spring.StiffnessMedium))
+            pulseScaleResume.animateTo(1f, spring(stiffness = Spring.StiffnessMedium))
+        }
+        prevFocusedResume = isFocusedResume
+    }
+
+    // Pulse animation on focus: "Abspielen"
+    LaunchedEffect(isFocusedPlay) {
+        if (isFocusedPlay && !prevFocusedPlay) {
+            pulseScalePlay.snapTo(1f)
+            pulseScalePlay.animateTo(1.08f, spring(stiffness = Spring.StiffnessMedium))
+            pulseScalePlay.animateTo(1f, spring(stiffness = Spring.StiffnessMedium))
+        }
+        prevFocusedPlay = isFocusedPlay
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
     ) {
         // Poster
-        Box(Modifier.fillMaxWidth().height(250.dp).background(WarmSurfaceElevated), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxWidth().height(175.dp).background(WarmSurfaceElevated), contentAlignment = Alignment.Center) {
             if (!movie.posterUrl.isNullOrEmpty()) {
                 AsyncImage(model = ImageRequest.Builder(LocalContext.current)
                     .data(movie.posterUrl).crossfade(true).build(),
@@ -184,6 +219,7 @@ private fun MovieDetailContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(resumeFocusRequester)
+                        .onFocusChanged { isFocusedResume = it.isFocused }
                         .clickable {
                             FocusRestoreManager.saveFocus("movie_detail_screen", "resume")
                             navController.navigate(Screen.FullScreenPlayer.createRoute(
@@ -194,7 +230,8 @@ private fun MovieDetailContent(
                                 resumePosition = watchHistory?.position ?: 0L,
                                 imageUrl = movie.posterUrl ?: ""
                             ))
-                        },
+                        }
+                        .graphicsLayer { scaleX = pulseScaleResume.value; scaleY = pulseScaleResume.value },
                     shape = RoundedCornerShape(10.dp),
                     colors = CardDefaults.cardColors(containerColor = WarmGold.copy(alpha = 0.15f))
                 ) {
@@ -247,9 +284,14 @@ private fun MovieDetailContent(
                         ))
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(52.dp).focusRequester(playFocusRequester),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp)
+                    .focusRequester(playFocusRequester)
+                    .onFocusChanged { isFocusedPlay = it.isFocused }
+                    .graphicsLayer { scaleX = pulseScalePlay.value; scaleY = pulseScalePlay.value },
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = WarmGold)
+                colors = ButtonDefaults.buttonColors(containerColor = OsiStarYellow)
             ) {
                 Icon(Icons.Filled.PlayArrow, null, Modifier.size(24.dp))
                 Spacer(Modifier.width(8.dp))

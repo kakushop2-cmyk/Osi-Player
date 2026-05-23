@@ -233,7 +233,7 @@ fun PlayerSettingsScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = WarmGold,
-                        contentColor = Color.Black
+                        contentColor = OsiBlack
                     ),
                     enabled = !isSaving
                 ) {
@@ -242,7 +242,7 @@ fun PlayerSettingsScreen(
                             modifier = Modifier
                                 .size(20.dp)
                                 .padding(end = 8.dp),
-                            color = Color.Black,
+                            color = OsiBlack,
                             strokeWidth = 2.dp
                         )
                     }

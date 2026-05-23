@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight;
 import androidx.compose.ui.text.style.TextOverflow;
 import androidx.navigation.NavController;
 import com.nativeplayer.ui.navigation.Screen;
+import com.nativeplayer.ui.player.PlayerContext;
 import com.nativeplayer.ui.theme.*;
 import com.nativeplayer.ui.util.FocusRestoreManager;
 

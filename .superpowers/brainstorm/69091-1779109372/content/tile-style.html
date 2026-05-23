@@ -1,0 +1,59 @@
+<h2>Welchen Kachel-Stil bevorzugst du?</h2>
+<p class="subtitle">Drei Richtungen für die interaktiven Home-Kacheln</p>
+
+<div class="cards">
+  <div class="card" data-choice="glass" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: linear-gradient(135deg, #1A1A17 0%, #252522 100%); padding: 20px; display: flex; gap: 12px; align-items: center;">
+      <div style="background: rgba(204,167,112,0.08); border: 1px solid rgba(204,167,112,0.15); border-radius: 12px; padding: 16px 24px; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; background: rgba(204,167,112,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #CCA770; font-size: 20px;">📺</div>
+        <div style="color: #E8E3D7; font-weight: 600;">Live TV</div>
+      </div>
+      <div style="background: rgba(204,167,112,0.05); border: 1px solid rgba(204,167,112,0.1); border-radius: 12px; padding: 16px 24px; backdrop-filter: blur(10px); display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; background: rgba(204,167,112,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #CCA770; font-size: 20px;">🎬</div>
+        <div style="color: #E8E3D7; font-weight: 600;">Filme</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Glassmorphism</h3>
+      <p>Semi-transparente Kacheln mit Blur-Effekt. Moderner, eleganter Look mit subtilen Gold-Rändern.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="elevated" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0D0D0B; padding: 20px; display: flex; gap: 12px; align-items: center;">
+      <div style="background: #1A1A17; border-radius: 12px; padding: 16px 24px; box-shadow: 0 4px 20px rgba(204,167,112,0.15); display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #CCA770, #B8956A); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0D0D0B; font-size: 20px;">📺</div>
+        <div style="color: #E8E3D7; font-weight: 600;">Live TV</div>
+      </div>
+      <div style="background: #1A1A17; border-radius: 12px; padding: 16px 24px; box-shadow: 0 4px 20px rgba(204,167,112,0.1); display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #CCA770, #B8956A); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0D0D0B; font-size: 20px;">🎬</div>
+        <div style="color: #E8E3D7; font-weight: 600;">Filme</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Elevated Cards</h3>
+      <p>Solide Kacheln mit Gold-Gradient-Icons und warmem Schatten. Klassisch, klar, hochwertig.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="gradient" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0D0D0B; padding: 20px; display: flex; gap: 12px; align-items: center;">
+      <div style="background: linear-gradient(135deg, rgba(204,167,112,0.15) 0%, rgba(204,167,112,0.05) 100%); border: 1px solid rgba(204,167,112,0.2); border-radius: 12px; padding: 16px 24px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; background: #CCA770; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0D0D0B; font-size: 20px;">📺</div>
+        <div style="color: #E8E3D7; font-weight: 600;">Live TV</div>
+      </div>
+      <div style="background: linear-gradient(135deg, rgba(204,167,112,0.12) 0%, rgba(204,167,112,0.03) 100%); border: 1px solid rgba(204,167,112,0.15); border-radius: 12px; padding: 16px 24px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 40px; height: 40px; background: #CCA770; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #0D0D0B; font-size: 20px;">🎬</div>
+        <div style="color: #E8E3D7; font-weight: 600;">Filme</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Gold Gradient</h3>
+      <p>Fließende Gold-Verläufe auf Kachel-Hintergrund. Dynamisch, modern, mit Gold-Glow auf Fokus.</p>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 24px; padding: 16px; background: rgba(204,167,112,0.05); border-radius: 8px; border-left: 3px solid #CCA770;">
+  <p style="color: #8A857C; font-size: 13px; margin: 0;">Alle Styles verwenden dein bestehendes Warm Dark Theme (#0D0D0B, #1A1A17, #CCA770). Klicke auf eine Option um deine Präferenz zu wählen.</p>
+</div>

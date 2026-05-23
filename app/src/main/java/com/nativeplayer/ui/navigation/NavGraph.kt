@@ -15,11 +15,13 @@ import com.nativeplayer.ui.resume.ResumeScreen
 import com.nativeplayer.ui.movies.MovieDetailScreen
 import com.nativeplayer.ui.series.SeriesDetailScreen
 import com.nativeplayer.ui.player.PlayerScreen
+import com.nativeplayer.ui.player.PlayerBarDemoScreen
 import com.nativeplayer.ui.search.SearchScreen
 import com.nativeplayer.ui.settings.SettingsScreen
 import com.nativeplayer.ui.settings.PlayerSettingsScreen
 import com.nativeplayer.ui.login.LoginScreen
 import com.nativeplayer.ui.splash.SplashScreen
+import com.nativeplayer.ui.splash.IntroScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -27,6 +29,10 @@ fun NavGraph(navController: NavHostController) {
 
         composable(Screen.Splash.route) {
             SplashScreen(navController = navController)
+        }
+
+        composable(Screen.Intro.route) {
+            IntroScreen(navController = navController)
         }
 
         composable(Screen.Settings.route) {
@@ -39,6 +45,10 @@ fun NavGraph(navController: NavHostController) {
 
         composable(Screen.PlayerSettings.route) {
             PlayerSettingsScreen(navController = navController)
+        }
+
+        composable(Screen.PlayerBarDemo.route) {
+            PlayerBarDemoScreen(navController = navController)
         }
 
         // Home Hub - Main entry point

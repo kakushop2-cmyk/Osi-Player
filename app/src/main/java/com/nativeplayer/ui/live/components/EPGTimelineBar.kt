@@ -15,8 +15,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nativeplayer.data.model.EpgItem
-import com.nativeplayer.ui.theme.WarmSurface
-import com.nativeplayer.ui.theme.WarmTextPrimary
+import com.nativeplayer.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,9 +52,9 @@ fun EPGTimelineBar(
             // Aktuelle Uhrzeit
             Text(
                 text = timeDisplayString,
-                fontSize = 14.sp,
+                fontSize = 21.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFFFFD700),
+                color = OsiStarYellow,
                 modifier = Modifier.widthIn(min = 60.dp)
             )
 
@@ -64,7 +63,7 @@ fun EPGTimelineBar(
             // Programmname
             Text(
                 text = currentEpgItem.title,
-                fontSize = 16.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = WarmTextPrimary,
                 modifier = Modifier.weight(1f),
@@ -77,7 +76,7 @@ fun EPGTimelineBar(
             // Verbleibende Zeit
             Text(
                 text = if (remainingMinutes > 0) "-${remainingMinutes} Min" else "Endet gleich",
-                fontSize = 13.sp,
+                fontSize = 19.5.sp,
                 fontWeight = FontWeight.Medium,
                 color = WarmTextPrimary.copy(alpha = 0.8f),
                 modifier = Modifier.widthIn(min = 80.dp)
@@ -94,7 +93,7 @@ fun EPGTimelineBar(
             // Startzeit
             Text(
                 text = formatEpochToHHmm(currentEpgItem.startTime, timezoneName),
-                fontSize = 11.sp,
+                fontSize = 16.5.sp,
                 color = Color.Gray,
                 modifier = Modifier.widthIn(min = 40.dp)
             )
@@ -117,7 +116,7 @@ fun EPGTimelineBar(
             // Endzeit
             Text(
                 text = formatEpochToHHmm(currentEpgItem.endTime, timezoneName),
-                fontSize = 11.sp,
+                fontSize = 16.5.sp,
                 color = Color.Gray,
                 modifier = Modifier.widthIn(min = 40.dp)
             )

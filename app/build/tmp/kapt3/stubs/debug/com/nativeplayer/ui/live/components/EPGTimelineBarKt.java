@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier;
 import androidx.compose.ui.text.font.FontWeight;
 import androidx.compose.ui.text.style.TextOverflow;
 import com.nativeplayer.data.model.EpgItem;
+import com.nativeplayer.ui.theme.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
