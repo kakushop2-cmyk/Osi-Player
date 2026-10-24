@@ -50,7 +50,7 @@
 
 - **Android Studio** Hedgehog (2023.1.1) oder neuer
 - **JDK 17** oder neuer
-- **Android SDK 34** (compileSdk)
+- **Android SDK 36** (compileSdk/targetSdk)
 - **Mindestens Android 7.0** (API 24)
 
 ### Schritt-für-Schritt-Anleitung
@@ -75,12 +75,28 @@
    adb install app/build/outputs/apk/debug/app-debug.apk
    ```
 
-### Als Release erstellen
+### Als Release erstellen (Play Store)
 
 ```bash
-# Signing konfigurieren (siehe docs/signing.md)
-./gradlew assembleRelease
+# Signing: keystore.properties im Projektroot (nicht committen)
+./gradlew bundleRelease
 ```
+
+Das AAB liegt danach unter `app/build/outputs/bundle/release/app-release.aab`.
+
+**Play-Store-Konfiguration:**
+
+- **Paketname:** `com.osiplayer.app` (in `app/build.gradle.kts`, vor dem ersten Upload prüfen)
+- **AdMob:** IDs in `local.properties` eintragen (`admob.appId`, `admob.appOpenUnitId`).
+  Ohne Eintrag laufen die offiziellen Google-Test-IDs.
+- **Datenschutz-URL:** `docs/privacy-policy.md` ausfüllen, hosten und die URL in
+  `local.properties` als `privacyPolicyUrl` eintragen.
+- **Demo-Modus:** Login → „Demo ansehen – ohne Konto" (öffentliche Teststreams,
+  auch für die Play-Store-Prüfung).
+- **Checkliste:** `docs/play-store-checklist.md`
+
+Osi Player stellt keine Inhalte bereit. Es ist ein reiner Player für ein
+vom Nutzer gewähltes IPTV-Abonnement.
 
 ---
 

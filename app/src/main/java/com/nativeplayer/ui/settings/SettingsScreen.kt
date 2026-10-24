@@ -82,6 +82,41 @@ fun SettingsScreen(
             modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Demo-Modus: klarer Hinweis + Ausstieg
+            if (viewModel.isDemoMode()) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = WarmSurface)
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text(
+                                "Demo-Modus aktiv",
+                                color = WarmGold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                "Du siehst öffentliche Teststreams. Für echte Sender füge einen Account hinzu.",
+                                color = WarmTextSecondary,
+                                fontSize = 12.sp
+                            )
+                            TextButton(
+                                onClick = {
+                                    viewModel.setDemoMode(false)
+                                    navController.navigate(Screen.Login.route) {
+                                        popUpTo(Screen.Home.route) { inclusive = true }
+                                    }
+                                }
+                            ) {
+                                Text("Demo beenden", color = WarmGold, fontSize = 13.sp)
+                            }
+                        }
+                    }
+                }
+            }
+
             // Accounts section
             item {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -360,6 +395,53 @@ fun SettingsScreen(
                             )
                             Text(
                                 text = "${availableSeriesCategories.size - categoryVisibility.hiddenCategoriesSeries.size}/${availableSeriesCategories.size} sichtbar",
+                                color = WarmTextSecondary,
+                                fontSize = 12.sp
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Filled.ChevronRight,
+                            contentDescription = null,
+                            tint = WarmTextSecondary.copy(alpha = 0.5f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
+
+            // ── Rechtliches ───────────────────────────────────────────
+            item {
+                Spacer(Modifier.height(16.dp))
+                Text("Rechtliches", color = WarmGold, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Spacer(Modifier.height(8.dp))
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { navController.navigate(Screen.Legal.route) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = WarmSurface)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Description,
+                            contentDescription = null,
+                            tint = WarmTextSecondary,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(Modifier.width(14.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                text = "Datenschutz & Disclaimer",
+                                color = WarmTextPrimary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp
+                            )
+                            Text(
+                                text = "Keine Inhalte, Werbung, Zugangsdaten",
                                 color = WarmTextSecondary,
                                 fontSize = 12.sp
                             )

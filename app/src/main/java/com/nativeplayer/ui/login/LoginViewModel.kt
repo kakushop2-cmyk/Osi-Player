@@ -22,6 +22,7 @@ sealed class LoginState {
     data object Loading : LoginState()
     data class Error(val message: String) : LoginState()
     data object Success : LoginState()
+    data object Demo : LoginState()
 }
 
 @HiltViewModel
@@ -83,6 +84,12 @@ class LoginViewModel @Inject constructor(
 
     fun onShowPasswordToggle() {
         showPassword = !showPassword
+    }
+
+    /** Startet den Demo-Modus mit gebündelten Teststreams (kein Konto nötig). */
+    fun startDemo() {
+        preferencesManager.setDemoMode(true)
+        _state.value = LoginState.Demo
     }
 
     // ── Main connect action ────────────────────────
@@ -159,6 +166,7 @@ class LoginViewModel @Inject constructor(
             _state.value = LoginState.Loading
             try {
                 repository.fetchPlaylist(m3uUrl.trim())
+                preferencesManager.setDemoMode(false)
                 preferencesManager.saveM3uUrl(m3uUrl.trim())
                 _state.value = LoginState.Success
             } catch (e: Exception) {

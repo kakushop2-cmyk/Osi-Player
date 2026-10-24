@@ -20,6 +20,8 @@ class SplashViewModel @Inject constructor(
     fun saveAccount(account: Account) = preferencesManager.saveAccount(account)
     fun setActiveAccount(accountId: String) = preferencesManager.setActiveAccount(accountId)
     fun deleteAccount(accountId: String) = preferencesManager.deleteAccount(accountId)
+    fun isDemoMode(): Boolean = preferencesManager.isDemoMode()
+    fun setDemoMode(enabled: Boolean) = preferencesManager.setDemoMode(enabled)
 
     fun clearWatchHistory() {
         viewModelScope.launch {

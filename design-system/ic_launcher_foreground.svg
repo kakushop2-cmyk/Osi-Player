@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Background gradient: OLED dark with subtle depth -->
+    <radialGradient id="bgGrad" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#181818"/>
+      <stop offset="70%" stop-color="#0D0D0D"/>
+      <stop offset="100%" stop-color="#050505"/>
+    </radialGradient>
+    <!-- Play triangle gradient: bright cyan to brand cyan -->
+    <linearGradient id="playGrad" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#6FF8FF"/>
+      <stop offset="50%" stop-color="#19EAFB"/>
+      <stop offset="100%" stop-color="#0EC4D4"/>
+    </linearGradient>
+    <!-- Play triangle glow -->
+    <filter id="playGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
+      <feFlood flood-color="#19EAFB" flood-opacity="0.4"/>
+      <feComposite in2="blur" operator="in" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background rounded square (icon shape) -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="url(#bgGrad)"/>
+
+  <!-- Subtle border -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="#2A2A2A" stroke-width="1.5"/>
+
+  <!-- Subtle top edge highlight -->
+  <path d="M 112,17 L 400,17" stroke="#FFFFFF" stroke-width="1" opacity="0.04" stroke-linecap="round"/>
+
+  <!-- Signal ring / "O" on the left side -->
+  <circle cx="180" cy="256" r="85" fill="none" stroke="#19EAFB" stroke-width="3" opacity="0.20"/>
+
+  <!-- Play triangle with rounded corners, shifted left -->
+  <!-- Points: center x=180, tip x=240, base x=120 -->
+  <path d="M 120,196 L 240,256 L 120,316 Z"
+        fill="url(#playGrad)"
+        stroke="url(#playGrad)"
+        stroke-width="8"
+        stroke-linejoin="round"
+        filter="url(#playGlow)"/>
+
+  <!-- "si" in star yellow, right next to the ring -->
+  <text x="276" y="274" font-family="sans-serif" font-weight="700" font-size="50" fill="#FFD700">si</text>
+
+  <!-- " Player" in star yellow -->
+  <text x="332" y="274" font-family="sans-serif" font-weight="400" font-size="44" fill="#FFD700"> Player</text>
+
+</svg>

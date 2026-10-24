@@ -27,6 +27,7 @@ class PreferencesManager @Inject constructor(
         private const val KEY_M3U_URL = "m3u_url"
         private const val KEY_PLAYER_SETTINGS = "player_settings"
         private const val KEY_CATEGORY_VISIBILITY = "category_visibility_settings"
+        private const val KEY_DEMO_MODE = "demo_mode"
     }
 
     fun saveAccount(account: Account) {
@@ -38,34 +39,20 @@ class PreferencesManager @Inject constructor(
             accounts.add(account)
         }
         val json = gson.toJson(accounts)
-        prefs.edit().putString(KEY_ACCOUNTS, json).apply()
+        prefs.edit()
+            .putString(KEY_ACCOUNTS, json)
+            .putBoolean(KEY_DEMO_MODE, false)
+            .apply()
     }
 
     fun getAccounts(): List<Account> {
-        val json = prefs.getString(KEY_ACCOUNTS, null) ?: return getDefaultAccounts()
-        val accounts = try {
+        val json = prefs.getString(KEY_ACCOUNTS, null) ?: return emptyList()
+        return try {
             val type = object : TypeToken<List<Account>>() {}.type
-            gson.fromJson<List<Account>>(json, type) ?: getDefaultAccounts()
+            gson.fromJson<List<Account>>(json, type) ?: emptyList()
         } catch (e: Exception) {
-            getDefaultAccounts()
+            emptyList()
         }
-        // Always override the test_account with latest hardcoded credentials
-        val defaults = getDefaultAccounts().associateBy { it.id }
-        val merged = accounts.map { account ->
-            defaults[account.id]?.let { default ->
-                account.copy(
-                    username = default.username,
-                    password = default.password,
-                    domain = default.domain
-                )
-            } ?: account
-        }
-        // Save merged accounts back to persist the change
-        if (merged != accounts) {
-            val json = gson.toJson(merged)
-            prefs.edit().putString(KEY_ACCOUNTS, json).apply()
-        }
-        return merged
     }
 
     fun deleteAccount(accountId: String) {
@@ -92,17 +79,10 @@ class PreferencesManager @Inject constructor(
         return getAccounts().find { it.id == activeId }
     }
 
-    fun getDefaultAccounts(): List<Account> {
-        return listOf(
-            Account(
-                id = "test_account",
-                name = "Test Account",
-                domain = "http://cf.8kdns.cc",
-                username = "Fanatik6161",
-                password = "d836d6f90d",
-                isActive = true
-            )
-        )
+    fun isDemoMode(): Boolean = prefs.getBoolean(KEY_DEMO_MODE, false)
+
+    fun setDemoMode(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_DEMO_MODE, enabled).apply()
     }
 
     fun saveM3uUrl(url: String) {

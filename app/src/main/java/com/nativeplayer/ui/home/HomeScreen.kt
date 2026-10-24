@@ -48,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -1410,7 +1411,7 @@ private fun TopRatedCarouselCard(
                 color = OsiStarYellow
             ) {
                 Text(
-                    "TOP ${String.format("%.0f", movie.rating * 100)}%",
+                    "TOP ${(movie.rating * 20).roundToInt()}%",
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                     color = Color(0xFF000000),
                     fontSize = 11.sp,

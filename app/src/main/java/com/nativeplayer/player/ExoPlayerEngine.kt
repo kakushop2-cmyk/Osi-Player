@@ -1,5 +1,8 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.nativeplayer.player
 
+import androidx.media3.common.util.UnstableApi
 import android.os.Handler
 import android.os.Looper
 import android.view.SurfaceView
@@ -20,9 +23,9 @@ class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
     override var state: PlayerState = PlayerState.IDLE
         private set
     override val currentPosition: Long
-        get() = exoPlayer.currentPosition.coerceAtLeast(0)
+        get() = if (!isReleased) exoPlayer.currentPosition.coerceAtLeast(0) else 0L
     override val duration: Long
-        get() = exoPlayer.duration.coerceAtLeast(0)
+        get() = if (!isReleased) exoPlayer.duration.coerceAtLeast(0) else 0L
     override var isPlaying: Boolean = false
         private set
 
@@ -37,6 +40,7 @@ class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
     private var currentSubtitleTrack: SubtitleTrack? = null
     private var currentAudioTrack: AudioTrack? = null
     private var subtitleView: SubtitleView? = null
+    private var subtitleCueListener: Player.Listener? = null
 
     // Handler für regelmäßige Zeit-Updates (alle 500ms)
     private val timeUpdateHandler = Handler(Looper.getMainLooper())
@@ -157,33 +161,57 @@ class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
 
     override fun setSubtitleView(subtitleView: SubtitleView) {
         this.subtitleView = subtitleView
+        // Vorherigen Cue-Listener entfernen, um Listener-Leaks bei Neuinitialisierung zu vermeiden
+        subtitleCueListener?.let { exoPlayer.removeListener(it) }
         // ExoPlayer-Cue-Listener registrieren, damit Untertitel in die SubtitleView gerendert werden
         subtitleView.setCues(emptyList())
-        exoPlayer.addListener(object : Player.Listener {
+        val listener = object : Player.Listener {
             override fun onCues(cues: CueGroup) {
                 subtitleView.setCues(cues.cues)
             }
-        })
+        }
+        subtitleCueListener = listener
+        exoPlayer.addListener(listener)
     }
 
     override fun play() {
-        if (exoPlayer.playbackState == Player.STATE_IDLE) {
-            exoPlayer.prepare()
+        if (isReleased) return
+        try {
+            if (exoPlayer.playbackState == Player.STATE_IDLE) {
+                exoPlayer.prepare()
+            }
+            exoPlayer.play()
+        } catch (e: IllegalStateException) {
+            lastError = "Fehler beim Abspielen: ${e.message}"
         }
-        exoPlayer.play()
     }
 
     override fun pause() {
-        exoPlayer.pause()
+        if (isReleased) return
+        try {
+            exoPlayer.pause()
+        } catch (e: IllegalStateException) {
+            lastError = "Fehler beim Pausieren: ${e.message}"
+        }
     }
 
     override fun stop() {
+        if (isReleased) return
         stopTimeUpdates()
-        exoPlayer.stop()
+        try {
+            exoPlayer.stop()
+        } catch (e: IllegalStateException) {
+            lastError = "Fehler beim Stoppen: ${e.message}"
+        }
     }
 
     override fun seekTo(positionMs: Long) {
-        exoPlayer.seekTo(positionMs)
+        if (isReleased) return
+        try {
+            exoPlayer.seekTo(positionMs)
+        } catch (e: IllegalStateException) {
+            lastError = "Fehler beim Spulen: ${e.message}"
+        }
     }
 
     override fun setPlaybackSpeed(speed: Float) {
@@ -311,6 +339,9 @@ class ExoPlayerEngine(private val exoPlayer: ExoPlayer) : PlayerEngine {
         if (!isReleased) {
             isReleased = true
             stopTimeUpdates()
+            // Cue-Listener explizit entfernen, bevor der Player freigegeben wird
+            subtitleCueListener?.let { exoPlayer.removeListener(it) }
+            subtitleCueListener = null
             // Reihenfolge ist wichtig: zuerst stop() um die Wiedergabe sofort zu beenden,
             // dann release() um alle Ressourcen freizugeben.
             // Ohne vorheriges stop() könnte der ExoPlayer noch gepufferte Audio-Daten

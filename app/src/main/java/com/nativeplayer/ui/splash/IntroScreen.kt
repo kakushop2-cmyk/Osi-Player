@@ -1,3 +1,5 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.nativeplayer.ui.splash
 
 import android.net.Uri
@@ -43,6 +45,7 @@ import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
 import androidx.navigation.NavController
 import com.nativeplayer.R
+import com.nativeplayer.ads.AdsManager
 import com.nativeplayer.ui.navigation.Screen
 import kotlinx.coroutines.delay
 import kotlin.math.sin
@@ -56,7 +59,6 @@ private data class Star(
     val speed: Float    // individuelle Twinkling-Geschwindigkeit
 )
 
-@OptIn(UnstableApi::class)
 @Composable
 fun IntroScreen(
     navController: NavController,
@@ -64,6 +66,7 @@ fun IntroScreen(
 ) {
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
+    val adShowing by AdsManager.isAdShowing.collectAsState()
     var videoEnded by remember { mutableStateOf(false) }
     var showSkip by remember { mutableStateOf(false) }
     var showErrorOverlay by remember { mutableStateOf(false) }
@@ -147,6 +150,11 @@ fun IntroScreen(
                 }
             })
         }
+    }
+
+    // Intro-Ton pausieren, solange die App-Open-Ad sichtbar ist.
+    LaunchedEffect(adShowing) {
+        exoPlayer.playWhenReady = !adShowing
     }
 
     DisposableEffect(Unit) {

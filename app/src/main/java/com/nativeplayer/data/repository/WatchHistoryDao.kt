@@ -15,7 +15,8 @@ interface WatchHistoryDao {
     @Query("SELECT * FROM watch_history WHERE type != 'live' ORDER BY lastWatchedAt DESC LIMIT :limit")
     fun getRecent(limit: Int): Flow<List<WatchHistoryEntity>>
 
-    @Query("SELECT * FROM watch_history WHERE itemId = :itemId LIMIT 1")
+    /** Liefert den neuesten Eintrag für eine itemId (z.B. die zuletzt gesehene Episode einer Serie). */
+    @Query("SELECT * FROM watch_history WHERE itemId = :itemId ORDER BY lastWatchedAt DESC LIMIT 1")
     suspend fun getByItemId(itemId: String): WatchHistoryEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -175,7 +175,8 @@ private fun SeriesDetailContent(
                                 title = watchHistory.title,
                                 imageUrl = series.posterUrl ?: "",
                                 season = watchHistory.seasonNumber,
-                                episode = watchHistory.episodeNumber
+                                episode = watchHistory.episodeNumber,
+                                resumePosition = watchHistory.position
                             ))
                         }
                         .graphicsLayer { scaleX = pulseScaleResume.value; scaleY = pulseScaleResume.value },

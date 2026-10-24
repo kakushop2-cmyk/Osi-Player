@@ -1,5 +1,8 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.nativeplayer.ui.player
 
+import androidx.media3.common.util.UnstableApi
 import android.util.Log
 import android.view.SurfaceView
 import android.view.SurfaceHolder
@@ -474,9 +477,9 @@ fun PlayerScreen(
     // (z.B. bei Surface-Rekreation oder Retry). Der alte ExoPlayer läuft dann
     // weiter im Hintergrund und erzeugt doppelte Audio-Streams.
     LaunchedEffect(surfaceView, subtitleView, isSurfaceReady, retryTrigger, currentUrl) {
-        Log.d("PlayerScreen", "Player init check: surfaceView=${surfaceView != null}, isSurfaceReady=$isSurfaceReady, url=$currentUrl")
+        Log.d("PlayerScreen", "Player init check: surfaceView=${surfaceView != null}, isSurfaceReady=$isSurfaceReady")
         if (surfaceView != null && isSurfaceReady) {
-            Log.d("PlayerScreen", "Initializing player with url=$currentUrl")
+            Log.d("PlayerScreen", "Initializing player")
             errorMessage = null
             playerState = PlayerState.IDLE
             playerManager?.release()   // Alten Player freigeben

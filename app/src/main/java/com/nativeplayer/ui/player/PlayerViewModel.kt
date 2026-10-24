@@ -72,10 +72,19 @@ class PlayerViewModel @Inject constructor(
         if (duration < 30_000) return // nur bei Inhalten > 30s
         val effectiveId = contentId.ifEmpty { url }
 
+        // Eindeutige ID pro Episode (Serie) bzw. pro Inhalt (Film):
+        // Bei Serien wird Staffel/Episode in die ID aufgenommen, damit sich
+        // Episoden nicht gegenseitig überschreiben.
+        val uniqueKey = if (type == ContentType.SERIES && seasonNumber > 0 && episodeNumber > 0) {
+            "${effectiveId}_S${seasonNumber}E${episodeNumber}"
+        } else {
+            effectiveId
+        }
+
         viewModelScope.launch {
             watchHistoryRepository.savePosition(
                 WatchHistoryEntity(
-                    id = "watch_${effectiveId.hashCode()}",
+                    id = "watch_${uniqueKey.hashCode()}",
                     type = type.name.lowercase(),
                     itemId = effectiveId,
                     title = title,

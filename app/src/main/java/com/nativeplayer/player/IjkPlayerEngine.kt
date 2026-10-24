@@ -1,5 +1,8 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.nativeplayer.player
 
+import androidx.media3.common.util.UnstableApi
 import android.view.SurfaceView
 import androidx.media3.ui.SubtitleView
 

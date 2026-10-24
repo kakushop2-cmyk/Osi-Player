@@ -1,9 +1,0 @@
-{"type":"server-started","port":52486,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:52486","screen_dir":"/home/osi61/nativeplayer/.superpowers/brainstorm/46621-1778756965/content","state_dir":"/home/osi61/nativeplayer/.superpowers/brainstorm/46621-1778756965/state"}
-{"type":"screen-added","file":"/home/osi61/nativeplayer/.superpowers/brainstorm/46621-1778756965/content/visual-style.html"}
-{"source":"user-event","type":"click","text":"▶\n        \n          OSI IPTV\n          Premium Stream\n        \n        ● LIVE\n      \n      \n        \n          📺\n          LIVE\n        \n        \n          🎬\n          Filme\n        \n        \n          📽️\n          Serien\n        \n      \n      ▶ ABSPIELEN\n    \n    \n      Warm Gold — Verfeinert (aktuell, verbessert)\n      Dein bestehender Warm-Dark-Look, aber deutlich verfeinert: bessere Abstände, glattere Radien, weichere Schatten, glasmorphism-artige Elemente. Vertraut, aber deutlich hochwertiger.","choice":"c","id":null,"timestamp":1778757062810}
-{"type":"screen-added","file":"/home/osi61/nativeplayer/.superpowers/brainstorm/46621-1778756965/content/layout-home.html"}
-{"type":"screen-updated","file":"/home/osi61/nativeplayer/.superpowers/brainstorm/46621-1778756965/content/layout-home.html"}
-{"type":"screen-updated","file":"/home/osi61/nativeplayer/.superpowers/brainstorm/46621-1778756965/content/layout-home.html"}
-{"type":"screen-updated","file":"/home/osi61/nativeplayer/.superpowers/brainstorm/46621-1778756965/content/layout-home.html"}
-{"type":"screen-updated","file":"/home/osi61/nativeplayer/.superpowers/brainstorm/46621-1778756965/content/layout-home.html"}
-{"type":"server-stopped","reason":"idle timeout"}

@@ -29,6 +29,9 @@ class CategoryVisibilityViewModelTest {
     @Mock
     private lateinit var preferencesManager: PreferencesManager
 
+    @Mock
+    private lateinit var repository: com.nativeplayer.data.repository.IptvRepository
+
     private lateinit var viewModel: CategoryVisibilityViewModel
 
     private val testDispatcher = StandardTestDispatcher()
@@ -39,7 +42,7 @@ class CategoryVisibilityViewModelTest {
         Dispatchers.setMain(testDispatcher)
         val defaultSettings = CategoryVisibilitySettings()
         whenever(preferencesManager.getCategoryVisibility()).thenReturn(defaultSettings)
-        viewModel = CategoryVisibilityViewModel(preferencesManager)
+        viewModel = CategoryVisibilityViewModel(preferencesManager, repository)
     }
 
     @After

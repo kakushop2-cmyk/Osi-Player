@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.nativeplayer.ads.AdsManager
 import com.nativeplayer.ui.navigation.NavGraph
 import com.nativeplayer.ui.theme.WarmBackground
 import com.nativeplayer.ui.theme.WarmNativePlayerTheme
@@ -26,5 +27,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        // Consent einholen und danach genau eine App-Open-Ad über dem Intro laden.
+        AdsManager.initialize(this)
     }
 }

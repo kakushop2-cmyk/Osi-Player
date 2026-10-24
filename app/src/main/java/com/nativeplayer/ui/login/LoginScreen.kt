@@ -178,12 +178,16 @@ fun LoginScreen(
     val focusManager = LocalFocusManager.current
     val scrollState = rememberScrollState()
 
-    // Auto-navigate on success
+    // Auto-navigate on success, demo starts via Intro (loads the bundled playlist)
     LaunchedEffect(state) {
-        if (state is LoginState.Success) {
-            navController.navigate(Screen.Home.route) {
+        when (state) {
+            is LoginState.Success -> navController.navigate(Screen.Home.route) {
                 popUpTo(Screen.Intro.route) { inclusive = true }
             }
+            is LoginState.Demo -> navController.navigate(Screen.Intro.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
+            }
+            else -> {}
         }
     }
 
@@ -287,7 +291,21 @@ fun LoginScreen(
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(8.dp))
+
+            // Demo without an account – also used for the Play Store review
+            TextButton(
+                onClick = { viewModel.startDemo() },
+                enabled = state !is LoginState.Loading
+            ) {
+                Text(
+                    "Demo ansehen – ohne Konto",
+                    color = WarmTextSecondary,
+                    fontSize = 13.sp
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
 
             // Error banner
             AnimatedVisibility(

@@ -20,7 +20,20 @@ import com.nativeplayer.ui.search.SearchScreen
 import com.nativeplayer.ui.settings.SettingsScreen
 import com.nativeplayer.ui.settings.PlayerSettingsScreen
 import com.nativeplayer.ui.login.LoginScreen
+import com.nativeplayer.ui.legal.LegalScreen
 import com.nativeplayer.ui.splash.IntroScreen
+
+/**
+ * Safe URL decoder: Verhindert Crash bei ungültigen %-Sequenzen
+ * (z.B. Filmtitel mit "%" Zeichen die doppelt dekodiert werden).
+ */
+private fun safeDecode(value: String): String {
+    return try {
+        java.net.URLDecoder.decode(value, "UTF-8")
+    } catch (_: IllegalArgumentException) {
+        value // Bereits dekodiert → sicher verwenden
+    }
+}
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -44,6 +57,10 @@ fun NavGraph(navController: NavHostController) {
 
         composable(Screen.PlayerBarDemo.route) {
             PlayerBarDemoScreen(navController = navController)
+        }
+
+        composable(Screen.Legal.route) {
+            LegalScreen(navController = navController)
         }
 
         // Home Hub - Main entry point
@@ -123,20 +140,12 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         ) { backStackEntry ->
-            val url = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("url") ?: "", "UTF-8"
-            )
+            val url = safeDecode(backStackEntry.arguments?.getString("url") ?: "")
             val type = backStackEntry.arguments?.getString("type") ?: "movie"
-            val contentId = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("contentId") ?: "", "UTF-8"
-            )
-            val contentTitle = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("title") ?: "", "UTF-8"
-            )
+            val contentId = safeDecode(backStackEntry.arguments?.getString("contentId") ?: "")
+            val contentTitle = safeDecode(backStackEntry.arguments?.getString("title") ?: "")
             val resumePosition = backStackEntry.arguments?.getString("resumePosition")?.toLongOrNull() ?: 0L
-            val imageUrl = java.net.URLDecoder.decode(
-                backStackEntry.arguments?.getString("imageUrl") ?: "", "UTF-8"
-            )
+            val imageUrl = safeDecode(backStackEntry.arguments?.getString("imageUrl") ?: "")
             val seasonNumber = backStackEntry.arguments?.getString("season")?.toIntOrNull() ?: -1
             val episodeNumber = backStackEntry.arguments?.getString("episode")?.toIntOrNull() ?: -1
             PlayerScreen(

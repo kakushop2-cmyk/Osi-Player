@@ -1,10 +1,12 @@
 package com.nativeplayer.ui.splash
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nativeplayer.data.repository.IptvRepository
 import com.nativeplayer.data.repository.PreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +23,8 @@ sealed class IntroState {
 @HiltViewModel
 class IntroViewModel @Inject constructor(
     private val repository: IptvRepository,
-    private val preferencesManager: PreferencesManager
+    private val preferencesManager: PreferencesManager,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<IntroState>(IntroState.Loading)
@@ -35,9 +38,39 @@ class IntroViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = IntroState.Loading
 
+            // Demo-Modus: gebündelte, rechtlich unbedenkliche Teststreams.
+            // Wird für die Play-Store-Prüfung und zum Ausprobieren ohne Konto genutzt.
+            if (preferencesManager.isDemoMode()) {
+                try {
+                    val playlist = context.assets.open("demo.m3u")
+                        .bufferedReader()
+                        .use { it.readText() }
+                    repository.fetchPlaylistFromString(playlist)
+                    _state.value = IntroState.Success
+                } catch (e: Exception) {
+                    _state.value = IntroState.Error(
+                        "Demo konnte nicht geladen werden: ${e.message ?: "Unbekannter Fehler"}"
+                    )
+                }
+                return@launch
+            }
+
             val activeAccount = preferencesManager.getActiveAccount()
+            val m3uUrl = preferencesManager.getM3uUrl()
 
             if (activeAccount == null || activeAccount.domain.isBlank()) {
+                // M3U-Playlist aus einer früheren Sitzung wieder laden.
+                if (m3uUrl.isNotBlank()) {
+                    try {
+                        repository.fetchPlaylist(m3uUrl)
+                        _state.value = IntroState.Success
+                    } catch (e: Exception) {
+                        _state.value = IntroState.Error(
+                            "Playlist konnte nicht geladen werden: ${e.message ?: "Unbekannter Fehler"}"
+                        )
+                    }
+                    return@launch
+                }
                 _state.value = IntroState.NoAccount
                 return@launch
             }

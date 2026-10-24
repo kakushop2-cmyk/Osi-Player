@@ -1,3 +1,5 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.nativeplayer.ui.home
 
 import android.util.Log
@@ -54,7 +56,7 @@ import kotlin.random.Random
 private const val CLIP_DURATION_MS = 60_000L // 60 seconds
 private const val TAG = "HeroVideoPlayer"
 
-@OptIn(ExperimentalMaterial3Api::class, UnstableApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HeroVideoPlayer(
     movie: Movie?,

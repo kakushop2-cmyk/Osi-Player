@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -6,16 +8,56 @@ plugins {
     kotlin("kapt")
 }
 
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties().apply {
+    if (keystorePropertiesFile.exists()) {
+        keystorePropertiesFile.inputStream().use { load(it) }
+    }
+}
+
+// AdMob-IDs können in local.properties überschrieben werden:
+//   admob.appId=ca-app-pub-...
+//   admob.appOpenUnitId=ca-app-pub-.../...
+// Ohne Eintrag laufen die offiziellen Google-Test-IDs.
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val admobAppId = localProperties.getProperty("admob.appId")
+    ?: "ca-app-pub-3940256099942544~3347511713"
+val admobAppOpenUnitId = localProperties.getProperty("admob.appOpenUnitId")
+    ?: "ca-app-pub-3940256099942544/9257395921"
+
 android {
     namespace = "com.nativeplayer"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.nativeplayer"
+        // Play-Paketname: muss weltweit eindeutig sein. Vor dem ersten Upload prüfen!
+        applicationId = "com.osiplayer.app"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
+
+        manifestPlaceholders["admobAppId"] = admobAppId
+        buildConfigField("String", "ADMOB_APP_OPEN_UNIT_ID", "\"$admobAppOpenUnitId\"")
+        buildConfigField(
+            "String",
+            "PRIVACY_POLICY_URL",
+            "\"${localProperties.getProperty("privacyPolicyUrl") ?: ""}\""
+        )
+    }
+
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
@@ -25,6 +67,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
@@ -39,6 +84,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -64,8 +110,9 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer-hls:1.4.1")
     implementation("androidx.media3:media3-ui:1.4.1")
 
-    // IJKPlayer (fallback) - removed: JitPack no longer hosts bilibili artifacts
-    // If needed, build IJKPlayer from source: https://github.com/bilibili/ijkplayer
+    // Google Mobile Ads (App Open Ad) + UMP Consent
+    implementation("com.google.android.gms:play-services-ads:23.6.0")
+    implementation("com.google.android.ump:user-messaging-platform:3.0.0")
 
     // Hilt DI
     implementation("com.google.dagger:hilt-android:2.51.1")
@@ -99,7 +146,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.robolectric:robolectric:4.11.1")
-    
+
+    androidTestImplementation(composeBom)
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")

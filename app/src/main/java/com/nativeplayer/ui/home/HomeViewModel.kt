@@ -1,5 +1,8 @@
+@file:androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
+
 package com.nativeplayer.ui.home
 
+import androidx.media3.common.util.UnstableApi
 import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.ViewModel
@@ -55,10 +58,10 @@ class HomeViewModel @Inject constructor(
             if (heroPlayers.size >= maxCachedPlayers) {
                 val oldest = heroPlayers.keys.first()
                 heroPlayers.remove(oldest)?.release()
-                Log.d(TAG, "Released oldest cached player: ${oldest.take(60)}")
+                Log.d(TAG, "Released oldest cached hero player")
             }
 
-            Log.d(TAG, "Creating new ExoPlayer for: ${streamUrl.take(80)}")
+            Log.d(TAG, "Creating new ExoPlayer")
             val player = ExoPlayer.Builder(application)
                 .setMediaSourceFactory(
                     DefaultMediaSourceFactory(
@@ -85,7 +88,7 @@ class HomeViewModel @Inject constructor(
         synchronized(heroPlayerLock) {
             val player = heroPlayers[streamUrl] ?: return
 
-            Log.d(TAG, "prepareAndPlayHero: ${streamUrl.take(80)}")
+            Log.d(TAG, "prepareAndPlayHero")
             val mediaItem = MediaItem.fromUri(Uri.parse(streamUrl))
 
             // Player zurücksetzen und neu starten
@@ -104,7 +107,7 @@ class HomeViewModel @Inject constructor(
                 it.playWhenReady = false
                 it.stop()
                 it.clearMediaItems()
-                Log.d(TAG, "Stopped hero player: ${streamUrl.take(60)}")
+                Log.d(TAG, "Stopped hero player")
             }
         }
     }
@@ -141,7 +144,7 @@ class HomeViewModel @Inject constructor(
             .reversed()
         Log.d(TAG, "latestContent: ${validMovies.size} valid movies (from ${allMovies.size} total)")
         if (validMovies.isNotEmpty()) {
-            Log.d(TAG, "Hero movie: ${validMovies.first().title} → ${validMovies.first().streamUrl.take(80)}")
+            Log.d(TAG, "Hero movie: ${validMovies.first().title}")
         }
         validMovies
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -235,7 +238,7 @@ class HomeViewModel @Inject constructor(
         return iptvRepository.getMovies()
             .filter { movie ->
                 movie.streamUrl.isNotEmpty()
-                    && movie.rating >= 0.6f  // 3/5 Sterne
+                    && movie.rating >= 3.0f  // 3/5 Sterne
                     && (movie.title.contains("2025", ignoreCase = true)
                         || movie.title.contains("2026", ignoreCase = true))
             }
@@ -271,7 +274,7 @@ class HomeViewModel @Inject constructor(
     // ── Top Bewertete Filme (≥80% / rating ≥ 0.8) ───────────
     val topRatedMovies: StateFlow<List<Movie>> = pollingFlow(30_000L) {
         iptvRepository.getMovies()
-            .filter { it.streamUrl.isNotEmpty() && it.rating >= 0.8f }
+            .filter { it.streamUrl.isNotEmpty() && it.rating >= 4.0f }
             .shuffled()
             .take(10)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())

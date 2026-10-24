@@ -28,6 +28,7 @@ class IptvRepository @Inject constructor(
     private var cachedSeries: List<Series> = emptyList()
     private var cachedSeriesByCategory: Map<String, List<Series>> = emptyMap()
     private var cachedSeriesCategoryOrder: List<String> = emptyList()
+    private var cachedUserInfo: UserInfo? = null
     private var isDataLoaded = false
 
     // ── Xtream API helper ─────────────────────────────────────
@@ -57,6 +58,7 @@ class IptvRepository @Inject constructor(
             if (loginResponse.userInfo.auth != 1) {
                 return@withContext false
             }
+            cachedUserInfo = loginResponse.userInfo
 
             // 2. Load live categories (used for mapping category_id -> name)
             val liveCategoryMap = try {
@@ -112,9 +114,9 @@ class IptvRepository @Inject constructor(
                 cachedMovieCategoryOrder = applyUserStringOrder(cachedMoviesByCategory.keys.toList(), "movies")
             } catch (e: Exception) {
                 Log.e("IptvRepository", "Fehler beim Laden der VOD-Streams", e)
-                cachedMovies = sampleMovies
-                cachedMoviesByCategory = sampleMovies.groupBy { it.category }
-                cachedMovieCategoryOrder = applyUserStringOrder(cachedMoviesByCategory.keys.toList(), "movies")
+                cachedMovies = emptyList()
+                cachedMoviesByCategory = emptyMap()
+                cachedMovieCategoryOrder = emptyList()
             }
 
             // 5. Load series categories + series
@@ -145,9 +147,9 @@ class IptvRepository @Inject constructor(
                 cachedSeriesCategoryOrder = applyUserStringOrder(cachedSeriesByCategory.keys.toList(), "series")
             } catch (e: Exception) {
                 Log.e("IptvRepository", "Fehler beim Laden der Serien-Liste", e)
-                cachedSeries = sampleSeries
-                cachedSeriesByCategory = sampleSeries.groupBy { it.category }
-                cachedSeriesCategoryOrder = applyUserStringOrder(cachedSeriesByCategory.keys.toList(), "series")
+                cachedSeries = emptyList()
+                cachedSeriesByCategory = emptyMap()
+                cachedSeriesCategoryOrder = emptyList()
             }
 
             preferencesManager.saveAccount(account)
@@ -246,12 +248,14 @@ class IptvRepository @Inject constructor(
         val body = response.body?.string() ?: return@withContext emptyList<Channel>()
         cachedChannels = M3uParser.parse(body)
         cachedCategories = applyUserCategoryAndChannelOrder(M3uParser.groupByCategory(cachedChannels))
+        isDataLoaded = true
         cachedChannels
     }
 
     suspend fun fetchPlaylistFromString(content: String): List<Channel> = withContext(Dispatchers.IO) {
         cachedChannels = M3uParser.parse(content)
         cachedCategories = applyUserCategoryAndChannelOrder(M3uParser.groupByCategory(cachedChannels))
+        isDataLoaded = true
         cachedChannels
     }
 
@@ -265,6 +269,21 @@ class IptvRepository @Inject constructor(
     fun getSeriesByCategory(): Map<String, List<Series>> = cachedSeriesByCategory
     fun getOrderedSeriesCategories(): List<String> = cachedSeriesCategoryOrder
     fun isLoaded(): Boolean = isDataLoaded
+    fun getCachedUserInfo(): UserInfo? = cachedUserInfo
+
+    /** Ruft Account-Info frisch von der API ab. */
+    suspend fun fetchUserInfo(): UserInfo? {
+        val account = preferencesManager.getActiveAccount() ?: return cachedUserInfo
+        return try {
+            val api = getApi(account)
+            val response = api.authenticate(account.username, account.password)
+            cachedUserInfo = response.userInfo
+            response.userInfo
+        } catch (e: Exception) {
+            Log.e("IptvRepository", "Fehler beim Abruf der UserInfo", e)
+            cachedUserInfo
+        }
+    }
 
     /** Returns the names of all cached live TV categories (from Xtream API). */
     fun getLiveCategoryNames(): List<String> = cachedCategories.map { it.name }.sorted()
@@ -434,30 +453,4 @@ class IptvRepository @Inject constructor(
         return null
     }
 
-    // ── Sample fallback data ──────────────────────────────────
-    private val sampleMovies = listOf(
-        Movie("m1", "Inception", null, "2010", 8.8f, "A thief who steals corporate secrets...", "Action", ""),
-        Movie("m2", "The Matrix", null, "1999", 8.7f, "A computer hacker learns...", "Action", ""),
-        Movie("m3", "Interstellar", null, "2014", 8.6f, "A team of explorers travel...", "Sci-Fi", ""),
-        Movie("m4", "The Dark Knight", null, "2008", 9.0f, "Batman faces the Joker...", "Action", ""),
-        Movie("m5", "Pulp Fiction", null, "1994", 8.9f, "Various interconnected stories...", "Drama", ""),
-        Movie("m6", "Fight Club", null, "1999", 8.8f, "An insomniac office worker...", "Drama", ""),
-        Movie("m7", "Forrest Gump", null, "1994", 8.8f, "The presidencies of Kennedy...", "Drama", ""),
-        Movie("m8", "Star Wars", null, "1977", 8.6f, "Luke Skywalker joins forces...", "Sci-Fi", "")
-    )
-
-    private val sampleSeries = listOf(
-        Series("s1", "Breaking Bad", null, "2008", 9.5f, "A chemistry teacher...", "Drama",
-            listOf(Season(1, listOf(Episode("e1", "Pilot", 1, ""), Episode("e2", "Cat's in the Bag", 2, ""))))),
-        Series("s2", "Stranger Things", null, "2016", 8.7f, "Kids uncover a dark secret...", "Sci-Fi",
-            listOf(Season(1, listOf(Episode("e1", "Chapter One", 1, ""))))),
-        Series("s3", "Game of Thrones", null, "2011", 9.2f, "Nine noble families...", "Fantasy",
-            listOf(Season(1, listOf(Episode("e1", "Winter Is Coming", 1, ""))))),
-        Series("s4", "The Crown", null, "2016", 8.6f, "Queen Elizabeth II's reign...", "Drama",
-            listOf(Season(1, listOf(Episode("e1", "Wolferton Splash", 1, ""))))),
-        Series("s5", "The Office", null, "2005", 8.9f, "Mockumentary on a paper company...", "Comedy",
-            listOf(Season(1, listOf(Episode("e1", "Pilot", 1, ""))))),
-        Series("s6", "Black Mirror", null, "2011", 8.7f, "Twilight Zone-style stories...", "Sci-Fi",
-            listOf(Season(1, listOf(Episode("e1", "The National Anthem", 1, "")))))
-    )
 }

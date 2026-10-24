@@ -1,0 +1,29 @@
+# Android / Gradle
+*.iml
+.gradle/
+/app/build/
+build/
+/local.properties
+/.idea/
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx
+.kotlin/
+*.hprof
+
+# Signing (niemals committen)
+keystore.properties
+*.jks
+*.keystore
+
+# Lokale Datenbanken
+agentdb.db*
+
+# Agent-/Brainstorming-Zustand
+.superpowers/
+
+# Lokale Design-Exporte (nicht Teil des Builds)
+/app_icon.png
+/app_icon_new.png
+/screenshot.png
