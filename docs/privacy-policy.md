@@ -4,11 +4,8 @@
 
 ## 1. Verantwortlicher
 
-[VOR- UND NACHNAME]
-[STRASSE, HAUSNUMMER]
-[PLZ, ORT]
-[LAND]
-E-Mail: [DEINE-E-MAIL-ADRESSE]
+Osman Kuvvet
+E-Mail: kuvvet.osman@gmail.com
 
 ## 2. Worum es geht
 
@@ -87,4 +84,4 @@ dieser URL abrufbar.
 
 ## 8. Kontakt
 
-Bei Fragen zum Datenschutz: [DEINE-E-MAIL-ADRESSE]
+Bei Fragen zum Datenschutz: kuvvet.osman@gmail.com
